@@ -1,0 +1,8 @@
+GET / HTTP/1.1
+host: www.baus.net
+connection: keep-alive
+
+GET / HTTP/1.1
+host: stage.baus.net
+connection: close
+

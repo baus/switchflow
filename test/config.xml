@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<proxy-config>
+<run-as-daemon>no</run-as-daemon>
+<listen-address>127.0.0.1</listen-address>
+<listen-port>10001</listen-port>
+<forward-address>127.0.0.1</forward-address>
+<forward-port>10000</forward-port>
+<max-connections>500</max-connections>
+<input-buffer-size>5000</input-buffer-size>
+<max-method-length>10</max-method-length>
+<max-URI-length>10</max-URI-length>
+<max-num-headers>20</max-num-headers>
+<max-header-name-length>50</max-header-name-length>
+<max-header-value-length>50</max-header-value-length>
+<max-chunksize-length>10</max-chunksize-length>
+<client-timeout-milliseconds>30000</client-timeout-milliseconds>
+<server-timeout-milliseconds>10000</server-timeout-milliseconds>
+</proxy-config>

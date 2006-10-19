@@ -1,0 +1,129 @@
+ifndef BOOSTDIR
+BOOSTDIR = ../../boost_1_33_1
+endif
+
+CXXFLAGS = -g -O2 -Wall -mthreads -I../include -I$(BOOSTDIR)
+LDFLAGS = -g -O2 -mthreads
+LIBS = -lws2_32 -lmswsock
+DEFINES = -D_WIN32_WINNT=0x0500
+
+PERFORMANCE_TEST_EXES = \
+	tests/performance/client.exe \
+	tests/performance/server.exe
+
+UNIT_TEST_EXES = \
+	tests/unit/basic_datagram_socket_test.exe \
+	tests/unit/basic_deadline_timer_test.exe \
+	tests/unit/basic_resolver_test.exe \
+	tests/unit/basic_socket_acceptor_test.exe \
+	tests/unit/basic_strand_test.exe \
+	tests/unit/basic_stream_socket_test.exe \
+	tests/unit/buffered_read_stream_test.exe \
+	tests/unit/buffered_stream_test.exe \
+	tests/unit/buffered_write_stream_test.exe \
+	tests/unit/buffer_test.exe \
+	tests/unit/completion_condition_test.exe \
+	tests/unit/datagram_socket_service_test.exe \
+	tests/unit/deadline_timer_service_test.exe \
+	tests/unit/deadline_timer_test.exe \
+	tests/unit/io_service_test.exe \
+	tests/unit/error_handler_test.exe \
+	tests/unit/error_test.exe \
+	tests/unit/ip/address_test.exe \
+	tests/unit/ip/address_v4_test.exe \
+	tests/unit/ip/address_v6_test.exe \
+	tests/unit/ip/basic_endpoint_test.exe \
+	tests/unit/ip/basic_resolver_entry_test.exe \
+	tests/unit/ip/basic_resolver_iterator_test.exe \
+	tests/unit/ip/basic_resolver_query_test.exe \
+	tests/unit/ip/host_name_test.exe \
+	tests/unit/ip/multicast_test.exe \
+	tests/unit/ip/resolver_query_base_test.exe \
+	tests/unit/ip/tcp_test.exe \
+	tests/unit/ip/udp_test.exe \
+	tests/unit/is_read_buffered_test.exe \
+	tests/unit/is_write_buffered_test.exe \
+	tests/unit/placeholders_test.exe \
+	tests/unit/read_test.exe \
+	tests/unit/resolver_service_test.exe \
+	tests/unit/socket_acceptor_service_test.exe \
+	tests/unit/socket_base_test.exe \
+	tests/unit/strand_service_test.exe \
+	tests/unit/strand_test.exe \
+	tests/unit/stream_socket_service_test.exe \
+	tests/unit/thread_test.exe \
+	tests/unit/time_traits_test.exe \
+	tests/unit/write_test.exe
+
+EXAMPLE_EXES = \
+	examples/allocation/server.exe \
+	examples/buffers/reference_counted.exe \
+	examples/chat/chat_client.exe \
+	examples/chat/chat_server.exe \
+	examples/echo/async_tcp_echo_server.exe \
+	examples/echo/async_udp_echo_server.exe \
+	examples/echo/blocking_tcp_echo_client.exe \
+	examples/echo/blocking_tcp_echo_server.exe \
+	examples/echo/blocking_udp_echo_client.exe \
+	examples/echo/blocking_udp_echo_server.exe \
+	examples/iostreams/daytime_client.exe \
+	examples/iostreams/daytime_server.exe \
+	examples/multicast/receiver.exe \
+	examples/multicast/sender.exe \
+	examples/timeouts/accept_timeout.exe \
+	examples/timeouts/connect_timeout.exe \
+	examples/timeouts/datagram_receive_timeout.exe \
+	examples/timeouts/stream_receive_timeout.exe \
+	examples/tutorial/timer1/timer.exe \
+	examples/tutorial/timer2/timer.exe \
+	examples/tutorial/timer3/timer.exe \
+	examples/tutorial/timer4/timer.exe \
+	examples/tutorial/timer5/timer.exe \
+	examples/tutorial/daytime1/client.exe \
+	examples/tutorial/daytime2/server.exe \
+	examples/tutorial/daytime3/server.exe \
+	examples/tutorial/daytime4/client.exe \
+	examples/tutorial/daytime5/server.exe \
+	examples/tutorial/daytime6/server.exe \
+	examples/tutorial/daytime7/server.exe
+
+HTTP_EXAMPLE_EXES = \
+	examples/http/server/http_server.exe
+
+all: \
+	$(PERFORMANCE_TEST_EXES) \
+	$(UNIT_TEST_EXES) \
+	$(EXAMPLE_EXES) \
+	$(HTTP_EXAMPLE_EXES)
+
+check: $(UNIT_TEST_EXES) $(addprefix run.,$(UNIT_TEST_EXES))
+
+$(addprefix run.,$(UNIT_TEST_EXES))::
+	@echo === Running $(@:run.%=%) ===
+	@$(@:run.%=%)
+	@echo.
+
+clean:
+	-rm -f $(PERFORMANCE_TEST_EXES)
+	-rm -f $(PERFORMANCE_TEST_EXES:.exe=.o)
+	-rm -f $(UNIT_TEST_EXES)
+	-rm -f $(UNIT_TEST_EXES:.exe=.o)
+	-rm -f $(EXAMPLE_EXES)
+	-rm -f $(EXAMPLE_EXES:.exe=.o)
+
+$(PERFORMANCE_TEST_EXES) $(UNIT_TEST_EXES) $(EXAMPLE_EXES): %.exe: %.o
+	g++ -o$@ $(LDFLAGS) $< $(LIBS)
+
+examples/http/server/http_server.exe: \
+		examples/http/server/connection.o \
+		examples/http/server/connection_manager.o \
+		examples/http/server/mime_types.o \
+		examples/http/server/reply.o \
+		examples/http/server/request_handler.o \
+		examples/http/server/request_parser.o \
+		examples/http/server/server.o \
+		examples/http/server/win_main.o
+	g++ -o$@ $(LDFLAGS) $^ $(LIBS)
+
+.cpp.o:
+	g++ -o$@ -c $(CXXFLAGS) $(DEFINES) $<

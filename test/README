@@ -1,0 +1,29 @@
+This directory contains test scripts for the ssvs proxy.  Testing the proxy requires three components.  
+
+1) the client component.  This must simulate HTTP browser requests.  This could be a perl script, flood test, etc.
+
+2) the ssvs proxy.  This is the component we are actually testing.  The client makes requests directly to ssvs and assumes that it is the origin server, which it is not.  It is only an intermediary between the client and server.  
+
+3) an origin server.  This simply an HTTP server which the proxy sends requests to.  I'm using thttpd as the origin server because it is small and fast.  thttpd is configured to retrieve files from the $TALLAC/test/www directory.   
+
+I have written some simple scripts to get the test environment.  The environment TALLAC must point to the project trunk, commonly ~/tallac.  
+
+To build the test components (not including ssvs).
+
+./buildtools.sh  This really only needs to be done once
+
+After the test components are built, you must have a valid ssvs proxy built in $TALLAC/httpproxy/src.  Please follow directions in the $TALLAC/README to build ssvs.  
+
+Now call:
+
+./getbuild.sh to get the latest build from $TALLAC/httpproxy/src.
+
+./startservers.sh will start thttpd and ssvs.  thttpd will listen on port 10000 ssvs will listen on 10001.  
+
+./runstress.sh will start the flood stress test.  
+
+The flood stress test configuration file is floodscript.xml.  
+
+
+
+  

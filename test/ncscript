@@ -1,0 +1,5 @@
+#/bin/sh
+
+while [ 1 -lt 2 ]; do
+  cat nctest2 | nc "127.0.0.1" "80"
+done

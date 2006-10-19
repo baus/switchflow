@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<proxy-config>
+<run-as-daemon>no</run-as-daemon>
+<listen-address>localhost</listen-address>
+<listen-port>80</listen-port>
+<forward-address>www.baus.net</forward-address>
+<forward-port>80</forward-port>
+<max-connections>500</max-connections>
+<input-buffer-size>5000</input-buffer-size>
+<max-method-length>256</max-method-length>
+<max-URI-length>256</max-URI-length>
+<max-num-headers>50</max-num-headers>
+<max-header-name-length>256</max-header-name-length>
+<max-header-value-length>256</max-header-value-length>
+<max-chunksize-length>10</max-chunksize-length>
+<client-timeout-milliseconds>30000</client-timeout-milliseconds>
+<server-timeout-milliseconds>10000</server-timeout-milliseconds>
+</proxy-config>

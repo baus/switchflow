@@ -1,0 +1,28 @@
+TODO:
+
+PROXY CORE:
+* finish buffer management 
+* finish clean shutdown
+* URL parsing
+
+LOGGING:
+* ERROR LOG
+* ACCESS LOG
+* can we make logging async through pth?  Using custom appender.
+
+CONFIGURATION UI:
+* Basic Authentication over SSL
+* Apache in seperate process with mod_php
+* Restart proxy process using HUP signal
+* XML resource file that has meta about properties allows string to be internationalized
+* modify current properties in 
+* Logviewer
+
+Administration:
+* install mantis
+* thirdparty build
+* authentication of subversion
+
+
+
+

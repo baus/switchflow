@@ -1,0 +1,82 @@
+# Boost serialization Library Build Jamfile
+#  (C) Copyright Robert Ramey 2002-2004.
+#  Use, modification, and distribution are subject to the 
+#  Boost Software License, Version 1.0. (See accompanying file 
+#  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+#
+#  See http://www.boost.org/libs/serialization for the library home page.
+
+# building this library needs a working version of spirit
+rule toolset::require-boost-spirit-support ( toolset variant : subvariant-path properties * )
+{
+    local requires-spirit = false ;
+    switch $(toolset) {
+    case "borland*" :
+        requires-spirit = true ;
+    case "msvc*" :
+        requires-spirit = true ;
+    case "iw*" :
+        requires-spirit = true ;
+    case "vc-6*" :
+        requires-spirit = true ;
+    case "vc7*" :
+        requires-spirit = true ;
+    case "vc-7_0*" :
+        requires-spirit = true ;
+    case "gcc-2*" :
+        requires-spirit = true ;
+    }
+    if $(requires-spirit) = true {
+        if  $(SPIRIT_ROOT) # && ( exist $(SPIRIT_ROOT) )
+        {
+            properties += <include>$(SPIRIT_ROOT) ;
+        }
+        else {
+            echo **** spirit 1.6x required to build library with this compiler **** ;
+            properties = [ impose-requirements $(properties) : <build>no ] ;
+        }
+    }
+    return $(subvariant-path) $(properties) ;
+}
+
+# certain tool sets are known apriori not to support wide char i/o
+rule toolset::require-wide-char-io-support ( toolset variant : subvariant-path properties * )
+{
+    switch $(toolset) {
+    case "*cygwin" :
+        echo **** wide char i/o not supported by cygwin gcc library **** ;
+        properties = [ impose-requirements $(properties) : <build>no ] ;
+
+    case "como*" :
+        echo **** wide char i/o not supported by libcomo standard library **** ;
+        properties = [ impose-requirements $(properties) : <build>no ] ;
+    case "mingw*" :
+        echo **** wide char i/o not supported by the mingw standard library **** ;
+        properties = [ impose-requirements $(properties) : <build>no ] ;
+    }
+    return $(subvariant-path) $(properties) ;
+}
+
+# certain tool sets are known apriori not to support creation of DLLS
+rule toolset::require-shared-libraries-support ( toolset variant : subvariant-path properties * )
+{
+    switch $(toolset) {
+    case "como*" :
+        echo **** DLLs cannot be built with this compiler **** ;
+        properties = [ impose-requirements $(properties) : <build>no ] ;
+    case "msvc-stlport*" :
+        echo **** DLLs cannot be built with this compiler and stlport 4.x **** ;
+        properties = [ impose-requirements $(properties) : <build>no ] ;
+    case "vc-6_5-stlport*" :
+        echo **** DLLs cannot be built with this compiler and stlport 4.x **** ;
+        properties = [ impose-requirements $(properties) : <build>no ] ;
+    case "cw*" :
+        local runtime-link = [ get-values <runtime-link> : $(properties) ] ;
+        if static in $(runtime-link) {
+            echo **** locale support only exists with static runtime linking **** ;
+            echo **** DLLS cannot be built with static runtime linking **** ;
+            properties = [ impose-requirements $(properties) : <build>no ] ;
+        }
+    }
+    return $(subvariant-path) $(properties) ;
+}

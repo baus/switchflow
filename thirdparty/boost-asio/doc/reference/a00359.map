@@ -1,0 +1,10 @@
+base referer
+rect $a00131.html 8,157 394,184
+rect $a00132.html 418,157 917,184
+rect $a00153.html 941,157 1245,184
+rect $a00156.html 1269,157 1648,184
+rect $a00129.html 1672,157 1904,184
+rect $a00163.html 1928,157 2152,184
+rect $a00159.html 2176,157 2362,184
+rect $a00164.html 2386,157 2752,184
+rect external.doxytags$noncopyable.html 1560,8 1685,34

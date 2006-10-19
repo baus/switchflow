@@ -1,0 +1,32 @@
+Thank you for downloading the SwitchFlow Reverse Proxy server.
+Your feedback is greatly appreciated. 
+
+The server features support for virtual host redirection, and can
+spread the load from one IP address with multiple virtual host addresses across 
+multiple backend servers.  This can be used in environments that host many 
+web sites, but have a limited number of IP addresses.
+
+This build has been tested on Linux 2.6 x86 kernels.
+
+== Quick Start ==
+
+The server can be started with:
+
+sfrp -f /path/to/config/file
+
+With no parameters the server looks for the configuration 
+file at /etc/sfrp.conf
+
+All errors are logged to syslogd
+
+sfrp --version prints the current build
+sfrp --copyright prints the copyright information
+
+An example configuration file is included.
+
+More information can be found at my web site at http://baus.net/ 
+or you can e-mail me at christopher@baus.net.
+
+
+- Christopher Baus
+Developer, SwitchFlow Reverse Proxy

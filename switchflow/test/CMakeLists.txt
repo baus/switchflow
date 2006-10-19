@@ -1,0 +1,6 @@
+ADD_EXECUTABLE(performance_test pooled_list_performance_test.cpp)
+
+TARGET_LINK_LIBRARIES(performance_test util)
+
+ADD_EXECUTABLE(configfiletest configfiletest.cpp)
+TARGET_LINK_LIBRARIES(configfiletest util)
