@@ -1,3 +1,6 @@
+case $0 in /*) echo $0;; *) echo `pwd`/$0;; esac
+exit
+
 rm -f $TALLAC/thirdparty/lib/debug/*
 rm -f $TALLAC/thirdparty/lib/release/*
 
