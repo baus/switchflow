@@ -11,10 +11,10 @@ sh buildthirdparty.sh
 popd
 
 sh ./configbuild.sh
-cd $TALLAC/sfrp-release
+cd $TALLAC/release/sfrp
 make clean
 make
-cd $TALLAC/sfrp-debug
+cd $TALLAC/debug/sfrp
 make clean
 make
 
