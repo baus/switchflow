@@ -27,4 +27,4 @@ ${SFRP_SOURCE_DIR}/../thirdparty/boost-asio/include
 )
 
 
-SUBDIRS(../switchflow proxylib app)
+SUBDIRS(${SFRP_SOURCE_DIR}/../switchflow/http ${SFRP_SOURCE_DIR}/../switchflow/event ${SFRP_SOURCE_DIR}/../switchflow/socketlib ${SFRP_SOURCE_DIR}/../switchflow/util proxylib app)
