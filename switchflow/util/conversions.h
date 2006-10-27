@@ -1,3 +1,7 @@
+//
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 #ifndef CONVERSIONS_H
 #define CONVERSIONS_H
 

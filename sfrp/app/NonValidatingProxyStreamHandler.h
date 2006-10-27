@@ -1,3 +1,7 @@
+//
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 #ifndef NON_VALIDATING_PROXY_STREAM_HANDLER_H__
 #define NON_VALIDATING_PROXY_STREAM_HANDLER_H__
 

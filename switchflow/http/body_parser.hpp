@@ -1,3 +1,7 @@
+//
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 #ifndef SSD_BODYPARSER_HPP
 #define SSD_BODYPARSER_HPP
 

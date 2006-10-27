@@ -1,3 +1,7 @@
+//
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 // Copyright (c) 2005-2006
 // Christopher Baus http://baus.net/ (christopher at baus dot net)
 //

@@ -1,4 +1,8 @@
 //
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
+//
 // Copyright (C) Christopher Baus 2004-2005  All rights reserved.
 #ifndef IPROXYSTREAMHANDLER_H
 #define IPROXYSTREAMHANDLER_H

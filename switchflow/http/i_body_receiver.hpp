@@ -1,3 +1,7 @@
+//
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 #ifndef HTTPBodyReceiver_H
 #define HTTPBodyReceiver_H
 

@@ -1,3 +1,7 @@
+//
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 #ifndef HTTP_CLIENT_HANDLERS_H__
 #define HTTP_CLIENT_HANDLERS_H__
 

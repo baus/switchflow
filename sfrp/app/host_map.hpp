@@ -1,4 +1,8 @@
 //
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
+//
 // Copyright (c) Christopher Baus.  All rights reserved.
 #ifndef SFRP_HOST_MAP
 #define SFRP_HOST_MAP

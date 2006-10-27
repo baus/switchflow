@@ -1,3 +1,7 @@
+//
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 #include <boost/config.hpp>
 #ifndef BOOST_WINDOWS
 #include <syslog.h>

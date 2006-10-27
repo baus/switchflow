@@ -1,4 +1,8 @@
 //
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
+//
 // Copyright (C) Christopher Baus.  All Rights Reserved
 //
 #ifndef SSD_HTTPHeaderParser_hpp

@@ -1,3 +1,7 @@
+//
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 // Class for reading named values from configuration files
 // Richard J. Wagner  v2.1  24 May 2004  wagnerr@umich.edu
 

@@ -1,4 +1,8 @@
 //
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
+//
 // IData provider allows the retrieval of data
 // to be extensible.  The client decides how
 // data will be retrieved and presented to the parser.

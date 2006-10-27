@@ -1,3 +1,7 @@
+//
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 #ifndef SS_I_HTTP_CLIENT_HPP
 #define SS_I_HTTP_CLIENT_HPP
 

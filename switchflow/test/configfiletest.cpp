@@ -1,3 +1,7 @@
+//
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 // configfiletest.cpp : Defines the entry point for the console application.
 //
 #include <iostream>

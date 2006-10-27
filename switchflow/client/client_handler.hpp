@@ -1,4 +1,8 @@
 //
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
+//
 // Copyright (C) Christopher Baus.  All rights reserved.
 #ifndef CLIENT_HANDLERS_H__
 #define CLIENT_HANDLERS_H__

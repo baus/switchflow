@@ -1,3 +1,7 @@
+//
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 #ifndef SSD_HTTPLIB_HPP
 #define SSD_HTTPLIB_HPP
 
