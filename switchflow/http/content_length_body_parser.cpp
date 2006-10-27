@@ -9,17 +9,17 @@
 namespace http{
   
 ContentLengthBodyParser::ContentLengthBodyParser(i_body_receiver* pBodyReceiver):
-  m_pBodyReceiver(pBodyReceiver)
+  pBodyReceiver_(pBodyReceiver)
 {
   reset(0);
 }
 
 void ContentLengthBodyParser::reset(unsigned int messageSize)
 {
-  m_parseState = MESSAGE_BODY_PARSE;
-  m_contentLength = messageSize;
-  m_currentOffset = 0;
-  m_currentLength = 0;
+  parseState_ = MESSAGE_BODY_PARSE;
+  contentLength_ = messageSize;
+  currentOffset_ = 0;
+  currentLength_ = 0;
   
 }
 
@@ -32,11 +32,11 @@ STATUS ContentLengthBodyParser::parseContentLengthBody(read_write_buffer& buffer
   STATUS returnValue = INVALID;
   bool currentBufferProcessed = false;
   while(!currentBufferProcessed){
-    switch(m_parseState){
+    switch(parseState_){
       case MESSAGE_BODY_PARSE:
         buffer.setWritePosition(buffer.getProcessPosition());
 
-        returnValue = parseNLengthBuffer(buffer, m_currentLength, m_contentLength);
+        returnValue = parseNLengthBuffer(buffer, currentLength_, contentLength_);
 
         buffer.setWriteEndPosition(buffer.getProcessPosition());
 
@@ -48,7 +48,7 @@ STATUS ContentLengthBodyParser::parseContentLengthBody(read_write_buffer& buffer
         }
         break;
       case INCOMPLETE_MESSAGE_BODY_FORWARD:
-        returnValue = m_pBodyReceiver->set_body(buffer, false);
+        returnValue = pBodyReceiver_->set_body(buffer, false);
         if(returnValue == COMPLETE){
           transitionToState(MESSAGE_BODY_PARSE);
           returnValue = INCOMPLETE;
@@ -60,7 +60,7 @@ STATUS ContentLengthBodyParser::parseContentLengthBody(read_write_buffer& buffer
         
         break;
       case COMPLETE_MESSAGE_BODY_FORWARD:
-        returnValue = m_pBodyReceiver->set_body(buffer, true);
+        returnValue = pBodyReceiver_->set_body(buffer, true);
         if(returnValue == INCOMPLETE){
           returnValue = WRITE_INCOMPLETE;
         }
@@ -76,7 +76,7 @@ STATUS ContentLengthBodyParser::parseContentLengthBody(read_write_buffer& buffer
 
 void ContentLengthBodyParser::transitionToState(ContentLengthBodyParser::PARSE_STATE newState)
 {
-  m_parseState = newState;
+  parseState_ = newState;
 }
 
 }

@@ -18,11 +18,11 @@
 namespace http{
   
 HTTPHeaderParser::HTTPHeaderParser(IHeaderReceiver* pHeaderReceiver):
-  m_currentState(STATUS_LINE),
-  m_statusLineState(STATUS_LINE_TOKEN_1),
-  m_currentLength(0),
-  m_pHeaderReceiver(pHeaderReceiver),
-  m_chunkSizeBuffer(10)
+  currentState_(STATUS_LINE),
+  statusLineState_(STATUS_LINE_TOKEN_1),
+  currentLength_(0),
+  pHeaderReceiver_(pHeaderReceiver),
+  chunkSizeBuffer_(10)
 {
   
 }
@@ -36,7 +36,7 @@ STATUS HTTPHeaderParser::parseStatusToken(read_write_buffer& buffer,
   STATUS returnValue = parseToken(buffer,
                                   beginOffset,
                                   endOffset,
-                                  m_currentLength,
+                                  currentLength_,
                                   MAX_FIELD_LENGTH,
                                   getStatusTokenDelimiters(option));
   
@@ -46,7 +46,7 @@ STATUS HTTPHeaderParser::parseStatusToken(read_write_buffer& buffer,
       nextStatusLineState(buffer[endOffset - 1]);
     }
     else{
-      log_info("Invalid status line token", m_statusLineState);
+      log_info("Invalid status line token", statusLineState_);
     }
   }
   else if(returnValue == INCOMPLETE){
@@ -59,7 +59,7 @@ STATUS HTTPHeaderParser::parseStatusToken(read_write_buffer& buffer,
     }   
   }
   else{
-    log_info("Overflow status line token", m_statusLineState);
+    log_info("Overflow status line token", statusLineState_);
     returnValue = INVALID;
   }
   
@@ -82,7 +82,7 @@ STATUS HTTPHeaderParser::parseStatusLine(read_write_buffer& buffer, PARSE_OPTION
   
   while(!bufferParseComplete){
     beginOffset = currentOffset;
-    switch(m_statusLineState){
+    switch(statusLineState_){
       case STATUS_LINE_TOKEN_1:
       case STATUS_LINE_TOKEN_2:
       case STATUS_LINE_TOKEN_3:
@@ -127,7 +127,7 @@ STATUS HTTPHeaderParser::parseHeaders(read_write_buffer& buffer, PARSE_OPTION op
 
   while(!bufferParseComplete){
     beginOffset = currentOffset;
-    switch(m_currentState){
+    switch(currentState_){
       case STATUS_LINE:
         returnValue = parseStatusLine(buffer, option);
         if(returnValue == COMPLETE){
@@ -156,7 +156,7 @@ STATUS HTTPHeaderParser::parseHeaders(read_write_buffer& buffer, PARSE_OPTION op
         returnValue = parseChar(buffer, beginOffset, currentOffset, LF);
         bufferParseComplete = true;
         if(returnValue == COMPLETE){
-          if(COMPLETE != (returnValue = m_pHeaderReceiver->endFields())){
+          if(COMPLETE != (returnValue = pHeaderReceiver_->endFields())){
             break;
           }
           //
@@ -167,10 +167,10 @@ STATUS HTTPHeaderParser::parseHeaders(read_write_buffer& buffer, PARSE_OPTION op
         }
         break;
       case FIELD_NAME:
-        returnValue = parseToken(buffer, beginOffset, currentOffset, m_currentLength, MAX_FIELD_LENGTH, s_fieldDelimiters);
+        returnValue = parseToken(buffer, beginOffset, currentOffset, currentLength_, MAX_FIELD_LENGTH, s_fieldDelimiters);
         if(returnValue == COMPLETE){
           if(DATAOVERFLOW == 
-             m_pHeaderReceiver->setFieldName(buffer, beginOffset, currentOffset - 1, true)){
+             pHeaderReceiver_->setFieldName(buffer, beginOffset, currentOffset - 1, true)){
             bufferParseComplete = true;
             returnValue =  DATAOVERFLOW;
           }
@@ -180,7 +180,7 @@ STATUS HTTPHeaderParser::parseHeaders(read_write_buffer& buffer, PARSE_OPTION op
         }
         else{
           if(returnValue == INCOMPLETE){
-            if(DATAOVERFLOW == m_pHeaderReceiver->setFieldName(buffer, 
+            if(DATAOVERFLOW == pHeaderReceiver_->setFieldName(buffer, 
                                                                beginOffset,
                                                                currentOffset, 
                                                                false)){
@@ -193,7 +193,7 @@ STATUS HTTPHeaderParser::parseHeaders(read_write_buffer& buffer, PARSE_OPTION op
         break;
         
       case FIELD_VALUE_LEADING_LWS:
-        returnValue = parseEqual(buffer, beginOffset, currentOffset, m_currentLength, MAX_FIELD_LENGTH, s_whiteSpace);
+        returnValue = parseEqual(buffer, beginOffset, currentOffset, currentLength_, MAX_FIELD_LENGTH, s_whiteSpace);
         if(returnValue == COMPLETE){
           transitionToState(FIELD_VALUE_CONTENT, NOT_RESET_CURRENT_LENGTH);
         }
@@ -212,7 +212,7 @@ STATUS HTTPHeaderParser::parseHeaders(read_write_buffer& buffer, PARSE_OPTION op
         }
         break;
       case FIELD_VALUE_LWS:
-        returnValue = parseEqual(buffer, beginOffset, currentOffset, m_currentLength, MAX_FIELD_LENGTH, s_whiteSpace);
+        returnValue = parseEqual(buffer, beginOffset, currentOffset, currentLength_, MAX_FIELD_LENGTH, s_whiteSpace);
         if(returnValue == COMPLETE){
           if(currentOffset == beginOffset){
             //
@@ -237,7 +237,7 @@ STATUS HTTPHeaderParser::parseHeaders(read_write_buffer& buffer, PARSE_OPTION op
         returnValue = parseToken(buffer,
                                  beginOffset,
                                  currentOffset,
-                                 m_currentLength,
+                                 currentLength_,
                                  MAX_FIELD_LENGTH,
                                  s_endlineDelimiters);
       
@@ -247,14 +247,14 @@ STATUS HTTPHeaderParser::parseHeaders(read_write_buffer& buffer, PARSE_OPTION op
           // completion.  Sending true here isn't totally acurate.  Might get two trues back to back in the 
           // line continuation case...
           //
-          if(DATAOVERFLOW == m_pHeaderReceiver->setFieldValue(buffer, beginOffset, currentOffset - 1, true)){
+          if(DATAOVERFLOW == pHeaderReceiver_->setFieldValue(buffer, beginOffset, currentOffset - 1, true)){
             bufferParseComplete = true;
             returnValue = DATAOVERFLOW;
           }
           transitionToState(FIELD_VALUE_LWS_LF);
         }
         else if(returnValue == INCOMPLETE){
-          if(DATAOVERFLOW == m_pHeaderReceiver->setFieldValue(buffer, beginOffset, currentOffset, false)){
+          if(DATAOVERFLOW == pHeaderReceiver_->setFieldValue(buffer, beginOffset, currentOffset, false)){
             bufferParseComplete = true;
             returnValue = DATAOVERFLOW;
           }
@@ -291,10 +291,10 @@ STATUS HTTPHeaderParser::parseHeaders(read_write_buffer& buffer, PARSE_OPTION op
 
 void HTTPHeaderParser::nextStatusLineState(char delimiter)
 {
-  switch(m_statusLineState){
+  switch(statusLineState_){
     case STATUS_LINE_TOKEN_1:
       CHECK_CONDITION_VAL(delimiter == SP, "invalid delimiter used to change status TOKEN_1 state", delimiter);
-      m_statusLineState = STATUS_LINE_TOKEN_2;
+      statusLineState_ = STATUS_LINE_TOKEN_2;
       break;
     case STATUS_LINE_TOKEN_2:
       if(delimiter == CR){
@@ -302,10 +302,10 @@ void HTTPHeaderParser::nextStatusLineState(char delimiter)
         // This is a pseudo - invalid status line that doesn't include the reason token.
         // Apache 1.3 generate status lines like this.  This should only happen when
         // loose parsing is allowed.
-        m_statusLineState = STATUS_LINE_LF;
+        statusLineState_ = STATUS_LINE_LF;
       }
       else if(delimiter == SP){
-        m_statusLineState = STATUS_LINE_TOKEN_3;
+        statusLineState_ = STATUS_LINE_TOKEN_3;
       }
       else{
         CHECK_CONDITION_VAL(false, "Invalid delimiter use to change status TOKEN_2 state", delimiter);
@@ -313,48 +313,48 @@ void HTTPHeaderParser::nextStatusLineState(char delimiter)
       break;
     case STATUS_LINE_TOKEN_3:
       CHECK_CONDITION_VAL(delimiter == CR, "Invalid delimiter use to change status TOKEN_3 state", delimiter);
-      m_statusLineState = STATUS_LINE_LF;
+      statusLineState_ = STATUS_LINE_LF;
       break;
     case STATUS_LINE_LF:
-      m_statusLineState = STATUS_LINE_TOKEN_1;
+      statusLineState_ = STATUS_LINE_TOKEN_1;
       break;
     default:
-      CHECK_CONDITION_VAL(false, "invalid start line state", m_statusLineState);
+      CHECK_CONDITION_VAL(false, "invalid start line state", statusLineState_);
   }
-  m_currentLength = 0;
+  currentLength_ = 0;
 }
 
 void HTTPHeaderParser::transitionToState(PARSE_STATE newState,
                                          TRANSITION_CURRENT_LENGTH_OPTION
                                          resetOption)
 {
-  m_currentState = newState;
+  currentState_ = newState;
   if(resetOption == RESET_CURRENT_LENGTH){
-    m_currentLength = 0;
+    currentLength_ = 0;
   }
 }
 
 void HTTPHeaderParser::reset()
 {
-  m_statusLineState = STATUS_LINE_TOKEN_1;
+  statusLineState_ = STATUS_LINE_TOKEN_1;
   transitionToState(STATUS_LINE);
 }
 
 STATUS HTTPHeaderParser::receiveStatusLineToken(read_write_buffer& buffer, int iBegin, int iEnd, bool bComplete)
 {
   STATUS returnValue;
-  switch(m_statusLineState){
+  switch(statusLineState_){
     case STATUS_LINE_TOKEN_1:
-      returnValue = m_pHeaderReceiver->startLineToken1(buffer, iBegin, iEnd, bComplete);
+      returnValue = pHeaderReceiver_->startLineToken1(buffer, iBegin, iEnd, bComplete);
       break;
     case STATUS_LINE_TOKEN_2:
-      returnValue = m_pHeaderReceiver->startLineToken2(buffer, iBegin, iEnd, bComplete);
+      returnValue = pHeaderReceiver_->startLineToken2(buffer, iBegin, iEnd, bComplete);
       break;
     case STATUS_LINE_TOKEN_3:
-      returnValue = m_pHeaderReceiver->startLineToken3(buffer, iBegin, iEnd, bComplete);
+      returnValue = pHeaderReceiver_->startLineToken3(buffer, iBegin, iEnd, bComplete);
       break;
     default:
-      CHECK_CONDITION_VAL(false, "Invalid start line state to receieve status token", m_statusLineState);
+      CHECK_CONDITION_VAL(false, "Invalid start line state to receieve status token", statusLineState_);
       
   }
 
@@ -364,7 +364,7 @@ STATUS HTTPHeaderParser::receiveStatusLineToken(read_write_buffer& buffer, int i
   
 std::set<char>& HTTPHeaderParser::getStatusTokenDelimiters(PARSE_OPTION option)
 {
-  switch(m_statusLineState){
+  switch(statusLineState_){
     case STATUS_LINE_TOKEN_1:
       return s_spaceDelimiters;
       break;
@@ -380,7 +380,7 @@ std::set<char>& HTTPHeaderParser::getStatusTokenDelimiters(PARSE_OPTION option)
       return s_endlineDelimiters;
       break;
     default:
-      CHECK_CONDITION_VAL(false, "Invalid start line state to retrieve token delimiters", m_statusLineState);
+      CHECK_CONDITION_VAL(false, "Invalid start line state to retrieve token delimiters", statusLineState_);
   }
 
 }

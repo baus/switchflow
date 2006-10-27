@@ -24,7 +24,7 @@ namespace http{
     STATUS parseEndConnectionBody(read_write_buffer& buffer);
     
   private:
-    i_body_receiver* m_pBodyReceiver;
+    i_body_receiver* pBodyReceiver_;
   };
 
 } // namespace httplib

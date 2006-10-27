@@ -17,7 +17,7 @@
 class TestHTTPServerRequestHandlers: public IMessageBodyReceiver, public IFieldReceiver, public IRequestHeaderReceiver, public IDataProvider
 {
   public:
-    TestHTTPServerRequestHandlers(ACE_SOCK_Stream& stream):m_stream(stream){}
+    TestHTTPServerRequestHandlers(ACE_SOCK_Stream& stream):stream_(stream){}
 
   
   virtual void setFieldName(Buffer& buffer, int iBegin, int iEnd, bool bComplete)
@@ -47,7 +47,7 @@ class TestHTTPServerRequestHandlers: public IMessageBodyReceiver, public IFieldR
   virtual int getData(RawBuffer& buffer)
   {
     buffer.resize(1500);
-    return m_stream.recv(&buffer[0], 1500);
+    return stream_.recv(&buffer[0], 1500);
   }
 
   virtual void setChunked()
@@ -88,17 +88,17 @@ class TestHTTPServerRequestHandlers: public IMessageBodyReceiver, public IFieldR
     //
     // I think this is a valid response
     //
-    m_stream.send_n("HTTP 1.0 200 Success", 20);
-    m_stream.send_n(&InetUtil::CR, 1);
-    m_stream.send_n(&InetUtil::LF, 1);
-    m_stream.send_n(&InetUtil::CR, 1);
-    m_stream.send_n(&InetUtil::LF, 1);
-    m_stream.send_n("return from Summit Sage Ultra HTTP server", 41);
+    stream_.send_n("HTTP 1.0 200 Success", 20);
+    stream_.send_n(&InetUtil::CR, 1);
+    stream_.send_n(&InetUtil::LF, 1);
+    stream_.send_n(&InetUtil::CR, 1);
+    stream_.send_n(&InetUtil::LF, 1);
+    stream_.send_n("return from Summit Sage Ultra HTTP server", 41);
   }
 
   
   private:
-    ACE_SOCK_Stream m_stream;
+    ACE_SOCK_Stream stream_;
 
 };
 

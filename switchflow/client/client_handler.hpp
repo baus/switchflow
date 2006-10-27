@@ -88,11 +88,11 @@ class client_handler: public eventlib::i_event_handler
 
   //
   // data for the server
-  socketlib::connection m_serverData;
+  socketlib::connection serverData_;
 
-  eventlib::event m_serverEvent;
+  eventlib::event serverEvent_;
 
-  unsigned int m_serverTimeoutSeconds;
+  unsigned int serverTimeoutSeconds_;
   
   eventlib::poller& poller_;
 

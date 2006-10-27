@@ -15,9 +15,9 @@
 namespace http{
   
 header_pusher::header_pusher():message_buffer_(0),
-                               m_spaceBuf(&strings_.space_),
-                               m_endlineBuf(&strings_.endline_),
-                               m_fieldSep(&strings_.fieldsep_),
+                               spaceBuf_(&strings_.space_),
+                               endlineBuf_(&strings_.endline_),
+                               fieldSep_(&strings_.fieldsep_),
                                p_dest_(0)
 {
 }
@@ -29,9 +29,9 @@ void header_pusher::reset(message_buffer& message,
   push_header_state_ = START_LINE_TOKEN1;
   message_buffer_ = &message;
   current_dump_header_ = 0;
-  m_spaceBuf.reset();
-  m_endlineBuf.reset();
-  m_fieldSep.reset();
+  spaceBuf_.reset();
+  endlineBuf_.reset();
+  fieldSep_.reset();
 }
 
 header_pusher::~header_pusher()
@@ -55,9 +55,9 @@ socketlib::STATUS header_pusher::push_header()
       return status;
     }
     if(status == socketlib::COMPLETE){
-      m_spaceBuf.reset();
-      m_endlineBuf.reset();
-      m_fieldSep.reset();
+      spaceBuf_.reset();
+      endlineBuf_.reset();
+      fieldSep_.reset();
       if(push_header_state_ == FIELD_SEPERATOR){
         push_header_state_ = FIELD_NAME;
         ++current_dump_header_;
@@ -89,34 +89,34 @@ read_write_buffer& header_pusher::get_header_buffer_to_push(PUSH_HEADER_STATE he
       return message_buffer_->get_status_line_1();
       break;
     case START_LINE_SEPERATOR1:
-      return m_spaceBuf;
+      return spaceBuf_;
       break;
     case START_LINE_TOKEN2:
       return message_buffer_->get_status_line_2();
       break;
     case START_LINE_SEPERATOR2:
-      return m_spaceBuf;
+      return spaceBuf_;
       break;
     case START_LINE_TOKEN3:
       return message_buffer_->get_status_line_3();
       break;
     case START_LINE_END:
-      return m_endlineBuf;
+      return endlineBuf_;
       break;
     case FIELD_NAME:
       return message_buffer_->get_field_name(current_dump_header_);
       break;
     case FIELD_VALUE_SEPERATOR:
-      return m_fieldSep;
+      return fieldSep_;
       break;
     case FIELD_VALUE:
       return message_buffer_->get_field_value(current_dump_header_);
       break;
     case FIELD_SEPERATOR:
-      return m_endlineBuf;
+      return endlineBuf_;
       break;
     case END_FIELDS:
-      return m_endlineBuf;
+      return endlineBuf_;
       break;
   };
 }

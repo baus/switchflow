@@ -39,21 +39,21 @@ private:
 
   STATUS parseChunkSize(read_write_buffer& buffer);
   
-  STATE m_state;
+  STATE state_;
   
-  i_body_receiver* m_pBodyReceiver;
+  i_body_receiver* pBodyReceiver_;
   
-  unsigned int m_chunksize;
+  unsigned int chunksize_;
 
-  unsigned int m_currentChunksizeLength;
+  unsigned int currentChunksizeLength_;
 
-  unsigned int m_maxChunksizeLength;
+  unsigned int maxChunksizeLength_;
 
-  unsigned int m_currentOffset;
+  unsigned int currentOffset_;
 
-  unsigned int m_currentChunkLength;
+  unsigned int currentChunkLength_;
 
-  unsigned int m_numChunkSizeSpaces;
+  unsigned int numChunkSizeSpaces_;
 };
 
 }// namespace httplib

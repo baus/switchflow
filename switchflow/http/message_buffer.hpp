@@ -79,10 +79,10 @@ private:
   bool fitsInBuffer(read_write_buffer& buf, int size);
   unsigned int current_num_fields_;
   unsigned int max_fields_;
-  read_write_buffer m_startLine1;
-  read_write_buffer m_startLine2;
-  read_write_buffer m_startLine3;
-  std::list<header_buffer> m_headers;
+  read_write_buffer startLine1_;
+  read_write_buffer startLine2_;
+  read_write_buffer startLine3_;
+  std::list<header_buffer> headers_;
   header_cache* cache_;
 };
 

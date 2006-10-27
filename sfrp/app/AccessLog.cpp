@@ -27,7 +27,7 @@
 // @author <a href="mailto:christopher@baus.net">root</a>
 //
 
-AccessLog::AccessLog():m_logfd(-1)
+AccessLog::AccessLog():logfd_(-1)
 {
 }
 
@@ -36,7 +36,7 @@ void AccessLog::logAccess(CombinedLogRecord& logRecord)
   static char *space = " ";
   static char *quote = "\"";
   static char *newline = "\n";
-  if(m_logfd == -1){
+  if(logfd_ == -1){
     return;
   }
   logRecord.setTime();
@@ -156,26 +156,26 @@ void AccessLog::logAccess(CombinedLogRecord& logRecord)
   //
   // Feel the performance.  Do it all in one big write.
   //
-  ::writev(m_logfd, vector, currentVector);
+  ::writev(logfd_, vector, currentVector);
 
 }
 
 
 bool AccessLog::open(const char* filename)
 {
-  m_logfd = ::open(filename, O_WRONLY|O_APPEND|O_CREAT, 00755);
+  logfd_ = ::open(filename, O_WRONLY|O_APPEND|O_CREAT, 00755);
   int error = errno;
-  return m_logfd != -1;
+  return logfd_ != -1;
 }
 
 bool AccessLog::isOpen()
 {
-  return m_logfd != -1;
+  return logfd_ != -1;
 }
 
 AccessLog::~AccessLog()
 {
-  if(m_logfd != -1){
-    close(m_logfd);
+  if(logfd_ != -1){
+    close(logfd_);
   }
 }

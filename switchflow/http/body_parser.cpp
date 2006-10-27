@@ -13,9 +13,9 @@
 
 namespace http{
   BodyParser::BodyParser(i_body_receiver* pBodyReceiver):
-  m_chunkedBodyParser(pBodyReceiver, CHUNK_SIZE_LENGTH),
-  m_contentLengthBodyParser(pBodyReceiver),
-  m_endConnectionBodyParser(pBodyReceiver)
+  chunkedBodyParser_(pBodyReceiver, CHUNK_SIZE_LENGTH),
+  contentLengthBodyParser_(pBodyReceiver),
+  endConnectionBodyParser_(pBodyReceiver)
 {
 }
 
@@ -27,27 +27,27 @@ BodyParser::~BodyParser()
 void BodyParser::reset(BODY_ENCODING bodyEncoding,
                        int messageSize)
 {
-  m_bodyEncoding = bodyEncoding;
-  m_contentLengthBodyParser.reset(messageSize);
-  m_chunkedBodyParser.reset();
+  bodyEncoding_ = bodyEncoding;
+  contentLengthBodyParser_.reset(messageSize);
+  chunkedBodyParser_.reset();
 }
 
 
 STATUS BodyParser::parseBody(read_write_buffer& buffer)
 {
-  if(m_bodyEncoding == NONE){
+  if(bodyEncoding_ == NONE){
     return COMPLETE;
   }
-  if(m_bodyEncoding == CHUNKED){
-    return m_chunkedBodyParser.parseBody(buffer);
+  if(bodyEncoding_ == CHUNKED){
+    return chunkedBodyParser_.parseBody(buffer);
   }
-  if(m_bodyEncoding == END_CONNECTION){
-    return m_endConnectionBodyParser.parseEndConnectionBody(buffer);
+  if(bodyEncoding_ == END_CONNECTION){
+    return endConnectionBodyParser_.parseEndConnectionBody(buffer);
   }
 
-  assert(m_bodyEncoding == CONTENT_LENGTH);
+  assert(bodyEncoding_ == CONTENT_LENGTH);
 
-  return m_contentLengthBodyParser.parseContentLengthBody(buffer);
+  return contentLengthBodyParser_.parseContentLengthBody(buffer);
   
 }
 

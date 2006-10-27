@@ -36,21 +36,21 @@ namespace http{
     
     /// The content length passed from the headers.
     ///
-    unsigned int m_contentLength;
+    unsigned int contentLength_;
     
     /// The offset into the buffer being processed.
     ///
-    unsigned int m_currentOffset;
+    unsigned int currentOffset_;
     
     /// The current length of the element being parsed.
     ///
-    unsigned int m_currentLength;
+    unsigned int currentLength_;
 
     /// 
     ///
-    PARSE_STATE m_parseState;
+    PARSE_STATE parseState_;
 
-    i_body_receiver* m_pBodyReceiver;
+    i_body_receiver* pBodyReceiver_;
   };
 }
 #endif // CONTENTLENGTHBODYPARSER_HPP

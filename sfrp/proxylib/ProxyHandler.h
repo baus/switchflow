@@ -190,41 +190,41 @@ class ProxyHandler: public eventlib::i_event_handler
   // A back pointer to the memoryManager managing this instance.  
   // This allows us to delete ourselves from the memory manager. 
   // 
-  PessimisticMemoryManager<ProxyHandler>* m_pProxyHandlers;
+  PessimisticMemoryManager<ProxyHandler>* pProxyHandlers_;
 
   //
   // data for the client.
-  socketlib::connection m_clientData;
+  socketlib::connection clientData_;
  
   //
   // data for the server
-  socketlib::connection m_serverData;
+  socketlib::connection serverData_;
 
-  eventlib::event m_clientEvent;
+  eventlib::event clientEvent_;
 
-  eventlib::event m_serverEvent;
+  eventlib::event serverEvent_;
 
-  ProxyStreamInterface m_requestStream;
+  ProxyStreamInterface requestStream_;
   
-  ProxyStreamInterface m_responseStream;
+  ProxyStreamInterface responseStream_;
 
-  PessimisticMemoryManager<IProxyStreamHandler>* m_pRequestStreamHandlers;
+  PessimisticMemoryManager<IProxyStreamHandler>* pRequestStreamHandlers_;
  
-  PessimisticMemoryManager<IProxyStreamHandler>* m_pResponseStreamHandlers;
+  PessimisticMemoryManager<IProxyStreamHandler>* pResponseStreamHandlers_;
   
-  IProxyStreamHandler* m_pRequestStreamHandler;
+  IProxyStreamHandler* pRequestStreamHandler_;
   
-  IProxyStreamHandler* m_pResponseStreamHandler;
+  IProxyStreamHandler* pResponseStreamHandler_;
 
-  unsigned int m_clientTimeoutMilliseconds;
+  unsigned int clientTimeoutMilliseconds_;
   
-  unsigned int m_serverTimeoutMilliseconds;
+  unsigned int serverTimeoutMilliseconds_;
 
   // Address of the downstream server.
   //
-  sockaddr m_serverAddr;
+  sockaddr serverAddr_;
   
-  eventlib::poller* m_pPoller;
+  eventlib::poller* pPoller_;
 
   pipeline_data_queue pipeline_data_queue_;
 

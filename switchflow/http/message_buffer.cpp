@@ -23,9 +23,9 @@ namespace http{
                                  unsigned int maxStartLine2Length, 
                                  unsigned int maxStartLine3Length,
                                  unsigned int maxNumHeaders):
-    m_startLine1(maxStartLine1Length),
-    m_startLine2(maxStartLine2Length), 
-    m_startLine3(maxStartLine3Length), 
+    startLine1_(maxStartLine1Length),
+    startLine2_(maxStartLine2Length), 
+    startLine3_(maxStartLine3Length), 
     max_fields_(maxNumHeaders),
     current_num_fields_(0),
     cache_(cache)
@@ -37,16 +37,16 @@ namespace http{
                                  RawBuffer* startLine2,
                                  RawBuffer* startLine3,
                                  std::list<header_buffer*>& fields):
-    m_startLine1(startLine1),
-    m_startLine2(startLine2),
-    m_startLine3(startLine3),
+    startLine1_(startLine1),
+    startLine2_(startLine2),
+    startLine3_(startLine3),
     current_num_fields_(0),
     max_fields_(0),
     cache_(0)
   {
     std::list<header_buffer*>::iterator current = fields.begin();
     for(;current != fields.end(); ++current){
-      m_headers.push_back(**current);
+      headers_.push_back(**current);
       ++current_num_fields_;
       ++max_fields_;
     }
@@ -56,31 +56,31 @@ namespace http{
 message_buffer::~message_buffer()
 {
   if(cache_){
-    cache_->release_headers(m_headers);
+    cache_->release_headers(headers_);
   }
 }
 
 void message_buffer::reset()
 {
   if(cache_){
-    cache_->release_headers(m_headers);
+    cache_->release_headers(headers_);
     current_num_fields_ = 0;
   }
   else{
-    std::list<header_buffer>::iterator current = m_headers.begin();
-    for(;current != m_headers.end();++current){
+    std::list<header_buffer>::iterator current = headers_.begin();
+    for(;current != headers_.end();++current){
       current->reset();
     } 
   }
-  m_startLine1.reset();
-  m_startLine2.reset();
-  m_startLine3.reset();
+  startLine1_.reset();
+  startLine2_.reset();
+  startLine3_.reset();
 }
 
 bool message_buffer::append_to_status_line_1(RawBuffer::iterator begin, RawBuffer::iterator end)
 {
-  if(m_startLine1.fitsInBuffer(end - begin)){
-    m_startLine1.appendFromBuffer(begin, end);
+  if(startLine1_.fitsInBuffer(end - begin)){
+    startLine1_.appendFromBuffer(begin, end);
     return true;
   }
   return false;
@@ -88,8 +88,8 @@ bool message_buffer::append_to_status_line_1(RawBuffer::iterator begin, RawBuffe
 
 bool message_buffer::append_to_status_line_2(RawBuffer::iterator begin, RawBuffer::iterator end)
 {
-  if(m_startLine2.fitsInBuffer(end - begin)){
-    m_startLine2.appendFromBuffer(begin, end);
+  if(startLine2_.fitsInBuffer(end - begin)){
+    startLine2_.appendFromBuffer(begin, end);
     return true;
   }
   return false;
@@ -98,8 +98,8 @@ bool message_buffer::append_to_status_line_2(RawBuffer::iterator begin, RawBuffe
 bool message_buffer::append_to_status_line_3(RawBuffer::iterator begin, RawBuffer::iterator end)
 {
 
-  if(m_startLine3.fitsInBuffer(end - begin)){
-    m_startLine3.appendFromBuffer(begin, end);
+  if(startLine3_.fitsInBuffer(end - begin)){
+    startLine3_.appendFromBuffer(begin, end);
     return true;
   }
   return false;
@@ -119,7 +119,7 @@ header_buffer& message_buffer::get_header(int n)
 {
   assert(n < current_num_fields_);
   
-  std::list<header_buffer>::iterator current = m_headers.begin();
+  std::list<header_buffer>::iterator current = headers_.begin();
 
   for(int i = 0; i < n; ++current, ++i);
   
@@ -140,17 +140,17 @@ bool message_buffer::append_to_value(unsigned int n, RawBuffer::iterator begin, 
 
 read_write_buffer& message_buffer::get_status_line_1()
 {
-  return m_startLine1;
+  return startLine1_;
 }
 
 read_write_buffer& message_buffer::get_status_line_2()
 {
-  return m_startLine2;
+  return startLine2_;
 }
 
 read_write_buffer& message_buffer::get_status_line_3()
 {
-  return m_startLine3;
+  return startLine3_;
 }
 
 
@@ -194,9 +194,9 @@ bool message_buffer::add_field()
   if(cache_->empty()){
     return false;
   }
-  cache_->alloc_header(m_headers);
+  cache_->alloc_header(headers_);
   ++current_num_fields_;
-  assert(m_headers.size() == current_num_fields_);
+  assert(headers_.size() == current_num_fields_);
   return true;
 }
 
@@ -208,8 +208,8 @@ bool message_buffer::get_header_index_by_name(const char* headerName, unsigned i
   // client should cache the result anyway.  Plus since the number
   // of headers shouldn't exceed 50, and it is an in memory
   // operation, it probably won't matter anyway.
-  std::list<header_buffer>::iterator current = m_headers.begin();
-  std::list<header_buffer>::iterator end = m_headers.end();
+  std::list<header_buffer>::iterator current = headers_.begin();
+  std::list<header_buffer>::iterator end = headers_.end();
   for(int i = 0; current != end; ++current, ++i){
     if(current->name_equals(headerName)){
       index = i;
@@ -250,15 +250,15 @@ std::list<asio::const_buffer> message_buffer::get_const_buffers()
   asio::const_buffer space_buf(space, strlen(space));
   
   
-  buffers.push_back(m_startLine1.get_const_buffer());
+  buffers.push_back(startLine1_.get_const_buffer());
   buffers.push_back(space_buf);
-  buffers.push_back(m_startLine2.get_const_buffer());
+  buffers.push_back(startLine2_.get_const_buffer());
   buffers.push_back(space_buf);
-  buffers.push_back(m_startLine3.get_const_buffer());
+  buffers.push_back(startLine3_.get_const_buffer());
   buffers.push_back(new_line_buf);
-  m_headers.begin();
-  std::list<header_buffer>::iterator cur = m_headers.begin();
-  for(;cur != m_headers.end(); ++cur){
+  headers_.begin();
+  std::list<header_buffer>::iterator cur = headers_.begin();
+  for(;cur != headers_.end(); ++cur){
     buffers.push_back(cur->getName().get_const_buffer());
     buffers.push_back(field_sep_buf);
     buffers.push_back(cur->getValue().get_const_buffer());

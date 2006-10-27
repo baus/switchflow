@@ -72,11 +72,11 @@ class ProxyStreamInterface{
     
   //
   // back pointer to the proxy handler
-  ProxyHandler* m_pProxyHandler;
+  ProxyHandler* pProxyHandler_;
 
-  socketlib::connection* m_pSrcData;
+  socketlib::connection* pSrcData_;
     
-  socketlib::connection* m_pDestData;
+  socketlib::connection* pDestData_;
 };
 
 } // namespace proxylib

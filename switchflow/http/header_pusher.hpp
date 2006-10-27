@@ -47,9 +47,9 @@ private:
   // pointers are used to write out buffers.  This 
   // demonstrates the problem with Buffer class.
   // The data needs to be removed from the meta data.
-  read_write_buffer m_spaceBuf;
-  read_write_buffer m_endlineBuf;
-  read_write_buffer m_fieldSep;
+  read_write_buffer spaceBuf_;
+  read_write_buffer endlineBuf_;
+  read_write_buffer fieldSep_;
 
   read_write_buffer& get_header_buffer_to_push(PUSH_HEADER_STATE header_state);
 

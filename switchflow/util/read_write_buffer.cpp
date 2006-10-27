@@ -15,45 +15,45 @@
 
 typedef std::vector<BYTE> raw_buffer;
 
-read_write_buffer::read_write_buffer(unsigned int physicalLength):m_bUsingStaticBuffer(false)
+read_write_buffer::read_write_buffer(unsigned int physicalLength):bUsingStaticBuffer_(false)
 {
-  m_pBuffer = new raw_buffer(physicalLength);
+  pBuffer_ = new raw_buffer(physicalLength);
   reset();
 }
 
 read_write_buffer::~read_write_buffer()
 {
-  if(!m_bUsingStaticBuffer){
-    delete m_pBuffer;
+  if(!bUsingStaticBuffer_){
+    delete pBuffer_;
   }
 }
 
-read_write_buffer::read_write_buffer(raw_buffer* pStaticBuffer):m_bUsingStaticBuffer(true)
+read_write_buffer::read_write_buffer(raw_buffer* pStaticBuffer):bUsingStaticBuffer_(true)
 {
-  m_pBuffer = pStaticBuffer;
+  pBuffer_ = pStaticBuffer;
   reset();
 }
 
-read_write_buffer::read_write_buffer():m_bUsingStaticBuffer(true)
+read_write_buffer::read_write_buffer():bUsingStaticBuffer_(true)
 {
-  m_pBuffer = NULL;
+  pBuffer_ = NULL;
   reset();
 }
 
 read_write_buffer::read_write_buffer(const read_write_buffer& rhs)
 {
-  m_bUsingStaticBuffer = rhs.m_bUsingStaticBuffer;
-  if(m_bUsingStaticBuffer){
-    m_pBuffer = rhs.m_pBuffer;
-    if(m_pBuffer){
-      m_workingLength = m_pBuffer->size();
+  bUsingStaticBuffer_ = rhs.bUsingStaticBuffer_;
+  if(bUsingStaticBuffer_){
+    pBuffer_ = rhs.pBuffer_;
+    if(pBuffer_){
+      workingLength_ = pBuffer_->size();
     }
     else{
-      m_workingLength = 0;
+      workingLength_ = 0;
     }
   }
   else{
-    m_pBuffer = new raw_buffer(rhs.m_pBuffer->size());
+    pBuffer_ = new raw_buffer(rhs.pBuffer_->size());
   }
   reset();
 }
@@ -61,30 +61,30 @@ read_write_buffer::read_write_buffer(const read_write_buffer& rhs)
 
 void read_write_buffer::set_static_buffer(raw_buffer* pStaticBuffer)
 {
-  if(!m_bUsingStaticBuffer){
-    delete m_pBuffer;
+  if(!bUsingStaticBuffer_){
+    delete pBuffer_;
   }
-  m_pBuffer = pStaticBuffer;
-  m_bUsingStaticBuffer = true;
+  pBuffer_ = pStaticBuffer;
+  bUsingStaticBuffer_ = true;
   reset();
 }
 
 raw_buffer::iterator read_write_buffer::begin()
 {
-  return m_pBuffer->begin();
+  return pBuffer_->begin();
 }
 
 raw_buffer& read_write_buffer::get_raw_buffer()
 {
-  return *m_pBuffer;
+  return *pBuffer_;
 }
 
 void read_write_buffer::set_working_length(unsigned int workingLength)
 {
-  CHECK_CONDITION(workingLength <= m_pBuffer->size(), "buffer consistency");
-  CHECK_CONDITION(!m_bUsingStaticBuffer, "buffer type");
-  m_workingLength = workingLength;
-  m_processPosition = 0;
+  CHECK_CONDITION(workingLength <= pBuffer_->size(), "buffer consistency");
+  CHECK_CONDITION(!bUsingStaticBuffer_, "buffer type");
+  workingLength_ = workingLength;
+  processPosition_ = 0;
   //
   // write end position has to be overridden manually.
   //
@@ -94,74 +94,74 @@ void read_write_buffer::set_working_length(unsigned int workingLength)
 
 void read_write_buffer::setWriteEndPosition(unsigned int writeEndPosition)
 {
-  CHECK_CONDITION(writeEndPosition <= m_workingLength, "buffer consistency");
-  m_writeEndPosition = writeEndPosition;
+  CHECK_CONDITION(writeEndPosition <= workingLength_, "buffer consistency");
+  writeEndPosition_ = writeEndPosition;
 }
 
 unsigned int read_write_buffer::getWriteEndPosition()
 {
-  return m_writeEndPosition;
+  return writeEndPosition_;
 }
 
 unsigned int read_write_buffer::getProcessPosition()
 {
-  return m_processPosition;
+  return processPosition_;
 }
 
 void read_write_buffer::setProcessPosition(unsigned int processedPosition)
 {
-  CHECK_CONDITION(processedPosition <= m_workingLength, "buffer consistency");
-  m_processPosition = processedPosition;
+  CHECK_CONDITION(processedPosition <= workingLength_, "buffer consistency");
+  processPosition_ = processedPosition;
 }
 
 bool read_write_buffer::fullyWritten()
 {
-  return m_writePosition >= m_workingLength;
+  return writePosition_ >= workingLength_;
 }
 
 unsigned int read_write_buffer::getWorkingLength()
 {
-  return m_workingLength;
+  return workingLength_;
 }
  
 unsigned int read_write_buffer::size()
 {
-  return m_workingLength;
+  return workingLength_;
 }
 
 raw_buffer::iterator read_write_buffer::workingEnd()
 {
-  return begin() + m_workingLength;
+  return begin() + workingLength_;
 }
 
 BYTE& read_write_buffer::operator[](const unsigned int i)
 {
-  CHECK_CONDITION(i >= 0 && i < m_workingLength, "buffer consistency");
-  return (*m_pBuffer)[i];
+  CHECK_CONDITION(i >= 0 && i < workingLength_, "buffer consistency");
+  return (*pBuffer_)[i];
 }
 
 
 
 void read_write_buffer::copyFromBuffer(raw_buffer::iterator begin, raw_buffer::iterator end)
 {
-  CHECK_CONDITION(!m_bUsingStaticBuffer, "buffer type");
-  CHECK_CONDITION(static_cast<int>(end - begin) <= static_cast<int>(m_pBuffer->size()), "buffer consistency");
-  m_workingLength = end - begin;
-  memcpy(&((*m_pBuffer)[0]), &*begin, m_workingLength);
+  CHECK_CONDITION(!bUsingStaticBuffer_, "buffer type");
+  CHECK_CONDITION(static_cast<int>(end - begin) <= static_cast<int>(pBuffer_->size()), "buffer consistency");
+  workingLength_ = end - begin;
+  memcpy(&((*pBuffer_)[0]), &*begin, workingLength_);
 }
 
 void read_write_buffer::appendFromBuffer(raw_buffer::iterator begin, raw_buffer::iterator end)
 {
-  CHECK_CONDITION(!m_bUsingStaticBuffer, "buffer type");
-  CHECK_CONDITION(static_cast<int>(m_workingLength + end - begin) <= static_cast<int>(m_pBuffer->size()), "buffer consistency");
-  memcpy(&((*m_pBuffer)[m_workingLength]), &*begin, end - begin);
-  m_workingLength += (end - begin);
-  m_writeEndPosition = m_workingLength;
+  CHECK_CONDITION(!bUsingStaticBuffer_, "buffer type");
+  CHECK_CONDITION(static_cast<int>(workingLength_ + end - begin) <= static_cast<int>(pBuffer_->size()), "buffer consistency");
+  memcpy(&((*pBuffer_)[workingLength_]), &*begin, end - begin);
+  workingLength_ += (end - begin);
+  writeEndPosition_ = workingLength_;
 }
 
 unsigned int read_write_buffer::getPhysicalLength()
 {
-  return m_pBuffer->size();
+  return pBuffer_->size();
 }
 
 
@@ -172,31 +172,31 @@ bool read_write_buffer::fitsInBuffer(unsigned int size)
 
 void read_write_buffer::reset()
 {
-  if(!m_bUsingStaticBuffer){
-    m_workingLength = 0;
-    m_writeEndPosition = 0;
+  if(!bUsingStaticBuffer_){
+    workingLength_ = 0;
+    writeEndPosition_ = 0;
   }
-  else if(m_pBuffer){
-    m_writeEndPosition = m_pBuffer->size();
-    m_workingLength = m_pBuffer->size();
+  else if(pBuffer_){
+    writeEndPosition_ = pBuffer_->size();
+    workingLength_ = pBuffer_->size();
   }
   else{
-    m_writeEndPosition = 0;
-    m_workingLength = 0;
+    writeEndPosition_ = 0;
+    workingLength_ = 0;
   }
-  m_processPosition = 0;
-  m_writePosition = 0;
+  processPosition_ = 0;
+  writePosition_ = 0;
 }
 
 void read_write_buffer::setWritePosition(unsigned int writePosition)
 {
-  CHECK_CONDITION(writePosition <= m_workingLength, "buffer consistency");
-  m_writePosition = writePosition;
+  CHECK_CONDITION(writePosition <= workingLength_, "buffer consistency");
+  writePosition_ = writePosition;
 }
 
 unsigned int read_write_buffer::getWritePosition()
 {
-  return m_writePosition;
+  return writePosition_;
 }
 
 void read_write_buffer::appendToString(std::string& s)
@@ -243,7 +243,7 @@ void read_write_buffer::appendFromString(const char * str)
   CHECK_CONDITION(len <= getPhysicalLength(), "buffer consistency");
   int i;
   for(i = 0; i < len; ++i,++str){
-    (*m_pBuffer)[i] = *str;
+    (*pBuffer_)[i] = *str;
   }
   set_working_length(len);
   setWriteEndPosition(len);
@@ -257,15 +257,15 @@ void init_raw_buffer(raw_buffer& buffer, const char* init_value)
 
 void read_write_buffer::appendToString(std::string& s, unsigned int begin, unsigned int end)
 {
-  CHECK_CONDITION(begin <= end && end <= m_workingLength, "buffer consistency");
+  CHECK_CONDITION(begin <= end && end <= workingLength_, "buffer consistency");
   unsigned int num_chars = end - begin;
   s.reserve(s.size() + num_chars);
   for(int i = begin; i < end; ++i){
-    s += (*m_pBuffer)[i];
+    s += (*pBuffer_)[i];
   } 
 }
 
 asio::const_buffer read_write_buffer::get_const_buffer()
 {
-  return asio::const_buffer(&((*m_pBuffer)[m_writePosition]), m_writeEndPosition);
+  return asio::const_buffer(&((*pBuffer_)[writePosition_]), writeEndPosition_);
 }

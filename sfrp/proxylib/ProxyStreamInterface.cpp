@@ -20,21 +20,21 @@
 namespace proxylib{
 
 ProxyStreamInterface::ProxyStreamInterface():
-  m_pProxyHandler(0),
-  m_pSrcData(0), 
-  m_pDestData(0)
+  pProxyHandler_(0),
+  pSrcData_(0), 
+  pDestData_(0)
 {
 }
 
 bool ProxyStreamInterface::isDestDisconnected()
 {
-  assert(m_pDestData == NULL);
-  return m_pDestData->state() == socketlib::connection::NOT_CONNECTED;
+  assert(pDestData_ == NULL);
+  return pDestData_->state() == socketlib::connection::NOT_CONNECTED;
 }
 
 socketlib::STATUS ProxyStreamInterface::forward(read_write_buffer& buf)
 {
-  return m_pDestData->non_blocking_write(buf);
+  return pDestData_->non_blocking_write(buf);
 }
     
 void ProxyStreamInterface::reset(ProxyHandler* pProxyHandler, 
@@ -45,35 +45,35 @@ void ProxyStreamInterface::reset(ProxyHandler* pProxyHandler,
 //  assert(pSrcData != 0);
 //  assert(pDestData != 0);
   
-  m_pSrcData = pSrcData;
-  m_pDestData = pDestData;
-  m_pProxyHandler = pProxyHandler;
+  pSrcData_ = pSrcData;
+  pDestData_ = pDestData;
+  pProxyHandler_ = pProxyHandler;
 }
 
 const char* ProxyStreamInterface::getSrcAddress()
 {
-  return m_pSrcData->get_ip_addr();
+  return pSrcData_->get_ip_addr();
 }
 
 const char* ProxyStreamInterface::getDestAddress()
 {
-  return m_pDestData->get_ip_addr();
+  return pDestData_->get_ip_addr();
 }
 
 void ProxyStreamInterface::flush()
 {
-  return m_pDestData->flush();
+  return pDestData_->flush();
 }
 
 pipeline_data_queue* ProxyStreamInterface::get_pipeline_data_queue()
 {
-  return &m_pProxyHandler->pipeline_data_queue_;
+  return &pProxyHandler_->pipeline_data_queue_;
 }
 
 
 socketlib::connection* ProxyStreamInterface::getDest()
 {
-  return m_pDestData;
+  return pDestData_;
 }
 
 } // namespace proxylib

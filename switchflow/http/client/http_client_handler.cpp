@@ -31,22 +31,22 @@
 http_client_handler::http_client_handler(std::auto_ptr<i_http_client> p_http_client,
                                          http::header_cache& cache):
   p_http_client_(p_http_client),
-  m_endlineBuf(&http::strings_.endline_),
+  endlineBuf_(&http::strings_.endline_),
   header_handler_(p_http_client->get_response(), http::RESPONSE),
-  m_headerParser(&header_handler_),
-  m_bodyParser(this)
+  headerParser_(&header_handler_),
+  bodyParser_(this)
 {
-  m_messageState = PUSH_HEADER;
-  m_endlineBuf.reset();
+  messageState_ = PUSH_HEADER;
+  endlineBuf_.reset();
   header_handler_.reset();
-  m_headerParser.reset();
+  headerParser_.reset();
 }
 
 http_client_handler::http_client_handler(const http_client_handler& rhs):
-  m_endlineBuf(&http::strings_.endline_),
+  endlineBuf_(&http::strings_.endline_),
   header_handler_(rhs.header_handler_),
-  m_headerParser(rhs.m_headerParser),
-  m_bodyParser(this)
+  headerParser_(rhs.headerParser_),
+  bodyParser_(this)
 {
   CHECK_CONDITION(false, "http_client_handler Copy construction not implemented");
 }
@@ -79,11 +79,11 @@ socketlib::STATUS http_client_handler::handle_stream(socketlib::connection& sock
   http::STATUS parseStatus;
 
   for(;;){
-    switch(m_messageState){
+    switch(messageState_){
       case PUSH_HEADER:
         status = header_pusher_.push_header();
         if(status == socketlib::COMPLETE){
-          m_messageState = PUSH_BODY;
+          messageState_ = PUSH_BODY;
           break;
         }
         if(status == socketlib::INCOMPLETE){
@@ -93,9 +93,9 @@ socketlib::STATUS http_client_handler::handle_stream(socketlib::connection& sock
         return status;
         
       case PUSH_BODY:
-        status = socket.non_blocking_write(m_endlineBuf);
+        status = socket.non_blocking_write(endlineBuf_);
         if(status == socketlib::COMPLETE){
-          m_messageState = PARSE_RESPONSE_HEADER;
+          messageState_ = PARSE_RESPONSE_HEADER;
           break;
         }
         if(status == socketlib::INCOMPLETE){
@@ -105,11 +105,11 @@ socketlib::STATUS http_client_handler::handle_stream(socketlib::connection& sock
         return status;
         
       case PARSE_RESPONSE_HEADER:
-        parseStatus = m_headerParser.parseHeaders(socket.readBuffer(),
+        parseStatus = headerParser_.parseHeaders(socket.readBuffer(),
                                                   http::HTTPHeaderParser::LOOSE);
         if(parseStatus == http::COMPLETE){
-          m_messageState = PARSE_BODY;
-          m_bodyParser.reset(header_handler_.get_body_encoding(), 
+          messageState_ = PARSE_BODY;
+          bodyParser_.reset(header_handler_.get_body_encoding(), 
                              header_handler_.get_message_size());
           p_http_client_->headers_complete();   
           break;
@@ -126,14 +126,14 @@ socketlib::STATUS http_client_handler::handle_stream(socketlib::connection& sock
         
       case PARSE_BODY:
       {
-        parseStatus = m_bodyParser.parseBody(socket.readBuffer());
+        parseStatus = bodyParser_.parseBody(socket.readBuffer());
         if(parseStatus == http::INVALID || parseStatus == http::DATAOVERFLOW){
           p_http_client_->invalid_body();
           return socketlib::DENY;
         }
         if(parseStatus == http::INCOMPLETE){
           if(!socket.open_for_read()){
-            if(m_bodyParser.encoding() == http::END_CONNECTION){
+            if(bodyParser_.encoding() == http::END_CONNECTION){
               //
               // This marks the end of the connection for HTTP 0.9 style connections.
               // It is ugly to do this here, but the body parser doesn't know when

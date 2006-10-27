@@ -29,20 +29,20 @@ class PessimisticMemoryManager
    * @param prototype a prototypical instance of the object which is being managed.
    */
   PessimisticMemoryManager(size_t maxElements, DataType prototype = DataType()):
-    m_freeDataStack(maxElements),
-    m_currentFreePosition(0)
+    freeDataStack_(maxElements),
+    currentFreePosition_(0)
   {
     for(size_t i = 0; i < maxElements; ++i){
-      m_freeDataStack[i] = new DataType(prototype);
+      freeDataStack_[i] = new DataType(prototype);
     }
   }
 
   PessimisticMemoryManager(size_t maxElements, DataType* pPrototype):
-    m_freeDataStack(maxElements),
-    m_currentFreePosition(0)
+    freeDataStack_(maxElements),
+    currentFreePosition_(0)
     {
       for(size_t i = 0; i < maxElements; ++i){
-        m_freeDataStack[i] = pPrototype->clone();
+        freeDataStack_[i] = pPrototype->clone();
       }
     }
 
@@ -58,13 +58,13 @@ class PessimisticMemoryManager
   ~PessimisticMemoryManager()
   {
     //
-    // m_currentFreePosition should equal 0 all 
+    // currentFreePosition_ should equal 0 all 
     // elements haven't been released.
     //
-    assert(m_currentFreePosition == 0);
-    size_t numElements = m_freeDataStack.size();
+    assert(currentFreePosition_ == 0);
+    size_t numElements = freeDataStack_.size();
     for(size_t i = 0; i < numElements; ++i){
-      delete m_freeDataStack[i];
+      delete freeDataStack_[i];
     }
   }
 
@@ -79,11 +79,11 @@ class PessimisticMemoryManager
    */
   DataType* allocateElement()
   {
-    if(m_currentFreePosition >= m_freeDataStack.size()){
+    if(currentFreePosition_ >= freeDataStack_.size()){
       return 0;
     }
-    m_currentFreePosition++;
-    return m_freeDataStack[m_currentFreePosition - 1];
+    currentFreePosition_++;
+    return freeDataStack_[currentFreePosition_ - 1];
   } 
   
   /**
@@ -94,24 +94,24 @@ class PessimisticMemoryManager
    */
   void releaseElement(DataType* pElement)
   {
-    --m_currentFreePosition;
-    m_freeDataStack[m_currentFreePosition] = pElement;
+    --currentFreePosition_;
+    freeDataStack_[currentFreePosition_] = pElement;
   }
 
   unsigned int numAvailableElements()
   {
-    m_freeDataStack.size() - m_currentFreePosition;
+    freeDataStack_.size() - currentFreePosition_;
   }
   
 private:
   //
   // vector used to hold pre allocated objects.
   //
-  std::vector<DataType*> m_freeDataStack;
+  std::vector<DataType*> freeDataStack_;
   //
   // pointer to the top of the free stack.
   //
-  unsigned int m_currentFreePosition;
+  unsigned int currentFreePosition_;
 };
 
 #endif

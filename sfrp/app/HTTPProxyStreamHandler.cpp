@@ -29,23 +29,23 @@ HTTPProxyStreamHandler::HTTPProxyStreamHandler(http::header_cache* cache,
                                                i_request_postprocessor* p_postprocessor):
   cache_(cache),
   host_map_(host_map),
-  m_streamType(streamType),
-  m_headerParser(&header_handler_),
-  m_bodyParser(this),
-  m_currentField(0),
-  m_currentDumpHeader(0),
-  m_maxStartLine1Length(maxStartLine1Length),
-  m_maxStartLine2Length(maxStartLine2Length),
-  m_maxStartLine3Length(maxStartLine3Length),
-  m_numHeaders(numHeaders),
-  m_maxHeaderNameLength(maxHeaderNameLength),
-  m_maxHeaderValueLength(maxHeaderValueLength),
-  m_messageState(START_MESSAGE),
-  m_pushHeaderState(START_LINE_TOKEN1),
-  m_chunkSize(http::CHUNK_SIZE_LENGTH + 2), // this allows room for the trailing CRLF
-  m_pAccessLog(pAccessLog),
+  streamType_(streamType),
+  headerParser_(&header_handler_),
+  bodyParser_(this),
+  currentField_(0),
+  currentDumpHeader_(0),
+  maxStartLine1Length_(maxStartLine1Length),
+  maxStartLine2Length_(maxStartLine2Length),
+  maxStartLine3Length_(maxStartLine3Length),
+  numHeaders_(numHeaders),
+  maxHeaderNameLength_(maxHeaderNameLength),
+  maxHeaderValueLength_(maxHeaderValueLength),
+  messageState_(START_MESSAGE),
+  pushHeaderState_(START_LINE_TOKEN1),
+  chunkSize_(http::CHUNK_SIZE_LENGTH + 2), // this allows room for the trailing CRLF
+  pAccessLog_(pAccessLog),
   current_pipeline_data_(0),
-  m_endlineBuf(&http::strings_.endline_),
+  endlineBuf_(&http::strings_.endline_),
   response_(cache,
             maxStartLine1Length, 
             maxStartLine2Length, 
@@ -60,14 +60,14 @@ HTTPProxyStreamHandler* HTTPProxyStreamHandler::clone()
 {
   return new HTTPProxyStreamHandler( cache_,
                                      host_map_,
-                                     m_streamType,
-                                     m_maxStartLine1Length,
-                                     m_maxStartLine2Length,
-                                     m_maxStartLine3Length,
-                                     m_numHeaders,
-                                     m_maxHeaderNameLength,
-                                     m_maxHeaderValueLength,
-                                     m_pAccessLog,
+                                     streamType_,
+                                     maxStartLine1Length_,
+                                     maxStartLine2Length_,
+                                     maxStartLine3Length_,
+                                     numHeaders_,
+                                     maxHeaderNameLength_,
+                                     maxHeaderValueLength_,
+                                     pAccessLog_,
                                      request_postprocessor_);
 }
 
@@ -78,15 +78,15 @@ socketlib::STATUS HTTPProxyStreamHandler::processData(read_write_buffer& buf)
   // If we are still buffering headers, we can't flush, so return
   // complete.  Probably should add a flush function to the API.
   if(buf.getWorkingLength() == 0 &&
-     (m_messageState == PARSE_HEADER)){
+     (messageState_ == PARSE_HEADER)){
     return socketlib::COMPLETE;
   }
   for(;;){
-    switch(m_messageState){
+    switch(messageState_){
       case START_MESSAGE:
         if(!set_current_pipeline_data()){
 #warning not sure about this returnvalue
-          if(m_streamType == http::REQUEST){
+          if(streamType_ == http::REQUEST){
             return socketlib::INCOMPLETE;
           }
           else{
@@ -97,21 +97,21 @@ socketlib::STATUS HTTPProxyStreamHandler::processData(read_write_buffer& buf)
           error_response_.reset();
           header_pusher_.reset(error_response_.get_message_buffer(),
                                *GetProxyStreamInterface()->getDest());
-          m_messageState = PUSH_HEADER;
+          messageState_ = PUSH_HEADER;
         }
         else{
-          m_messageState = PARSE_HEADER;
+          messageState_ = PARSE_HEADER;
         }
         break;
         
       case PARSE_HEADER:  
         http::STATUS parseStatus;
-        parseStatus = m_headerParser.parseHeaders(buf);
+        parseStatus = headerParser_.parseHeaders(buf);
         if(parseStatus == http::COMPLETE){
-          m_messageState = PUSH_HEADER;
+          messageState_ = PUSH_HEADER;
           header_pusher_.reset(header_handler_.get_message_buffer(),
                                *GetProxyStreamInterface()->getDest());
-          if(request_postprocessor_ && m_streamType == http::REQUEST){
+          if(request_postprocessor_ && streamType_ == http::REQUEST){
             if(request_postprocessor_->process_request(
                  header_handler_.get_message_buffer())){
               logRequest();
@@ -128,7 +128,7 @@ socketlib::STATUS HTTPProxyStreamHandler::processData(read_write_buffer& buf)
           break;
         }
         if(parseStatus == http::INVALID || parseStatus == http::DATAOVERFLOW){
-          if(m_streamType == http::REQUEST){
+          if(streamType_ == http::REQUEST){
             current_pipeline_data_->process_type_ = pipeline_data::DENY;
             current_pipeline_data_->request_complete_ = true;
             log_info("invalid request");
@@ -144,27 +144,27 @@ socketlib::STATUS HTTPProxyStreamHandler::processData(read_write_buffer& buf)
         socketlib::STATUS pushStatus;
         pushStatus = header_pusher_.push_header();
         if(pushStatus == socketlib::COMPLETE){
-          m_messageState = PARSE_BODY;
+          messageState_ = PARSE_BODY;
           current_pipeline_data_->request_complete_ = true;
           if(current_pipeline_data_->process_type_ == pipeline_data::DENY){
             //
             // Force the end of connection.
             return socketlib::SRC_CLOSED;
           }
-          else if(m_streamType == http::RESPONSE && 
+          else if(streamType_ == http::RESPONSE && 
              current_pipeline_data_->process_type_ == pipeline_data::HEAD){
             // 
             // If the request was a HEAD request, override 
             // what the response headers claim that the body encoding
             // is and set the body encoding to none.  This shit
             // drives me nuts about the HTTP spec.
-            m_bodyParser.reset(http::NONE, 0);
+            bodyParser_.reset(http::NONE, 0);
           }
           else{
             //
             // Just do the sensible thing, and get the body encoding
             // from the headers.
-            m_bodyParser.reset(header_handler_.get_body_encoding(), 
+            bodyParser_.reset(header_handler_.get_body_encoding(), 
                                header_handler_.get_message_size());
           }
           break;
@@ -172,7 +172,7 @@ socketlib::STATUS HTTPProxyStreamHandler::processData(read_write_buffer& buf)
         return pushStatus;
 
       case PARSE_BODY:
-        parseStatus = m_bodyParser.parseBody(buf);
+        parseStatus = bodyParser_.parseBody(buf);
         if(parseStatus == http::COMPLETE){
           GetProxyStreamInterface()->flush();
           complete_message();
@@ -208,7 +208,7 @@ socketlib::STATUS HTTPProxyStreamHandler::processData(read_write_buffer& buf)
         CHECK_CONDITION_VAL(false, "unknown return value from parseBody", parseStatus);
         break;
       default:
-        CHECK_CONDITION_VAL(false, "unknown state in processData", m_messageState);
+        CHECK_CONDITION_VAL(false, "unknown state in processData", messageState_);
     }
   }
   //
@@ -239,13 +239,13 @@ void HTTPProxyStreamHandler::reset()
 
 void HTTPProxyStreamHandler::initialize_state()
 {
-  m_currentField = 0;
-  m_currentDumpHeader = 0;
-  m_messageState = START_MESSAGE;
-  m_pushHeaderState = START_LINE_TOKEN1;
-  m_headerParser.reset();
-  m_bodyParser.reset(http::NONE, 0);
-  m_chunkSize.reset();
+  currentField_ = 0;
+  currentDumpHeader_ = 0;
+  messageState_ = START_MESSAGE;
+  pushHeaderState_ = START_LINE_TOKEN1;
+  headerParser_.reset();
+  bodyParser_.reset(http::NONE, 0);
+  chunkSize_.reset();
   header_handler_.reset();
   
 }
@@ -262,23 +262,23 @@ void HTTPProxyStreamHandler::set_body_encoding(http::BODY_ENCODING bodyEncoding)
 
 void HTTPProxyStreamHandler::set_chunk_size(unsigned int chunkSize)
 {
-  int chunkSizeChars = snprintf((char*)(&m_chunkSize.get_raw_buffer()[0]), m_chunkSize.getPhysicalLength(), "%X", chunkSize);
-  m_chunkSize.set_working_length(chunkSizeChars + 2);
-  m_chunkSize[chunkSizeChars] = http::CR;
-  m_chunkSize[chunkSizeChars + 1] = http::LF;
+  int chunkSizeChars = snprintf((char*)(&chunkSize_.get_raw_buffer()[0]), chunkSize_.getPhysicalLength(), "%X", chunkSize);
+  chunkSize_.set_working_length(chunkSizeChars + 2);
+  chunkSize_[chunkSizeChars] = http::CR;
+  chunkSize_[chunkSizeChars + 1] = http::LF;
   
-  m_endlineBuf.setWritePosition(0);
+  endlineBuf_.setWritePosition(0);
 }
 
 http::STATUS HTTPProxyStreamHandler::forward_chunk_trailer()
 {
-  socketlib::STATUS returnVal = GetProxyStreamInterface()->forward(m_endlineBuf);
+  socketlib::STATUS returnVal = GetProxyStreamInterface()->forward(endlineBuf_);
   return convert_proxy_status(returnVal);
 }
 
 http::STATUS HTTPProxyStreamHandler::forward_chunk_size()
 {
-  socketlib::STATUS returnVal = GetProxyStreamInterface()->forward(m_chunkSize);
+  socketlib::STATUS returnVal = GetProxyStreamInterface()->forward(chunkSize_);
   return convert_proxy_status(returnVal);
 }
 
@@ -289,21 +289,21 @@ void HTTPProxyStreamHandler::logRequest()
   // Don't bother to do anything if the log file
   // isn't open.  
   //
-  if(!m_pAccessLog->isOpen()){
+  if(!pAccessLog_->isOpen()){
     return;
   }
   
-  if(m_streamType == http::REQUEST){
+  if(streamType_ == http::REQUEST){
     current_pipeline_data_->logrecord_.reset();
     copyRequestDataToLog(header_handler_.get_message_buffer(),
                          current_pipeline_data_->logrecord_);
   }
-  else if(m_streamType == http::RESPONSE){
+  else if(streamType_ == http::RESPONSE){
 
     copyResponseDataToLog(header_handler_.get_message_buffer(),
                           current_pipeline_data_->logrecord_);
     
-    m_pAccessLog->logAccess(current_pipeline_data_->logrecord_);
+    pAccessLog_->logAccess(current_pipeline_data_->logrecord_);
     
   }
   else{
@@ -346,7 +346,7 @@ proxylib::IProxyStreamHandler::FORWARD_ADDRESS_STATUS HTTPProxyStreamHandler::ge
 {
   http::message_buffer& buffer = header_handler_.get_message_buffer();
   
-  if(m_streamType != http::REQUEST){
+  if(streamType_ != http::REQUEST){
     return proxylib::IProxyStreamHandler::STREAM_DOES_NOT_PROVIDE_FORWARD_ADDRESS;
   }
 
@@ -370,7 +370,7 @@ proxylib::IProxyStreamHandler::FORWARD_ADDRESS_STATUS HTTPProxyStreamHandler::ge
     return proxylib::IProxyStreamHandler::CONNECTION_DOES_NOT_PROVIDE_FORWARD_ADDRESS;
   }
 
-  m_forwardAddress = *it->second.first.endpoint.data();
+  forwardAddress_ = *it->second.first.endpoint.data();
   std::string base_path = it->second.first.path;
   buffer.get_status_line_2().appendToString(base_path);
   buffer.get_status_line_2().appendFromString(base_path.c_str());
@@ -388,20 +388,20 @@ proxylib::IProxyStreamHandler::FORWARD_ADDRESS_STATUS HTTPProxyStreamHandler::ge
 
 sockaddr& HTTPProxyStreamHandler::getForwardAddressFromStream()
 {
-  return m_forwardAddress;
+  return forwardAddress_;
 }
 
 
 bool HTTPProxyStreamHandler::set_current_pipeline_data()
 {
-  if(m_streamType == http::REQUEST){
+  if(streamType_ == http::REQUEST){
     if(GetProxyStreamInterface()->get_pipeline_data_queue()->queue_full()){
       return false;
     }
     current_pipeline_data_ =
       boost::polymorphic_downcast<pipeline_data*>(GetProxyStreamInterface()->get_pipeline_data_queue()->queue_element());
   }
-  else if(m_streamType == http::RESPONSE){
+  else if(streamType_ == http::RESPONSE){
     if(GetProxyStreamInterface()->get_pipeline_data_queue()->queue_empty()){
       return false;
     }

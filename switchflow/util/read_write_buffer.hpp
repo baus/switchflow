@@ -80,12 +80,12 @@ public:
   asio::const_buffer get_const_buffer();
 private:
   void operator=(const read_write_buffer& buffer);
-  raw_buffer* m_pBuffer;
-  bool m_bUsingStaticBuffer;
-  unsigned int m_workingLength;
-  unsigned int m_processPosition;
-  unsigned int m_writeEndPosition;
-  unsigned int m_writePosition;
+  raw_buffer* pBuffer_;
+  bool bUsingStaticBuffer_;
+  unsigned int workingLength_;
+  unsigned int processPosition_;
+  unsigned int writeEndPosition_;
+  unsigned int writePosition_;
 };
 
 

@@ -32,7 +32,7 @@ public:
   bool getHeaderWithNameIndex(char* headerName, unsigned int& index);
       
 private:
-  message_buffer& m_messageBuffer;
+  message_buffer& messageBuffer_;
 };
 
 }

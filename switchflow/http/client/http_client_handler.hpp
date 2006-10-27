@@ -94,11 +94,11 @@ private:
     PARSE_BODY
   };
 
-  read_write_buffer m_endlineBuf;
-  MESSAGE_STATE m_messageState;
+  read_write_buffer endlineBuf_;
+  MESSAGE_STATE messageState_;
   http::header_handler header_handler_;
-  http::HTTPHeaderParser m_headerParser;
-  http::BodyParser m_bodyParser;
+  http::HTTPHeaderParser headerParser_;
+  http::BodyParser bodyParser_;
 
   std::auto_ptr<i_http_client> p_http_client_;
   

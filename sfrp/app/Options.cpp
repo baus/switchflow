@@ -18,7 +18,7 @@
 
 
 Options::Options():
-  m_configFile("/etc/sfrp.conf")
+  configFile_("/etc/sfrp.conf")
 {
   
 }
@@ -66,7 +66,7 @@ Options::STATUS Options::processCommandLine(int argc, char *argv[])
     } 
     
     if(vm.count("file")) {
-      m_configFile = vm["file"].as<std::string>();
+      configFile_ = vm["file"].as<std::string>();
     }
   }
   catch(po::error e){
@@ -79,7 +79,7 @@ Options::STATUS Options::processCommandLine(int argc, char *argv[])
 
 std::string Options::getConfigFile()
 {
-  return m_configFile;
+  return configFile_;
 }
 
 void Options::printShortCopyright()

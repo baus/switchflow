@@ -36,7 +36,7 @@ public:
   virtual ~RequestData();
   SetValue();
 private:
-  std::map<std::string, std::string> m_keyValues;
+  std::map<std::string, std::string> keyValues_;
 };
 
 } // namespace proxylib 

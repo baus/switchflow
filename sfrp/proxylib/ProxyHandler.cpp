@@ -21,18 +21,18 @@ ProxyHandler::ProxyHandler(eventlib::poller* pPoller,
                            unsigned int serverTimeoutMilliseconds,
                            const sockaddr& serverAddr,
                            boost::function<i_pipeline_data* ()> pipeline_data_factory):
-  m_pPoller(pPoller),
-  m_pProxyHandlers(0),
-  m_clientData(bufferLength),
-  m_serverData(bufferLength),
-  m_pRequestStreamHandlers(0),
-  m_pResponseStreamHandlers(0),
-  m_pRequestStreamHandler(0),
-  m_pResponseStreamHandler(0),
-  m_clientTimeoutMilliseconds(clientTimeoutMilliseconds),
-  m_serverTimeoutMilliseconds(serverTimeoutMilliseconds),
+  pPoller_(pPoller),
+  pProxyHandlers_(0),
+  clientData_(bufferLength),
+  serverData_(bufferLength),
+  pRequestStreamHandlers_(0),
+  pResponseStreamHandlers_(0),
+  pRequestStreamHandler_(0),
+  pResponseStreamHandler_(0),
+  clientTimeoutMilliseconds_(clientTimeoutMilliseconds),
+  serverTimeoutMilliseconds_(serverTimeoutMilliseconds),
   pipeline_data_queue_(pipeline_data_factory),
-  m_serverAddr(serverAddr)
+  serverAddr_(serverAddr)
 {
 }
 
@@ -41,17 +41,17 @@ ProxyHandler::ProxyHandler(eventlib::poller* pPoller,
 //
 // Copy contruction is used by the memory management system.
 ProxyHandler::ProxyHandler(const ProxyHandler& rhs):
-  m_pProxyHandlers(0),
-  m_clientData(rhs.m_clientData),
-  m_serverData(rhs.m_serverData),
-  m_pRequestStreamHandlers(0),
-  m_pResponseStreamHandlers(0),
-  m_pRequestStreamHandler(0),
-  m_pResponseStreamHandler(0),
-  m_clientTimeoutMilliseconds(rhs.m_clientTimeoutMilliseconds),
-  m_serverTimeoutMilliseconds(rhs.m_serverTimeoutMilliseconds),
+  pProxyHandlers_(0),
+  clientData_(rhs.clientData_),
+  serverData_(rhs.serverData_),
+  pRequestStreamHandlers_(0),
+  pResponseStreamHandlers_(0),
+  pRequestStreamHandler_(0),
+  pResponseStreamHandler_(0),
+  clientTimeoutMilliseconds_(rhs.clientTimeoutMilliseconds_),
+  serverTimeoutMilliseconds_(rhs.serverTimeoutMilliseconds_),
   pipeline_data_queue_(rhs.pipeline_data_queue_),
-  m_serverAddr(rhs.m_serverAddr)
+  serverAddr_(rhs.serverAddr_)
 {
 }
 
@@ -65,17 +65,17 @@ void ProxyHandler::reset(PessimisticMemoryManager<ProxyHandler>*        pProxyHa
                          PessimisticMemoryManager<IProxyStreamHandler>* pRequestStreamHandlers,
                          PessimisticMemoryManager<IProxyStreamHandler>* pResponseStreamHandlers)
 {
-  m_serverData.reset();
-  m_clientData.reset();
-  m_pProxyHandlers          = pProxyHandlers;
-  m_pRequestStreamHandlers  = pRequestStreamHandlers;
-  m_pResponseStreamHandlers = pResponseStreamHandlers;
-  m_pRequestStreamHandler   = m_pRequestStreamHandlers->allocateElement();
-  m_requestStream.reset(this, &m_clientData, &m_serverData);
-  m_pRequestStreamHandler->reset(&m_requestStream);
-  m_pResponseStreamHandler  = m_pResponseStreamHandlers->allocateElement();
-  m_responseStream.reset(this, &m_serverData, &m_clientData);
-  m_pResponseStreamHandler->reset(&m_responseStream);
+  serverData_.reset();
+  clientData_.reset();
+  pProxyHandlers_          = pProxyHandlers;
+  pRequestStreamHandlers_  = pRequestStreamHandlers;
+  pResponseStreamHandlers_ = pResponseStreamHandlers;
+  pRequestStreamHandler_   = pRequestStreamHandlers_->allocateElement();
+  requestStream_.reset(this, &clientData_, &serverData_);
+  pRequestStreamHandler_->reset(&requestStream_);
+  pResponseStreamHandler_  = pResponseStreamHandlers_->allocateElement();
+  responseStream_.reset(this, &serverData_, &clientData_);
+  pResponseStreamHandler_->reset(&responseStream_);
   pipeline_data_queue_.empty_queue();
 }
 
@@ -100,7 +100,7 @@ int ProxyHandler::handle_event(int fd, short revents, eventlib::event& event)
     return -1;
   }
 
-  status = handleStream(m_serverData, m_pResponseStreamHandler);
+  status = handleStream(serverData_, pResponseStreamHandler_);
   if(status == socketlib::COMPLETE){
     bResponseLineComplete = true;
   }
@@ -109,12 +109,12 @@ int ProxyHandler::handle_event(int fd, short revents, eventlib::event& event)
     return -1;
   }
   else{
-    status = handleStream(m_clientData, m_pRequestStreamHandler);    
+    status = handleStream(clientData_, pRequestStreamHandler_);    
     if(status == socketlib::DENY){
       shutdown_request();
       //
       // Give the response a chance to send an internal error
-      status = handleStream(m_serverData, m_pResponseStreamHandler);
+      status = handleStream(serverData_, pResponseStreamHandler_);
       if(status == socketlib::COMPLETE){
         bResponseLineComplete = true;
       }
@@ -131,68 +131,68 @@ int ProxyHandler::handle_event(int fd, short revents, eventlib::event& event)
   }
 
   int clientEv = 0;
-  if(!m_clientData.ready_to_read() && m_clientData.open_for_read()){
+  if(!clientData_.ready_to_read() && clientData_.open_for_read()){
     clientEv |= EV_READ;
   }
-  if(!m_clientData.ready_to_write() && m_clientData.open_for_write()){
+  if(!clientData_.ready_to_write() && clientData_.open_for_write()){
     clientEv |= EV_WRITE;
   }
 
   int serverEv = 0;
-  if(!m_serverData.ready_to_read() && m_serverData.open_for_read()){
+  if(!serverData_.ready_to_read() && serverData_.open_for_read()){
     serverEv |= EV_READ;
   }
-  if(!m_serverData.ready_to_write() && m_serverData.open_for_write()){
+  if(!serverData_.ready_to_write() && serverData_.open_for_write()){
     serverEv |= EV_WRITE;
   }
   //
   // If a read or write event isn't registered, the 
   // connection will dead lock if the server is connected.
   assert(clientEv || serverEv || 
-         !(m_serverData.open_for_read() || m_serverData.open_for_write()) );
+         !(serverData_.open_for_read() || serverData_.open_for_write()) );
   if(clientEv){
     //
     // event will be deleted if it is already pending.
     //
     // Note this reshedules the timeout even if the event hasn't changed.
-    m_pPoller->add_event(m_clientEvent, clientEv, 0);
+    pPoller_->add_event(clientEvent_, clientEv, 0);
   }
   if(serverEv){
     //
     // event will be deleted if it is already pending
     //
     // Note this reshedules the timeout even if the event hasn't changed.
-    m_pPoller->add_event(m_serverEvent, serverEv, 0);
+    pPoller_->add_event(serverEvent_, serverEv, 0);
   }
 }
 
 void ProxyHandler::shutdown()
 {
-  if(m_clientData.fd() != -1){
-    m_pPoller->del_event(m_clientEvent);
-    ::close(m_clientData.fd());
+  if(clientData_.fd() != -1){
+    pPoller_->del_event(clientEvent_);
+    ::close(clientData_.fd());
   }
-  if(m_serverData.fd() != -1){
-    m_pPoller->del_event(m_serverEvent);
-    ::close(m_serverData.fd());
+  if(serverData_.fd() != -1){
+    pPoller_->del_event(serverEvent_);
+    ::close(serverData_.fd());
   }
 
-  if(m_pRequestStreamHandler != 0 || m_pResponseStreamHandler != 0){
-    m_pProxyHandlers->releaseElement(this);
+  if(pRequestStreamHandler_ != 0 || pResponseStreamHandler_ != 0){
+    pProxyHandlers_->releaseElement(this);
   }
-  if(m_pRequestStreamHandler != 0){ 
-    m_pRequestStreamHandlers->releaseElement(m_pRequestStreamHandler); 
+  if(pRequestStreamHandler_ != 0){ 
+    pRequestStreamHandlers_->releaseElement(pRequestStreamHandler_); 
   }
-  if(m_pResponseStreamHandler != 0){
-    m_pResponseStreamHandlers->releaseElement(m_pResponseStreamHandler);
+  if(pResponseStreamHandler_ != 0){
+    pResponseStreamHandlers_->releaseElement(pResponseStreamHandler_);
   }
-  m_pRequestStreamHandler  = 0;
-  m_pResponseStreamHandler = 0;
+  pRequestStreamHandler_  = 0;
+  pResponseStreamHandler_ = 0;
 }
 
 void ProxyHandler::shutdown_request()
 {
-  ::shutdown(m_clientData.fd(), SHUT_RD);
+  ::shutdown(clientData_.fd(), SHUT_RD);
 }
 
 socketlib::STATUS ProxyHandler::handleStream(socketlib::connection& srcData,
@@ -277,8 +277,8 @@ socketlib::STATUS ProxyHandler::attemptJITServerConnect(socketlib::connection& s
 {
   //
   // check if we should connect to the server.
-  if(&src == &m_clientData){
-    if(m_serverData.state() == socketlib::connection::NOT_CONNECTED){
+  if(&src == &clientData_){
+    if(serverData_.state() == socketlib::connection::NOT_CONNECTED){
       //
       // If StreamHandler doesn't provide the forward address, then
       // the logic is screwed up somewhere.
@@ -297,7 +297,7 @@ socketlib::STATUS ProxyHandler::attemptJITServerConnect(socketlib::connection& s
         connect = true;
       }
       else if(IProxyStreamHandler::CONNECTION_DOES_NOT_PROVIDE_FORWARD_ADDRESS == addressStatus){
-        serverAddr = m_serverAddr;
+        serverAddr = serverAddr_;
         connect = true;
       }
       if(connect){
@@ -317,9 +317,9 @@ socketlib::STATUS ProxyHandler::handleServerConnect()
   // Looks like a server connect.  Let's see what happened.
   int error;
   socklen_t sizeofError = sizeof(error);
-  int optErr = getsockopt(m_serverData.fd(), SOL_SOCKET, SO_ERROR, &error, &sizeofError);
+  int optErr = getsockopt(serverData_.fd(), SOL_SOCKET, SO_ERROR, &error, &sizeofError);
   if(error == 0 && optErr == 0){
-    m_serverData.state(socketlib::connection::CONNECTED);
+    serverData_.state(socketlib::connection::CONNECTED);
     return socketlib::COMPLETE;
   }
   return socketlib::CONNECTION_FAILED;
@@ -327,15 +327,15 @@ socketlib::STATUS ProxyHandler::handleServerConnect()
 
 socketlib::STATUS ProxyHandler::addClient(int clientSocket)
 {
-  assert(m_clientData.fd() == -1);
-  m_clientData.fd(clientSocket);
-  m_clientData.state(socketlib::connection::CONNECTED);
-  m_clientEvent.set(clientSocket, this);
+  assert(clientData_.fd() == -1);
+  clientData_.fd(clientSocket);
+  clientData_.state(socketlib::connection::CONNECTED);
+  clientEvent_.set(clientSocket, this);
   //
   // It would be tempting to schedule a timeout here, but that will
   // happen as soon as we attempt any I/O the socket that would block.  Remember we
   // must assume the socket is ready to read and/or write
-  m_pPoller->add_event(m_clientEvent, EV_READ|EV_WRITE, 0);
+  pPoller_->add_event(clientEvent_, EV_READ|EV_WRITE, 0);
   
   return socketlib::COMPLETE;
 }
@@ -344,9 +344,9 @@ socketlib::STATUS ProxyHandler::initiateServerConnect(const sockaddr& serverAddr
 {
   // 
   // create a socket
-  m_serverData.fd(::socket(AF_INET, SOCK_STREAM, 0));
+  serverData_.fd(::socket(AF_INET, SOCK_STREAM, 0));
   
-  if (m_serverData.fd() == -1)  {
+  if (serverData_.fd() == -1)  {
     log_info("failed creating forward server socket", errno);
     //
     // Need to go into cleanup mode here.
@@ -355,10 +355,10 @@ socketlib::STATUS ProxyHandler::initiateServerConnect(const sockaddr& serverAddr
 
   //
   // add to the poller.
-  m_serverEvent.set(m_serverData.fd(), this);
-  m_pPoller->add_event(m_serverEvent, EV_READ|EV_WRITE, 0);
+  serverEvent_.set(serverData_.fd(), this);
+  pPoller_->add_event(serverEvent_, EV_READ|EV_WRITE, 0);
     
-  if (::connect(m_serverData.fd(), 
+  if (::connect(serverData_.fd(), 
                 &serverAddr, 
                 sizeof(serverAddr)) == -1){
     if(errno != EINPROGRESS){
@@ -369,7 +369,7 @@ socketlib::STATUS ProxyHandler::initiateServerConnect(const sockaddr& serverAddr
       // need clean shutdown
       return socketlib::CONNECTION_FAILED;
     }
-    m_serverData.state(socketlib::connection::CONNECTING);
+    serverData_.state(socketlib::connection::CONNECTING);
   }
   else{
     //
@@ -382,25 +382,25 @@ socketlib::STATUS ProxyHandler::initiateServerConnect(const sockaddr& serverAddr
 
 void ProxyHandler::handleTimeout(int fd)
 {
-  if(m_serverData.fd() == fd){
+  if(serverData_.fd() == fd){
     log_info("server timed out");
-    assert(!m_pPoller->pending(m_serverEvent));
-    m_serverData.fd(-1);
-    m_serverData.state(socketlib::connection::HUNGUP);
+    assert(!pPoller_->pending(serverEvent_));
+    serverData_.fd(-1);
+    serverData_.state(socketlib::connection::HUNGUP);
     ::close(fd);
   }
-  else if(m_clientData.fd() == fd){
+  else if(clientData_.fd() == fd){
     log_info("client timed out");
-    assert(!m_pPoller->pending(m_clientEvent));
-    m_clientData.fd(-1);
-    m_clientData.state(socketlib::connection::HUNGUP);
+    assert(!pPoller_->pending(clientEvent_));
+    clientData_.fd(-1);
+    clientData_.state(socketlib::connection::HUNGUP);
     ::close(fd);
   }
   else{
     CHECK_CONDITION_VAL(false, "timeout occured on unknown file handle", fd);
   }
-  if(m_serverData.state() == socketlib::connection::HUNGUP && 
-     m_clientData.state() == socketlib::connection::HUNGUP){
+  if(serverData_.state() == socketlib::connection::HUNGUP && 
+     clientData_.state() == socketlib::connection::HUNGUP){
     shutdown();
   }
 }
@@ -408,11 +408,11 @@ void ProxyHandler::handleTimeout(int fd)
 
 void ProxyHandler::handlePollin(int fd)
 {
-  if(fd == m_clientData.fd()){
-    m_clientData.ready_to_read(true);
+  if(fd == clientData_.fd()){
+    clientData_.ready_to_read(true);
   }
-  else if(fd == m_serverData.fd()){
-    m_serverData.ready_to_read(true);
+  else if(fd == serverData_.fd()){
+    serverData_.ready_to_read(true);
   }
   else{
     CHECK_CONDITION_VAL(false, "notified on unknown fd", fd);
@@ -421,11 +421,11 @@ void ProxyHandler::handlePollin(int fd)
 
 void ProxyHandler::handlePollout(int fd)
 {
-  if(fd == m_clientData.fd()){
-    m_clientData.ready_to_write(true);
+  if(fd == clientData_.fd()){
+    clientData_.ready_to_write(true);
   }
-  else if(fd == m_serverData.fd()){
-    m_serverData.ready_to_write(true);
+  else if(fd == serverData_.fd()){
+    serverData_.ready_to_write(true);
   }
   else{
     CHECK_CONDITION_VAL(false, "notified on unknown fd.", fd);
@@ -435,7 +435,7 @@ void ProxyHandler::handlePollout(int fd)
 
 socketlib::STATUS ProxyHandler::checkForServerConnect(int fd)
 {
-  if((fd == m_serverData.fd()) && (m_serverData.state() == socketlib::connection::CONNECTING)){
+  if((fd == serverData_.fd()) && (serverData_.state() == socketlib::connection::CONNECTING)){
     //
     // This event signals that connection to the server is complete.
     return handleServerConnect();

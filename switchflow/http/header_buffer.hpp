@@ -22,8 +22,8 @@ class header_buffer
   bool name_equals(const char* compareString);
   bool value_equals(const char* compareString);
  private:
-  read_write_buffer m_name;
-  read_write_buffer m_value;
+  read_write_buffer name_;
+  read_write_buffer value_;
 };
 
 

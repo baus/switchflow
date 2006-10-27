@@ -14,10 +14,10 @@ NewConnectionHandler::NewConnectionHandler(PessimisticMemoryManager<ProxyHandler
                                            PessimisticMemoryManager<IProxyStreamHandler>* pRequestStreamHandlers,
                                            PessimisticMemoryManager<IProxyStreamHandler>* pResponseStreamHandlers,
                                            eventlib::poller* pPoller):
-  m_pProxyHandlers(pProxyHandlers), 
-  m_pRequestStreamHandlers(pRequestStreamHandlers),
-  m_pResponseStreamHandlers(pResponseStreamHandlers),
-  m_pPoller(pPoller)
+  pProxyHandlers_(pProxyHandlers), 
+  pRequestStreamHandlers_(pRequestStreamHandlers),
+  pResponseStreamHandlers_(pResponseStreamHandlers),
+  pPoller_(pPoller)
 {
 }
   
@@ -33,19 +33,19 @@ int NewConnectionHandler::handle_event(int fd, short revents, eventlib::event& e
     //
     // Never need to deallocate instance.  Ownership is transfered
     // to the instance itself.  When it is shutdown, it releases itself.
-    // That is why m_pProxyHandlers is passed to initialize.
+    // That is why pProxyHandlers_ is passed to initialize.
     //
-    ProxyHandler* pProxyHandler = m_pProxyHandlers->allocateElement();
+    ProxyHandler* pProxyHandler = pProxyHandlers_->allocateElement();
 
-    pProxyHandler->reset(m_pProxyHandlers, m_pRequestStreamHandlers, m_pResponseStreamHandlers);
+    pProxyHandler->reset(pProxyHandlers_, pRequestStreamHandlers_, pResponseStreamHandlers_);
     status = pProxyHandler->addClient(clientFd);
     //
     // If the stream does not provide JIT connection, connect right now.
     if(status == socketlib::COMPLETE &&
-       pProxyHandler->m_pRequestStreamHandler->getForwardAddressStatus() ==
+       pProxyHandler->pRequestStreamHandler_->getForwardAddressStatus() ==
        IProxyStreamHandler::STREAM_DOES_NOT_PROVIDE_FORWARD_ADDRESS){
       
-      pProxyHandler->initiateServerConnect(pProxyHandler->m_serverAddr);      
+      pProxyHandler->initiateServerConnect(pProxyHandler->serverAddr_);      
     }
 
     //
@@ -53,7 +53,7 @@ int NewConnectionHandler::handle_event(int fd, short revents, eventlib::event& e
 #warning should we attempt to read?    
 //    pProxyHandler->handle_event(clientFd, EV_READ);
   }
-  m_pPoller->add_event(event, EV_READ|EV_WRITE, 0);
+  pPoller_->add_event(event, EV_READ|EV_WRITE, 0);
   return 0;
 }  
 

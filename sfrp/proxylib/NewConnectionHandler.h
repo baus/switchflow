@@ -43,17 +43,17 @@ class NewConnectionHandler: public eventlib::i_event_handler
  private:
   // The client socket handlers that will be used when a connection has been
   // made.  
-  PessimisticMemoryManager<ProxyHandler>* m_pProxyHandlers;
+  PessimisticMemoryManager<ProxyHandler>* pProxyHandlers_;
   
   
-  PessimisticMemoryManager<IProxyStreamHandler>* m_pRequestStreamHandlers;
-  PessimisticMemoryManager<IProxyStreamHandler>* m_pResponseStreamHandlers;
+  PessimisticMemoryManager<IProxyStreamHandler>* pRequestStreamHandlers_;
+  PessimisticMemoryManager<IProxyStreamHandler>* pResponseStreamHandlers_;
   
   //
   //
   int acceptClient(int proxyServerSocket);
 
-  eventlib::poller* m_pPoller;
+  eventlib::poller* pPoller_;
 };
 
 } // namespace proxylib

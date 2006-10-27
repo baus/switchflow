@@ -29,7 +29,7 @@ public:
   void logAccess(CombinedLogRecord& logRecord);
 
 private:
-  int m_logfd;
+  int logfd_;
 
 };
 

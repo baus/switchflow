@@ -29,13 +29,13 @@ namespace http{
     
     void reset(BODY_ENCODING bodyEncoding, int messageSize);
     
-    BODY_ENCODING encoding(){return m_bodyEncoding;}
+    BODY_ENCODING encoding(){return bodyEncoding_;}
   private:
-    BODY_ENCODING m_bodyEncoding;    
+    BODY_ENCODING bodyEncoding_;    
     
-    ChunkedBodyParser m_chunkedBodyParser;
-    ContentLengthBodyParser m_contentLengthBodyParser;
-    EndConnectionBodyParser m_endConnectionBodyParser;
+    ChunkedBodyParser chunkedBodyParser_;
+    ContentLengthBodyParser contentLengthBodyParser_;
+    EndConnectionBodyParser endConnectionBodyParser_;
   };
   
 } //namespace httplib

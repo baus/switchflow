@@ -28,7 +28,7 @@ namespace proxylib{
 class IProxyStreamHandler
 {
  public:
-    IProxyStreamHandler():m_pProxyStreamInterface(0){}
+    IProxyStreamHandler():pProxyStreamInterface_(0){}
 
     enum FORWARD_ADDRESS_STATUS
     {
@@ -73,16 +73,16 @@ class IProxyStreamHandler
     
     virtual socketlib::STATUS processData(read_write_buffer& buf) = 0;
     virtual IProxyStreamHandler* clone() = 0;
-    ProxyStreamInterface* GetProxyStreamInterface(){assert(m_pProxyStreamInterface);return m_pProxyStreamInterface;}
+    ProxyStreamInterface* GetProxyStreamInterface(){assert(pProxyStreamInterface_);return pProxyStreamInterface_;}
     virtual void reset() = 0;
     virtual void reset(ProxyStreamInterface* pProxyStreamInterface )
     {
-      m_pProxyStreamInterface = pProxyStreamInterface;
+      pProxyStreamInterface_ = pProxyStreamInterface;
       reset();
     }
     
  private:
-    ProxyStreamInterface* m_pProxyStreamInterface;
+    ProxyStreamInterface* pProxyStreamInterface_;
 };
 
 } // proxylib

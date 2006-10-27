@@ -85,15 +85,15 @@ class HTTPHeaderParser
   // 
   // data members
   //
-  PARSE_STATE m_currentState;
+  PARSE_STATE currentState_;
   
-  STATUS_LINE_PARSE_STATE m_statusLineState;
+  STATUS_LINE_PARSE_STATE statusLineState_;
   
-  unsigned int m_currentLength;
+  unsigned int currentLength_;
     
-  IHeaderReceiver* m_pHeaderReceiver;
-  read_write_buffer m_chunkSizeBuffer;
-  int m_messageSize;
+  IHeaderReceiver* pHeaderReceiver_;
+  read_write_buffer chunkSizeBuffer_;
+  int messageSize_;
 };
 
 } //namespace httplib

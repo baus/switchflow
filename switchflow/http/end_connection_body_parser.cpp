@@ -14,7 +14,7 @@
 namespace http{
   
   EndConnectionBodyParser::EndConnectionBodyParser(i_body_receiver* pBodyReceiver):
-  m_pBodyReceiver(pBodyReceiver)
+  pBodyReceiver_(pBodyReceiver)
 {
 }
 
@@ -24,7 +24,7 @@ EndConnectionBodyParser::~EndConnectionBodyParser()
 
 STATUS EndConnectionBodyParser::parseEndConnectionBody(read_write_buffer& buffer)
 {
-  STATUS returnValue = m_pBodyReceiver->set_body(buffer, false);
+  STATUS returnValue = pBodyReceiver_->set_body(buffer, false);
 
   if(returnValue == COMPLETE){
     //

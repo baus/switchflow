@@ -22,8 +22,8 @@ class HTTPHeaderBuffer
   bool nameEquals(char* compareString);
   bool valueEquals(char* compareString);
  private:
-  Buffer m_name;
-  Buffer m_value;
+  Buffer name_;
+  Buffer value_;
 };
 
 

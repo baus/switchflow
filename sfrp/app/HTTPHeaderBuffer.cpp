@@ -9,46 +9,46 @@
 
 
 HTTPHeaderBuffer::HTTPHeaderBuffer(unsigned int maxNameLength, 
-           unsigned int maxValueLength):m_name(maxNameLength), 
-                m_value(maxValueLength)
+           unsigned int maxValueLength):name_(maxNameLength), 
+                value_(maxValueLength)
 {
   
 }
 
 Buffer& HTTPHeaderBuffer::getName()
 {
-  return m_name;
+  return name_;
 }
 
 Buffer& HTTPHeaderBuffer::getValue()
 {
-  return m_value;
+  return value_;
 }
 
 void HTTPHeaderBuffer::reset()
 {
-  m_name.reset();
-  m_value.reset();
+  name_.reset();
+  value_.reset();
 }
 
 void HTTPHeaderBuffer::appendToName(RawBuffer::iterator begin, RawBuffer::iterator end)
 {
-  m_name.appendFromBuffer(begin, end);
+  name_.appendFromBuffer(begin, end);
 }
 
 void HTTPHeaderBuffer::appendToValue(RawBuffer::iterator begin, RawBuffer::iterator end)
 {
-  m_value.appendFromBuffer(begin, end);
+  value_.appendFromBuffer(begin, end);
 }
 
 bool HTTPHeaderBuffer::nameEquals(char* compareString)
 {
-  return m_name.equals(compareString);
+  return name_.equals(compareString);
 }
 
 bool HTTPHeaderBuffer::valueEquals(char* compareString)
 {
-  return m_value.equals(compareString);
+  return value_.equals(compareString);
 }
 
 

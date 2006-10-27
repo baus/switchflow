@@ -23,7 +23,7 @@ public:
   read_write_buffer& getReasonPhrase();
   
 private:
-  message_buffer& m_messageBuffer;
+  message_buffer& messageBuffer_;
 };
 
 }

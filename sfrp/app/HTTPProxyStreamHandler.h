@@ -126,47 +126,47 @@ class HTTPProxyStreamHandler: public proxylib::IProxyStreamHandler,
 
   //
   // Is this a request or response stream.
-  http::STREAM_TYPE m_streamType;
+  http::STREAM_TYPE streamType_;
   
-  //  httpproxylib::message_buffer m_messageBuffer;
+  //  httpproxylib::message_buffer messageBuffer_;
 
-  http::HTTPHeaderParser m_headerParser;
-  http::BodyParser m_bodyParser;
+  http::HTTPHeaderParser headerParser_;
+  http::BodyParser bodyParser_;
   
-  unsigned int m_currentField;
-  unsigned int m_currentDumpHeader;
+  unsigned int currentField_;
+  unsigned int currentDumpHeader_;
   
   // these are stored off for the clone 
   //
   // message_buffer should probably make it easier to retract these
-  unsigned int m_maxStartLine1Length;
-  unsigned int m_maxStartLine2Length;
-  unsigned int m_maxStartLine3Length;
-  unsigned int m_numHeaders;
-  unsigned int m_maxHeaderNameLength;
-  unsigned int m_maxHeaderValueLength;
+  unsigned int maxStartLine1Length_;
+  unsigned int maxStartLine2Length_;
+  unsigned int maxStartLine3Length_;
+  unsigned int numHeaders_;
+  unsigned int maxHeaderNameLength_;
+  unsigned int maxHeaderValueLength_;
 
   //
   // This is the high level HTTP message handling state.  All three
   // states are broken down into sub-states that are a handled by separate 
   // parsing functions.
   //
-  MESSAGE_STATE m_messageState;
+  MESSAGE_STATE messageState_;
   
   //
   // The substate that occurs while in the PUSH_HEADER state for 
   // the HTTP message.  
-  int m_pushHeaderState;
+  int pushHeaderState_;
   
-  AccessLog* m_pAccessLog;
+  AccessLog* pAccessLog_;
 
-  sockaddr m_forwardAddress;
+  sockaddr forwardAddress_;
   
-  read_write_buffer m_chunkSize;
+  read_write_buffer chunkSize_;
 
   pipeline_data* current_pipeline_data_;
 
-  read_write_buffer m_endlineBuf;
+  read_write_buffer endlineBuf_;
 
   http::error_response error_response_;
 

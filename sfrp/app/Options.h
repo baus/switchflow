@@ -45,7 +45,7 @@ private:
   //
   // stores the location of the configuration file.
   //
-  std::string m_configFile;
+  std::string configFile_;
 };
 
 
