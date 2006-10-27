@@ -21,11 +21,11 @@ URL::PARSE_STATUS URL::parse_url(const char* URL)
   buf[indx] = 0;
   while ((*cur != 0) && (indx < indxMax)) {
     if ((cur[0] == ':') && (cur[1] == '/') && (cur[2] == '/')) {
-	    buf[indx] = 0;
-	    protocol = buf;
-	    indx = 0;
+      buf[indx] = 0;
+      protocol = buf;
+      indx = 0;
       cur += 3;
-	    break;
+      break;
     }
     buf[indx++] = *cur++;
   }
@@ -36,26 +36,26 @@ URL::PARSE_STATUS URL::parse_url(const char* URL)
   buf[indx] = 0;
   while (indx < indxMax) {
     if ((strchr (cur, '[') && !strchr (cur, ']')) ||
-		(!strchr (cur, '[') && strchr (cur, ']'))) {
-	    return INVALID;
+    (!strchr (cur, '[') && strchr (cur, ']'))) {
+      return INVALID;
     }
     
     if (cur[0] == '[') {
       //
       // I don't really understand this block what do []'s mean in the URL?
-	    cur++;
-	    while ((cur[0] != ']') && (indx < indxMax))
+      cur++;
+      while ((cur[0] != ']') && (indx < indxMax))
         buf[indx++] = *cur++;
       
-	    if (!strchr (buf, ':')) {
+      if (!strchr (buf, ':')) {
         return INVALID;
-	    }
+      }
 
-	    buf[indx] = 0;
-	    hostname = buf;
-	    indx = 0;
-	    cur += 1;
-	    if (cur[0] == ':') {
+      buf[indx] = 0;
+      hostname = buf;
+      indx = 0;
+      cur += 1;
+      if (cur[0] == ':') {
         port = 0;
         cur++;
         while (*cur >= '0' && *cur <= '9') {
@@ -67,11 +67,11 @@ URL::PARSE_STATUS URL::parse_url(const char* URL)
         if (port == 0) port = 80;
         while ((cur[0] != '/') && (*cur != 0))
           cur++;
-	    }
-	    break;
+      }
+      break;
     }
     else {
-	    if (cur[0] == ':') {
+      if (cur[0] == ':') {
         buf[indx] = 0;
         hostname = buf;
         indx = 0;
@@ -86,13 +86,13 @@ URL::PARSE_STATUS URL::parse_url(const char* URL)
         while ((cur[0] != '/') && (*cur != 0)) 
           cur++;
         break;
-	    }
-	    if ((*cur == '/') || (*cur == 0)) {
+      }
+      if ((*cur == '/') || (*cur == 0)) {
         buf[indx] = 0;
         hostname = buf;
         indx = 0;
         break;
-	    }
+      }
     }
     buf[indx++] = *cur++;
   }
@@ -103,7 +103,7 @@ URL::PARSE_STATUS URL::parse_url(const char* URL)
     indx = 0;
     buf[indx] = 0;
     while ((*cur != 0) && (indx < indxMax))
-	    buf[indx++] = *cur++;
+      buf[indx++] = *cur++;
     buf[indx] = 0;
     path = buf;
   }

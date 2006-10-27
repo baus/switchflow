@@ -5,8 +5,8 @@
 
 
 HTTPHeaderBuffer::HTTPHeaderBuffer(unsigned int maxNameLength, 
-				   unsigned int maxValueLength):m_name(maxNameLength), 
-								m_value(maxValueLength)
+           unsigned int maxValueLength):m_name(maxNameLength), 
+                m_value(maxValueLength)
 {
   
 }

@@ -29,50 +29,50 @@ python_handler_module::python_handler_module()
   p_module_ = PyImport_Import(p_name);
   Py_DECREF(p_name);
   if(p_module_ == NULL){
-	  PyErr_Print();
-	  std::cerr<<"Failed to load python module: crawler"<<std::endl;
+    PyErr_Print();
+    std::cerr<<"Failed to load python module: crawler"<<std::endl;
   }
   if(p_module_ != NULL)
   {
-	p_func_ = PyObject_GetAttrString(p_module_, "handle_response");
-	if(!p_func_ || !PyCallable_Check(p_func_)){
-		std::cerr<<"Failed to create python callback function"<<std::endl;
-		Py_XDECREF(p_func_);
+  p_func_ = PyObject_GetAttrString(p_module_, "handle_response");
+  if(!p_func_ || !PyCallable_Check(p_func_)){
+    std::cerr<<"Failed to create python callback function"<<std::endl;
+    Py_XDECREF(p_func_);
         Py_DECREF(p_module_);
-	}
+  }
   }
 }
 
 python_handler_module::~python_handler_module()
 {
-	Py_XDECREF(p_func_);
+  Py_XDECREF(p_func_);
     
-	// What if the module failed to load?
-	Py_DECREF(p_module_);
-	Py_Finalize();
+  // What if the module failed to load?
+  Py_DECREF(p_module_);
+  Py_Finalize();
 
 }
 int python_handler_module::execute_response_callback(const char* response)
 {
-	PyObject * p_args;
-	PyObject * p_value;
-	int return_val = 0;
+  PyObject * p_args;
+  PyObject * p_value;
+  int return_val = 0;
 
-	assert(p_func_ || PyCallable_Check(p_func_));
-	p_args = PyTuple_New(1);
-	p_value = PyString_FromString(response);
-	PyTuple_SetItem(p_args, 0, p_value);
-	p_value = PyObject_CallObject(p_func_, p_args);
-	Py_DECREF(p_args);
-	if (p_value != NULL) {
-		return_val = PyInt_AsLong(p_value);
-		Py_DECREF(p_value);
-	}
-	else {
-		//
-		// error occured...
-	}
-	return return_val;
+  assert(p_func_ || PyCallable_Check(p_func_));
+  p_args = PyTuple_New(1);
+  p_value = PyString_FromString(response);
+  PyTuple_SetItem(p_args, 0, p_value);
+  p_value = PyObject_CallObject(p_func_, p_args);
+  Py_DECREF(p_args);
+  if (p_value != NULL) {
+    return_val = PyInt_AsLong(p_value);
+    Py_DECREF(p_value);
+  }
+  else {
+    //
+    // error occured...
+  }
+  return return_val;
 }
 
 
@@ -87,7 +87,7 @@ void crawler_handler::request_complete()
 void crawler_handler::accept_peer_body(asio::mutable_buffer& buffer)
 {
     feed_.insert(feed_.length(), asio::buffer_cast<char*>(buffer), asio::buffer_size(buffer));
-	//std::cout.write(asio::buffer_cast<char*>(buffer), asio::buffer_size(buffer));
+  //std::cout.write(asio::buffer_cast<char*>(buffer), asio::buffer_size(buffer));
 }  
 
 

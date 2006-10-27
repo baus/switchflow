@@ -15,7 +15,7 @@ class i_connect_handler
 {
 public:
   
-	virtual void connect(std::auto_ptr<asio::ip::tcp::socket> p_stream_socket_) = 0;
+  virtual void connect(std::auto_ptr<asio::ip::tcp::socket> p_stream_socket_) = 0;
 };
 
 

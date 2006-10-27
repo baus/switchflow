@@ -70,25 +70,25 @@ void CombinedLogRecord::reset()
 
 void CombinedLogRecord::setTime()
 {
-  tm *date;		// Date/time value
+  tm *date;   // Date/time value
   time_t t;
   char s[1024]; // Date/time string
 
   static const char * const months[12] =
-		{		/* Months */
-		  "Jan",
-		  "Feb",
-		  "Mar",
-		  "Apr",
-		  "May",
-		  "Jun",
-		  "Jul",
-		  "Aug",
-		  "Sep",
-		  "Oct",
-		  "Nov",
-		  "Dec"
-		};
+    {   /* Months */
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
+    };
 
 
   ::time(&t);

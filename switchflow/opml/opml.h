@@ -26,7 +26,7 @@
 #include <libxml/parser.h>
 
 //#include "feed.h"
-//feedHandlerPtr	opml_init_feed_handler(void);
+//feedHandlerPtr  opml_init_feed_handler(void);
 
 
 

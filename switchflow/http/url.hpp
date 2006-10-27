@@ -25,10 +25,10 @@ class URL
   
   asio::ip::tcp::endpoint endpoint;
   std::string raw_url;
-  std::string protocol;	// the protocol name
-  std::string hostname;	// the host name
-  unsigned short port;		          // the port
-  std::string path;		  // the path within the URL
+  std::string protocol; // the protocol name
+  std::string hostname; // the host name
+  unsigned short port;              // the port
+  std::string path;     // the path within the URL
   bool found_host;
 
   PARSE_STATUS parse_url(const char* URL);

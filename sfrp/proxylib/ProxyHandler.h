@@ -78,7 +78,7 @@ class ProxyHandler: public eventlib::i_event_handler
                unsigned int clientTimeoutMilliseconds, 
                unsigned int serverTimeoutMilliseconds,
                const sockaddr& serverAddr,
-       	       boost::function<i_pipeline_data* ()> pipeline_data_factory);
+               boost::function<i_pipeline_data* ()> pipeline_data_factory);
 
   //
   // copy construction
@@ -100,8 +100,8 @@ class ProxyHandler: public eventlib::i_event_handler
   // current instance.
   //
   void reset(PessimisticMemoryManager<ProxyHandler>* pProxyHandlers,
-	     PessimisticMemoryManager<IProxyStreamHandler>* pRequestStreamHandler,
-	     PessimisticMemoryManager<IProxyStreamHandler>* pResponseStreamHandler);
+       PessimisticMemoryManager<IProxyStreamHandler>* pRequestStreamHandler,
+       PessimisticMemoryManager<IProxyStreamHandler>* pResponseStreamHandler);
   
   /**
    * Overrides the rnPoller::IEvent::notify() handler.  This will be 

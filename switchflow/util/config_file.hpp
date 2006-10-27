@@ -34,9 +34,9 @@
 
 class config_file {
 public:
-	config_file();
-	
-	bool parse_file(const char* filename);
+  config_file();
+  
+  bool parse_file(const char* filename);
   void dump(std::ostream& os);
   struct value
   {
@@ -110,7 +110,7 @@ template<class T>
 T config_file::value::read() const
 {
   CHECK_CONDITION(this->type_ == RAW_VALUE, "Not a raw value");
-	return string_as_T<T>( raw_value_ );
+  return string_as_T<T>( raw_value_ );
 }
 
 
@@ -121,11 +121,11 @@ T config_file::value::read() const
 template<class T>
 std::string config_file::T_as_string( const T& t )
 {
-	// Convert from a T to a string
-	// Type T must support << operator
-	std::ostringstream ost;
-	ost << t;
-	return ost.str();
+  // Convert from a T to a string
+  // Type T must support << operator
+  std::ostringstream ost;
+  ost << t;
+  return ost.str();
 }
 
 
@@ -133,12 +133,12 @@ std::string config_file::T_as_string( const T& t )
 template<class T>
 T config_file::string_as_T( const std::string& s )
 {
-	// Convert from a string to a T
-	// Type T must support >> operator
-	T t;
-	std::istringstream ist(s);
-	ist >> t;
-	return t;
+  // Convert from a string to a T
+  // Type T must support >> operator
+  T t;
+  std::istringstream ist(s);
+  ist >> t;
+  return t;
 }
 
 
@@ -146,9 +146,9 @@ T config_file::string_as_T( const std::string& s )
 template<>
 inline std::string config_file::string_as_T<std::string>( const std::string& s )
 {
-	// Convert from a string to a string
-	// In other words, do nothing
-	return s;
+  // Convert from a string to a string
+  // In other words, do nothing
+  return s;
 }
 
 
@@ -156,18 +156,18 @@ inline std::string config_file::string_as_T<std::string>( const std::string& s )
 template<>
 inline bool config_file::string_as_T<bool>( const std::string& s )
 {
-	// Convert from a string to a bool
-	// Interpret "false", "F", "no", "n", "0" as false
-	// Interpret "true", "T", "yes", "y", "1", "-1", or anything else as true
-	bool b = true;
-	std::string sup = s;
-	for( std::string::iterator p = sup.begin(); p != sup.end(); ++p )
-		*p = toupper(*p);  // make string all caps
-	if( sup==std::string("FALSE") || sup==std::string("F") ||
-		sup==std::string("NO") || sup==std::string("N") ||
-		sup==std::string("0") || sup==std::string("NONE") )
-		b = false;
-	return b;
+  // Convert from a string to a bool
+  // Interpret "false", "F", "no", "n", "0" as false
+  // Interpret "true", "T", "yes", "y", "1", "-1", or anything else as true
+  bool b = true;
+  std::string sup = s;
+  for( std::string::iterator p = sup.begin(); p != sup.end(); ++p )
+    *p = toupper(*p);  // make string all caps
+  if( sup==std::string("FALSE") || sup==std::string("F") ||
+    sup==std::string("NO") || sup==std::string("N") ||
+    sup==std::string("0") || sup==std::string("NONE") )
+    b = false;
+  return b;
 }
 
 

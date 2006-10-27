@@ -3,12 +3,12 @@
 class python_handler_module
 {
 public:
-	python_handler_module();
-	~python_handler_module();
-	int execute_response_callback(const char * response);
+  python_handler_module();
+  ~python_handler_module();
+  int execute_response_callback(const char * response);
 private:
-	PyObject* p_module_;
-	PyObject* p_func_;
+  PyObject* p_module_;
+  PyObject* p_func_;
 };
 
 
@@ -16,7 +16,7 @@ private:
 class crawler_handler: public i_http_connection_handler
 {
 public:
-	crawler_handler(python_handler_module& python_module):python_handler_module_(python_module){}
+  crawler_handler(python_handler_module& python_module):python_handler_module_(python_module){}
   void send_failed(){}
   void invalid_peer_header(){}
   void invalid_peer_body(){}

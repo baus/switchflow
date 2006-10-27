@@ -36,12 +36,12 @@ void poller::add_event(event& r_event, short eventId, long timeoutsecs)
     del_event(r_event);
     CHECK_CONDITION(!pending(r_event), "event still pending after deletion");
   }
-	int flags = O_RDWR | O_NONBLOCK | O_ASYNC;
+  int flags = O_RDWR | O_NONBLOCK | O_ASYNC;
 
-	if (fcntl(r_event.fd_, F_SETFL, flags) < 0) {
-		log_info("fcntl() returns error");
-		return;
-	}
+  if (fcntl(r_event.fd_, F_SETFL, flags) < 0) {
+    log_info("fcntl() returns error");
+    return;
+  }
 
   if(timeoutsecs > 0){
     eventId != EV_TIMEOUT;
