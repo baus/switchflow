@@ -2,33 +2,30 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-// 
-// Copyright (C) Christopher Baus.  All rights reserved.
-//
 #include <iostream>
 #include <string>
 
 #include <boost/program_options.hpp>
 
 #include <util/logger.hpp>
-#include <util/ScopeGuard.h>
+#include <util/scope_guard.h>
 
 #include "version.hpp"
-#include "Options.h"
+#include "options.h"
 
 
-Options::Options():
-  configFile_("/etc/sfrp.conf")
+options::options():
+  config_file_("/etc/sfrp.conf")
 {
   
 }
 
-Options::~Options()
+options::~options()
 {
   
 }
 
-Options::STATUS Options::processCommandLine(int argc, char *argv[])
+options::STATUS options::process_command_line(int argc, char *argv[])
 {
   namespace po = boost::program_options;
 
@@ -53,7 +50,7 @@ Options::STATUS Options::processCommandLine(int argc, char *argv[])
 
     //
     // Don't print the copyright when showing the version
-    printShortCopyright();
+    print_short_copyright();
     
     if(vm.count("help")) {
       std::cout<<desc<<std::endl;
@@ -61,12 +58,12 @@ Options::STATUS Options::processCommandLine(int argc, char *argv[])
     }
     
     if(vm.count("copyright")){
-      printCopyright();
+      print_copyright();
       return INFO;
     } 
     
     if(vm.count("file")) {
-      configFile_ = vm["file"].as<std::string>();
+      config_file_ = vm["file"].as<std::string>();
     }
   }
   catch(po::error e){
@@ -77,19 +74,19 @@ Options::STATUS Options::processCommandLine(int argc, char *argv[])
   return RUN;
 }
 
-std::string Options::getConfigFile()
+std::string options::get_config_file()
 {
-  return configFile_;
+  return config_file_;
 }
 
-void Options::printShortCopyright()
+void options::print_short_copyright()
 {
   std::cout<<"SwitchFlow Reverse Proxy"<<std::endl;
   std::cout<<"Copyright 2003-2006, Christopher Baus. All rights reserved."<<std::endl;
-  std::cout<<"For information e-mail christopher@baus.net or visit http://www.baus.net/"<<std::endl<<std::endl;
+  std::cout<<"See the LICENSE file for details, or visit http://www.baus.net/"<<std::endl<<std::endl;
 }
 
-void Options::printCopyright()
+void Options::print_copyright()
 {
       printf(
   "THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS\n"

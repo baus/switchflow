@@ -2,9 +2,6 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-//
-// Copyright (C) Christopher Baus.  All rights reserved.
-//
 #ifndef PROXY_HANDLERS_H__
 #define PROXY_HANDLERS_H__
 
@@ -24,31 +21,31 @@
 #include <socketlib/status.hpp>
 
 // local includes
-#include <util/PessimisticMemoryManager.h>
+#include <util/pessimistic_memory_manager.h>
 #include <util/read_write_buffer.hpp>
 #include <event/event.hpp>
 #include <event/i_event_handler.hpp>
 
-#include "ProxyStreamInterface.h"
-#include "IProxyStreamHandler.h"
+#include "proxy_stream_interface.h"
+#include "i_proxy_stream_handler.h"
 #include "pipeline_data_queue.hpp"
 
 
 
 namespace proxylib{
 
-// ProxyHandler handles notifications from proxy connections.  It maintains
-// the state of the client and server socket handles.  There is one ProxyHandler
+// proxy_handler handles notifications from proxy connections.  It maintains
+// the state of the client and server socket handles.  There is one proxy_handler
 // instance for a pair of client/server handles.
 //
-// The ProxyHandler is a generic concept, and no application level processing
-// happens within.  The ProxyHandler just abstracts the socket handling and notificaiton
+// The proxy_handler is a generic concept, and no application level processing
+// happens within.  The proxy_handler just abstracts the socket handling and notificaiton
 // for a generic proxy server.  The application level knows nothing of the underlying
 // socket mechanism, but must be aware that this a non-blocking, event driven mechanism.  
 // When ever the higher application forwards data, it must be prepared to return immediately
 // as the forward procedure could block.
 //
-class ProxyHandler: public eventlib::i_event_handler
+class proxy_handler: public eventlib::i_event_handler
 {
  public:
   //
@@ -60,28 +57,28 @@ class ProxyHandler: public eventlib::i_event_handler
   // sufficently certain that the incoming data is valid.  This is to
   // reduce the load on the server in the case of application DoS attacks.
   //
-  friend class ProxyStreamInterface;
+  friend class proxy_stream_interface;
   
 
   //
-  // ProxyHandler construction
+  // proxy_handler construction
   //
-  // @param bufferLength length of the input buffers for the client and server sockets.
-  // @param clientTimeoutMilliseconds the number of milliseconds to wait between
+  // @param buffer_length length of the input buffers for the client and server sockets.
+  // @param client_timeout_milliseconds the number of milliseconds to wait between
   // i/o events from the client before assuming the
   // client is dead.
   //
-  // @param serverTimeoutMilliseconds the number of milliseconds to wait between
+  // @param server_timeout_milliseconds the number of milliseconds to wait between
   // i/o events from the client before assuming the
   // server is dead.
   //
-  // @param serverAddr The address of the server socket to connect to.
+  // @param server_addr The address of the server socket to connect to.
   //
-  ProxyHandler(eventlib::poller* pPoller,
-               unsigned int bufferLength, 
-               unsigned int clientTimeoutMilliseconds, 
-               unsigned int serverTimeoutMilliseconds,
-               const sockaddr& serverAddr,
+  proxy_handler(eventlib::poller* p_poller,
+               unsigned int buffer_length, 
+               unsigned int client_timeout_milliseconds, 
+               unsigned int server_timeout_milliseconds,
+               const sockaddr& server_addr,
                boost::function<i_pipeline_data* ()> pipeline_data_factory);
 
   //
@@ -89,46 +86,45 @@ class ProxyHandler: public eventlib::i_event_handler
   //
   // Copy contruction is used by the memory management system.    
   //
-  ProxyHandler(const ProxyHandler& rhs);
+  proxy_handler(const proxy_handler& rhs);
   
 
-  virtual ~ProxyHandler();
+  virtual ~proxy_handler();
  
 
   //
   // This is used to re-initialize the object after it has been
   // recycled from the Pessimistic Memory Manager.
   //
-  // @param pProxyHandlers back pointer to the memory manager from which this
-  // instance has been allocated.  Used to free the
-  // current instance.
+  // @param p_proxy_handlers back pointer to the memory manager from which this
+  // instance has been allocated.  Used to free the current instance.
   //
-  void reset(PessimisticMemoryManager<ProxyHandler>* pProxyHandlers,
-       PessimisticMemoryManager<IProxyStreamHandler>* pRequestStreamHandler,
-       PessimisticMemoryManager<IProxyStreamHandler>* pResponseStreamHandler);
+  void reset(pessimistic_memory_manager<proxy_handler>* p_proxy_handlers,
+       pessimistic_memory_manager<i_proxy_stream_handler>* p_request_stream_handler,
+       pessimistic_memory_manager<i_proxy_stream_handler>* p_response_stream_handler);
   
   /**
-   * Overrides the rnPoller::IEvent::notify() handler.  This will be 
-   * called by the rnPoller framework.
+   * Overrides the rn_poller::i_event::notify() handler.  This will be 
+   * called by the rn_poller framework.
    */     
   virtual int handle_event(int fd, short revents, eventlib::event& event);
   
  private:
   /**
    * Contains information about a socket connection.  It should only be used
-   * by ProxyHandler.  It is not intended to be used from outside this class.
+   * by proxy_handler.  It is not intended to be used from outside this class.
    */
-  friend class NewConnectionHandler;
+  friend class new_connection_handler;
    
-  socketlib::STATUS addClient(int proxyServerSocket);
+  socketlib::STATUS add_client(int proxy_server_socket);
   
-  void handleTimeout(int fd);
+  void handle_timeout(int fd);
   
   /**
    * closes connections and removes sockets from notification.  This should only be
    * called once all data has been processed and flushed from the input buffers.  
    *
-   * @param pPoller This is the poller instance that is passed to notify.
+   * @param p_poller This is the poller instance that is passed to notify.
    *                it is needed to remove the sockets from notification.
    */
   void shutdown();
@@ -141,26 +137,26 @@ class ProxyHandler: public eventlib::i_event_handler
    *
    * It also handles setting up the connection to the server.
    */
-  socketlib::STATUS ProxyHandler::handleStream(socketlib::connection& srcData,
-                                    IProxyStreamHandler* pStreamHandler);  
+  socketlib::STATUS proxy_handler::handle_stream(socketlib::connection& src_data,
+                                    i_proxy_stream_handler* p_stream_handler);  
 
-  void handlePollin(int fd);
+  void handle_pollin(int fd);
 
-  void handlePollout(int fd);
+  void handle_pollout(int fd);
 
-  socketlib::STATUS checkForServerConnect(int fd);
+  socketlib::STATUS check_for_server_connect(int fd);
   
   
   //
   // This initiates the server connection.  The connection will not
   // be complete until a POLLOUT is received on the server socket handle.
   //
-  socketlib::STATUS initiateServerConnect(const sockaddr& serverAddr);
+  socketlib::STATUS initiate_server_connect(const sockaddr& server_addr);
 
   //
   // handles the completion of server socket connection.
   //
-  socketlib::STATUS handleServerConnect();
+  socketlib::STATUS handle_server_connect();
 
   //
   // Check if we need to connect to the downstream server,
@@ -172,14 +168,14 @@ class ProxyHandler: public eventlib::i_event_handler
   // @return COMPLETE if connection initiation is successful or if no
   //         connection is required
   //
-  socketlib::STATUS attemptJITServerConnect(socketlib::connection& src, IProxyStreamHandler* pStreamHandler);
+  socketlib::STATUS attempt_jit_server_connect(socketlib::connection& src, i_proxy_stream_handler* p_stream_handler);
   
   //
   // Delete elements of the pipeline queue.
   // Needs to be done on reset to prevent memory
   // leak on dropped connections.
   //
-  void clearPipelineQueue();
+  void clear_pipeline_queue();
 
   //
   // Performs a 1/2 duplex shutdown of the request line.
@@ -187,44 +183,44 @@ class ProxyHandler: public eventlib::i_event_handler
   void shutdown_request();
   
   //
-  // A back pointer to the memoryManager managing this instance.  
+  // A back pointer to the memory_manager managing this instance.  
   // This allows us to delete ourselves from the memory manager. 
   // 
-  PessimisticMemoryManager<ProxyHandler>* pProxyHandlers_;
+  pessimistic_memory_manager<proxy_handler>* p_proxy_handlers_;
 
   //
   // data for the client.
-  socketlib::connection clientData_;
+  socketlib::connection client_data_;
  
   //
   // data for the server
-  socketlib::connection serverData_;
+  socketlib::connection server_data_;
 
-  eventlib::event clientEvent_;
+  eventlib::event client_event_;
 
-  eventlib::event serverEvent_;
+  eventlib::event server_event_;
 
-  ProxyStreamInterface requestStream_;
+  proxy_stream_interface request_stream_;
   
-  ProxyStreamInterface responseStream_;
+  proxy_stream_interface response_stream_;
 
-  PessimisticMemoryManager<IProxyStreamHandler>* pRequestStreamHandlers_;
+  pessimistic_memory_manager<i_proxy_stream_handler>* p_request_stream_handlers_;
  
-  PessimisticMemoryManager<IProxyStreamHandler>* pResponseStreamHandlers_;
+  pessimistic_memory_manager<i_proxy_stream_handler>* p_response_stream_handlers_;
   
-  IProxyStreamHandler* pRequestStreamHandler_;
+  i_proxy_stream_handler* p_request_stream_handler_;
   
-  IProxyStreamHandler* pResponseStreamHandler_;
+  i_proxy_stream_handler* p_response_stream_handler_;
 
-  unsigned int clientTimeoutMilliseconds_;
+  unsigned int client_timeout_milliseconds_;
   
-  unsigned int serverTimeoutMilliseconds_;
+  unsigned int server_timeout_milliseconds_;
 
   // Address of the downstream server.
   //
-  sockaddr serverAddr_;
+  sockaddr server_addr_;
   
-  eventlib::poller* pPoller_;
+  eventlib::poller* p_poller_;
 
   pipeline_data_queue pipeline_data_queue_;
 
@@ -232,4 +228,4 @@ class ProxyHandler: public eventlib::i_event_handler
 
 
 } // namespace proxylib 
-#endif
+#endif // PROXY_HANDLERS_H__

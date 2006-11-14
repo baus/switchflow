@@ -15,16 +15,16 @@
 namespace http{
   class i_body_receiver;
   
-  class EndConnectionBodyParser: private boost::noncopyable
+  class end_connection_body_parser: private boost::noncopyable
   {
   public:
-    EndConnectionBodyParser(i_body_receiver* pBodyReceiver);
-    virtual ~EndConnectionBodyParser();
+    end_connection_body_parser(i_body_receiver* p_body_receiver);
+    virtual ~end_connection_body_parser();
 
-    STATUS parseEndConnectionBody(read_write_buffer& buffer);
+    STATUS parse_end_connection_body(read_write_buffer& buffer);
     
   private:
-    i_body_receiver* pBodyReceiver_;
+    i_body_receiver* p_body_receiver_;
   };
 
 } // namespace httplib

@@ -2,66 +2,63 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-/** 
- * Copyright (C) Christopher Baus.  All rights reserved.
- */
 #include <util/logger.hpp>
-#include "NewConnectionHandler.h"
+#include "new_connection_handler.h"
 
 namespace proxylib{
 
-NewConnectionHandler::NewConnectionHandler(PessimisticMemoryManager<ProxyHandler>* pProxyHandlers,
-                                           PessimisticMemoryManager<IProxyStreamHandler>* pRequestStreamHandlers,
-                                           PessimisticMemoryManager<IProxyStreamHandler>* pResponseStreamHandlers,
-                                           eventlib::poller* pPoller):
-  pProxyHandlers_(pProxyHandlers), 
-  pRequestStreamHandlers_(pRequestStreamHandlers),
-  pResponseStreamHandlers_(pResponseStreamHandlers),
-  pPoller_(pPoller)
+new_connection_handler::new_connection_handler(pessimistic_memory_manager<proxy_handler>* p_proxy_handlers,
+                                           pessimistic_memory_manager<i_proxy_stream_handler>* p_request_stream_handlers,
+                                           pessimistic_memory_manager<i_proxy_stream_handler>* p_response_stream_handlers,
+                                           eventlib::poller* p_poller):
+  p_proxy_handlers_(p_proxy_handlers), 
+  p_request_stream_handlers_(p_request_stream_handlers),
+  p_response_stream_handlers_(p_response_stream_handlers),
+  p_poller_(p_poller)
 {
 }
   
 
-int NewConnectionHandler::handle_event(int fd, short revents, eventlib::event& event)
+int new_connection_handler::handle_event(int fd, short revents, eventlib::event& event)
 {
   socketlib::STATUS status = socketlib::COMPLETE;
   for(;;){
-    int clientFd = acceptClient(fd);
-    if(clientFd == -1){
+    int client_fd = accept_client(fd);
+    if(client_fd == -1){
       break;
     }
     //
     // Never need to deallocate instance.  Ownership is transfered
     // to the instance itself.  When it is shutdown, it releases itself.
-    // That is why pProxyHandlers_ is passed to initialize.
+    // That is why p_proxy_handlers_ is passed to initialize.
     //
-    ProxyHandler* pProxyHandler = pProxyHandlers_->allocateElement();
+    proxy_handler* p_proxy_handler = p_proxy_handlers_->allocate_element();
 
-    pProxyHandler->reset(pProxyHandlers_, pRequestStreamHandlers_, pResponseStreamHandlers_);
-    status = pProxyHandler->addClient(clientFd);
+    p_proxy_handler->reset(p_proxy_handlers_, p_request_stream_handlers_, p_response_stream_handlers_);
+    status = p_proxy_handler->add_client(client_fd);
     //
     // If the stream does not provide JIT connection, connect right now.
     if(status == socketlib::COMPLETE &&
-       pProxyHandler->pRequestStreamHandler_->getForwardAddressStatus() ==
-       IProxyStreamHandler::STREAM_DOES_NOT_PROVIDE_FORWARD_ADDRESS){
+       p_proxy_handler->p_request_stream_handler_->get_forward_address_status() ==
+       i_proxy_stream_handler::STREAM_DOES_NOT_PROVIDE_FORWARD_ADDRESS){
       
-      pProxyHandler->initiateServerConnect(pProxyHandler->serverAddr_);      
+      p_proxy_handler->initiate_server_connect(p_proxy_handler->server_addr_);      
     }
 
     //
     // Must assume the client is ready to read after it connects.
 #warning should we attempt to read?    
-//    pProxyHandler->handle_event(clientFd, EV_READ);
+//    p_proxy_handler->handle_event(client_fd, EV_READ);
   }
-  pPoller_->add_event(event, EV_READ|EV_WRITE, 0);
+  p_poller_->add_event(event, EV_READ|EV_WRITE, 0);
   return 0;
 }  
 
-int NewConnectionHandler::acceptClient(int proxyServerSocket)
+int new_connection_handler::accept_client(int proxy_server_socket)
 {
   struct sockaddr_in peer_addr;
   socklen_t peer_len = sizeof(peer_addr);  
-  return ::accept(proxyServerSocket, reinterpret_cast<sockaddr*>(&peer_addr), &peer_len);
+  return ::accept(proxy_server_socket, reinterpret_cast<sockaddr*>(&peer_addr), &peer_len);
 }
 
 } //namespace proxylib

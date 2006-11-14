@@ -11,7 +11,7 @@
 
 namespace httplib{
 
-class URL
+class url
 {
  public:
   enum PARSE_STATUS{
@@ -20,11 +20,11 @@ class URL
     INVALID
   };
   
-  URL();
-  URL(const char* URL, bool resolve);
-  URL(const URL& rhs);
+  url();
+  url(const char* URL, bool resolve);
+  url(const url& rhs);
   std::string host_with_port();
-  ~URL();
+  ~url();
   bool resolve_addr();
   
   asio::ip::tcp::endpoint endpoint;

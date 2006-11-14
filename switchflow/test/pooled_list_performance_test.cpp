@@ -2,13 +2,6 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-// Copyright (c) 2006
-// Christopher Baus http://baus.net/ (christopher at baus dot net)
-//
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
-
 #include <iostream>
 #include <list>
 #include <string>
@@ -20,8 +13,8 @@
 #include <util/pooled_list.hpp>
  
                      
-template<typename listT>
-void test_performance(listT& l, int num_ops)
+template<typename list_t>
+void test_performance(list_t& l, int num_ops)
 {
   using namespace boost::posix_time;
   l.clear();

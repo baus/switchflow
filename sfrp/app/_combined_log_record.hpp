@@ -2,33 +2,30 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-// 
-// Copyright (C) Christopher Baus.  All rights reserved.
-//
 #ifndef SSD_COMBINEDLOGRECORD_HPP
 #define SSD_COMBINEDLOGRECORD_HPP
 
 #include <string>
 
-#include <proxylib/IPipelineData.hpp>
-class CombinedLogRecord: public proxylib::IPipelineData
+#include <proxylib/i_pipeline_data.hpp>
+class combined_log_record: public proxylib::i_pipeline_data
 {
 public:
-  CombinedLogRecord();
-  virtual ~CombinedLogRecord();
+  combined_log_record();
+  virtual ~combined_log_record();
   void reset();
-  void setDash();
-  void setTime();
+  void set_dash();
+  void set_time();
   
-  std::string remoteIP;
-  std::string remoteLogname;
+  std::string remote_ip;
+  std::string remote_logname;
   std::string user;
   std::string time;
   std::string requestline;
   std::string status;
-  std::string bytesSent;
+  std::string bytes_sent;
   std::string referer;
-  std::string userAgent;
+  std::string user_agent;
 };
 
 

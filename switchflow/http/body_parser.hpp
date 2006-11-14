@@ -18,24 +18,24 @@
 
 namespace http{
 
-  class BodyParser: private boost::noncopyable
+  class body_parser: private boost::noncopyable
   {
   public:
-    BodyParser(i_body_receiver* pBodyReceiver);
+    body_parser(i_body_receiver* p_body_receiver);
 
-    virtual ~BodyParser();
+    virtual ~body_parser();
 
-    STATUS parseBody(read_write_buffer& buffer);
+    STATUS parse_body(read_write_buffer& buffer);
     
-    void reset(BODY_ENCODING bodyEncoding, int messageSize);
+    void reset(BODY_ENCODING body_encoding, int message_size);
     
-    BODY_ENCODING encoding(){return bodyEncoding_;}
+    BODY_ENCODING encoding(){return body_encoding_;}
   private:
-    BODY_ENCODING bodyEncoding_;    
+    BODY_ENCODING body_encoding_;    
     
-    ChunkedBodyParser chunkedBodyParser_;
-    ContentLengthBodyParser contentLengthBodyParser_;
-    EndConnectionBodyParser endConnectionBodyParser_;
+    chunked_body_parser chunked_body_parser_;
+    content_length_body_parser content_length_body_parser_;
+    end_connection_body_parser end_connection_body_parser_;
   };
   
 } //namespace httplib

@@ -2,36 +2,33 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-// 
-// Copyright (C) Christopher Baus.  All rights reserved.
-//
 #include "response_buffer_wrapper.hpp"
 
 namespace http{
   
 //
 //
-HTTPResponseBufferWrapper::HTTPResponseBufferWrapper(message_buffer& messageBuffer):messageBuffer_(messageBuffer)
+http_response_buffer_wrapper::http_response_buffer_wrapper(message_buffer& message_buffer):message_buffer_(message_buffer)
 {
 }
 
-HTTPResponseBufferWrapper::~HTTPResponseBufferWrapper()
+http_response_buffer_wrapper::~http_response_buffer_wrapper()
 {
 }
 
-read_write_buffer& HTTPResponseBufferWrapper::getHTTPVersion()
+read_write_buffer& http_response_buffer_wrapper::get_http_version()
 {
-  return messageBuffer_.get_status_line_1();
+  return message_buffer_.get_status_line_1();
 }
 
-read_write_buffer& HTTPResponseBufferWrapper::getStatusCode()
+read_write_buffer& http_response_buffer_wrapper::get_status_code()
 {
-  return messageBuffer_.get_status_line_2();
+  return message_buffer_.get_status_line_2();
 }
 
-read_write_buffer& HTTPResponseBufferWrapper::getReasonPhrase()
+read_write_buffer& http_response_buffer_wrapper::get_reason_phrase()
 {
-  return messageBuffer_.get_status_line_3();
+  return message_buffer_.get_status_line_3();
 }
 
 }

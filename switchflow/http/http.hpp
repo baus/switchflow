@@ -60,19 +60,19 @@ extern const int DEL;
 ///
 extern const unsigned int CHUNK_SIZE_LENGTH;
 
-/// Internal maximum for a field length.  Client's can
+/// Internal maximum for a field length.  Clients can
 /// reject fields of a shorter length, but the length
-/// can not exceed this internal max.
+/// cannot exceed this internal max.
 ///
 extern const unsigned int MAX_FIELD_LENGTH;
 
-extern std::set<char> s_spaceDelimiters;
+extern std::set<char> s_space_delimiters;
 extern std::set<char> s_separators;
-extern std::set<char> s_fieldDelimiters;
-extern std::set<char> s_endlineDelimiters;
-extern std::set<char> s_lfDelimiters;
-extern std::set<char> s_whiteSpace;
-extern std::set<char> s_spaceEndlineDelimiters;
+extern std::set<char> s_field_delimiters;
+extern std::set<char> s_endline_delimiters;
+extern std::set<char> s_lf_delimiters;
+extern std::set<char> s_white_space;
+extern std::set<char> s_space_endline_delimiters;
 
 void init();
 
@@ -86,8 +86,8 @@ public:
   
   void reset(LINE_END_OPTION option, unsigned int max_length);
   STATUS parse_line(read_write_buffer& buffer,
-                    unsigned int beginOffset,
-                    unsigned int& endOffset);
+                    unsigned int begin_offset,
+                    unsigned int& end_offset);
   
 private:
   enum STATE{
@@ -102,32 +102,32 @@ private:
   unsigned int begin_offset;
 };
 
-STATUS parseNLengthBuffer(read_write_buffer& buffer,
-                          unsigned int& currentLength,
-                          unsigned int maxLength);
+STATUS parse_n_length_buffer(read_write_buffer& buffer,
+                          unsigned int& current_length,
+                          unsigned int max_length);
 
-STATUS parseChar(read_write_buffer& buffer, char c);
+STATUS parse_char(read_write_buffer& buffer, char c);
 
-STATUS parseChar(read_write_buffer& buffer,
-                 unsigned int beginOffset,
-                 unsigned int& endOffset,
+STATUS parse_char(read_write_buffer& buffer,
+                 unsigned int begin_offset,
+                 unsigned int& end_offset,
                  char c);
 
-STATUS parseToken(read_write_buffer& buffer,
-                  unsigned int beginOffset,
-                  unsigned int& endOffset,
-                  unsigned int& currentLength,
-                  unsigned int maxLength,
+STATUS parse_token(read_write_buffer& buffer,
+                  unsigned int begin_offset,
+                  unsigned int& end_offset,
+                  unsigned int& current_length,
+                  unsigned int max_length,
                   std::set<char>& delimiters);
 
-bool isCTLChar(char c);
+bool is_ctl_char(char c);
 
-STATUS parseEqual(read_write_buffer& buffer,
-                  unsigned int beginOffset,
-                  unsigned int& endOffset,
-                  unsigned int& currentLength,
-                  unsigned int maxLength,
-                  std::set<char>& compareChars);
+STATUS parse_equal(read_write_buffer& buffer,
+                  unsigned int begin_offset,
+                  unsigned int& end_offset,
+                  unsigned int& current_length,
+                  unsigned int max_length,
+                  std::set<char>& compare_chars);
 
 } // namespace httplib
 

@@ -4,11 +4,7 @@
 
 /** 
  * -*- Mode: C++ -*-
- * Definition of RequestData class
- *
- * christopher baus <christopher@baus.net>
- *
- * Copyright (C) Summit Sage, LLC.  All rights reserved.
+ * Definition of request_data class
  */
 #ifndef REQUEST_DATA_H
 #define REQUEST_DATA_H
@@ -19,24 +15,24 @@
 namespace proxylib{
   
 /**
- * RequestData encapsulates data that is passed from the Request processor
- * to the Response processor.  It uses key/value pairs so that the
+ * request_data encapsulates data that is passed from the request processor
+ * to the response processor.  It uses key/value pairs so that the
  * proxylib isn't tied to HTTP layer.  I thought about using a pure virtual
- * class, but it requires that the HTTP layer down casts to the appropriate
+ * class, but it requires that the HTTP layer downcast to the appropriate
  * type, which I thought was ugly.  
  *
- * The other option would be to templatize ProxyHandler on this type.  That
+ * The other option would be to templatize proxy_handler on this type.  That
  * honestly isn't a bad option, but it requires putting all the logic for the
- * ProxyHandler in the header file.  I can't bring myself to do that.  
+ * proxy_handler in the header file.  I can't bring myself to do that.  
  */
-class RequestData
+class request_data
 {
 public:
-  RequestData();
-  virtual ~RequestData();
-  SetValue();
+  request_data();
+  virtual ~request_data();
+  set_value();
 private:
-  std::map<std::string, std::string> keyValues_;
+  std::map<std::string, std::string> key_values_;
 };
 
 } // namespace proxylib 

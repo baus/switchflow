@@ -2,58 +2,55 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-//
-// Copyright (C) Christopher Baus.  All rights reserved.
-//
 #ifndef NEW_CONNECTION_HANDLER_H__
 #define NEW_CONNECTION_HANDLER_H__
 
-#include <util/PessimisticMemoryManager.h>
+#include <util/pessimistic_memory_manager.h>
 #include <event/i_event_handler.hpp>
 #include <event/poller.hpp>
 
-#include "ProxyHandler.h"
+#include "proxy_handler.h"
 
 namespace proxylib{
 
 /**
  * Handles incoming connections from a server sockets.  
  */
-class NewConnectionHandler: public eventlib::i_event_handler
+class new_connection_handler: public eventlib::i_event_handler
 {
  public:
   /**
    * Create a new new connection handler.  This is used wait for incoming connections
    * on a server socket.
    *
-   * @param pProxyHandlers This is a pointer to ProxyHandlers that will
+   * @param p_proxy_handlers This is a pointer to proxy_handlers that will
    *                        be attached to incoming connections.
    */
-  NewConnectionHandler(PessimisticMemoryManager<ProxyHandler>* pProxyHandlers, 
-                       PessimisticMemoryManager<IProxyStreamHandler>* pRequestStreamHandlers,
-                       PessimisticMemoryManager<IProxyStreamHandler>* pResponseStreamHandlers,
-                       eventlib::poller* pPoller);
+  new_connection_handler(pessimistic_memory_manager<proxy_handler>* p_proxy_handlers, 
+                       pessimistic_memory_manager<i_proxy_stream_handler>* p_request_stream_handlers,
+                       pessimistic_memory_manager<i_proxy_stream_handler>* p_response_stream_handlers,
+                       eventlib::poller* p_poller);
 
   /**
-   * Overrides the rnPoller::IEvent::notify() handler.  This will be 
-   * called by the rnPoller framework.
+   * Overrides the rn_poller::i_event::notify() handler.  This will be 
+   * called by the rn_poller framework.
    */
   virtual int handle_event(int fd, short revents, eventlib::event& event);
  
  private:
   // The client socket handlers that will be used when a connection has been
   // made.  
-  PessimisticMemoryManager<ProxyHandler>* pProxyHandlers_;
+  pessimistic_memory_manager<proxy_handler>* p_proxy_handlers_;
   
   
-  PessimisticMemoryManager<IProxyStreamHandler>* pRequestStreamHandlers_;
-  PessimisticMemoryManager<IProxyStreamHandler>* pResponseStreamHandlers_;
+  pessimistic_memory_manager<i_proxy_stream_handler>* p_request_stream_handlers_;
+  pessimistic_memory_manager<i_proxy_stream_handler>* p_response_stream_handlers_;
   
   //
   //
-  int acceptClient(int proxyServerSocket);
+  int accept_client(int proxy_server_socket);
 
-  eventlib::poller* pPoller_;
+  eventlib::poller* p_poller_;
 };
 
 } // namespace proxylib

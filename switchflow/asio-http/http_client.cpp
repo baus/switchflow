@@ -69,7 +69,7 @@ void http_client::request_write_handler(const asio::error& error)
   response_state_ = PARSE_RESPONSE_HEADER;
 
   p_socket_->async_read_some(asio::buffer(&(read_buffer_.get_raw_buffer()[0]), 
-                             read_buffer_.getPhysicalLength()),
+                             read_buffer_.get_physical_length()),
   boost::bind(&http_client::response_read_handler,
                 this,
                 asio::placeholders::error,
@@ -107,7 +107,7 @@ void http_client::response_read_handler(const asio::error& error, std::size_t by
   else{
     while(COMPLETE == parse_response() /** && more responses pending **/);
     p_socket_->async_read_some(asio::buffer(&(read_buffer_.get_raw_buffer()[0]), 
-                             read_buffer_.getPhysicalLength()),
+                             read_buffer_.get_physical_length()),
                 boost::bind(&http_client::response_read_handler,
                 this,
                 asio::placeholders::error,
@@ -118,21 +118,21 @@ void http_client::response_read_handler(const asio::error& error, std::size_t by
 }
 
 
-http::STATUS http_client::set_body(read_write_buffer& buffer, bool bComplete)
+http::STATUS http_client::set_body(read_write_buffer& buffer, bool b_complete)
 {
-  int start_position = buffer.getWritePosition();
-  int num_bytes_to_write = buffer.getWriteEndPosition() - start_position;
+  int start_position = buffer.get_write_position();
+  int num_bytes_to_write = buffer.get_write_end_position() - start_position;
   if(num_bytes_to_write > 0){
     http_handler_.accept_peer_body(asio::mutable_buffer(&buffer[start_position], num_bytes_to_write));
   }
   return http::COMPLETE;
 }
 
-void http_client::set_body_encoding(http::BODY_ENCODING bodyEncoding)
+void http_client::set_body_encoding(http::BODY_ENCODING body_encoding)
 {
 }
 
-void http_client::set_chunk_size(unsigned int chunkSize)
+void http_client::set_chunk_size(unsigned int chunk_size)
 {
 }
 
@@ -148,8 +148,8 @@ http::STATUS http_client::forward_chunk_trailer()
 
 http_client::PARSE_RESULT http_client::parse_response_headers()
 {
-  http::STATUS parse_status = header_parser_.parseHeaders(read_buffer_,
-                                               http::HTTPHeaderParser::LOOSE);
+  http::STATUS parse_status = header_parser_.parse_headers(read_buffer_,
+                                               http::HTTPHeader_parser::LOOSE);
   if(parse_status == http::COMPLETE){
     response_state_ = PARSE_BODY;
     body_parser_.reset(header_handler_.get_body_encoding(), 
@@ -171,7 +171,7 @@ http_client::PARSE_RESULT http_client::parse_response_headers()
 
 http_client::PARSE_RESULT http_client::parse_response_body()
 {
-  http::STATUS parse_status = body_parser_.parseBody(read_buffer_);
+  http::STATUS parse_status = body_parser_.parse_body(read_buffer_);
   if(parse_status == http::INVALID || parse_status == http::DATAOVERFLOW){
     
     http_handler_.invalid_peer_body();

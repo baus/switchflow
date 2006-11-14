@@ -2,20 +2,16 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-//
-// Copyright (C) Christopher Baus.  All rights reserved.
-//
-
 #ifndef OPTIONS_H
 #define OPTIONS_H
 
 #include <string>
 
-class Options
+class options
 {
 public:
-  Options();
-  virtual ~Options();
+  options();
+  virtual ~options();
 
   enum STATUS
   {
@@ -32,20 +28,20 @@ public:
   //
   // @return STATUS, please review STATUS types.
   //
-  STATUS processCommandLine(int argc, char *argv[]);
+  STATUS process_command_line(int argc, char *argv[]);
 
   //
   // return the location of the configuration file.
   //
-  std::string getConfigFile();
+  std::string get_config_file();
 
-  void printCopyright();
-  void printShortCopyright();
+  void print_copyright();
+  void print_short_copyright();
 private:
   //
   // stores the location of the configuration file.
   //
-  std::string configFile_;
+  std::string config_file_;
 };
 
 

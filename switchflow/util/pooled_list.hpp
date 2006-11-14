@@ -2,13 +2,6 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-// Copyright (c) 2005-2006
-// Christopher Baus http://baus.net/ (christopher at baus dot net)
-//
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
-
 #ifndef SF_UTIL_POOLED_LIST_HPP
 #define SF_UTIL_POOLED_LIST_HPP
 
@@ -66,13 +59,13 @@ namespace util{
     };
 
     //
-    // Functor which enables BinaryPredicates which operate on type T to be applied
+    // Functor which enables Binary_predicates which operate on type T to be applied
     // to the underlying data type.
-    template<typename BinaryPredicate>
+    template<typename binary_predicate>
     class apply_binary_predicate
     {
     public:
-      apply_binary_predicate(BinaryPredicate pred):pred_(pred){}
+      apply_binary_predicate(binary_predicate pred):pred_(pred){}
       bool operator()(const raw_data_type& l, const raw_data_type& r) const
         {
           return pred_(*reinterpret_cast<T*>(l),
@@ -81,7 +74,7 @@ namespace util{
         }
     
     private:
-      BinaryPredicate pred_;
+      binary_predicate pred_;
     };
 
   public:
@@ -148,7 +141,7 @@ namespace util{
         this->insert(this->begin(), x.begin(), x.end());
       }
 
-    template<typename InputIterator> pooled_list(InputIterator first, InputIterator last, pool& free_pool):p_pool_(&free_pool)
+    template<typename Input_iterator> pooled_list(Input_iterator first, Input_iterator last, pool& free_pool):p_pool_(&free_pool)
       {
         this->insert(this->begin(), first, last);
       }
@@ -171,7 +164,7 @@ namespace util{
         return --pos;
       }
 
-    template<typename InputIterator> void insert(iterator pos, InputIterator first, InputIterator last)
+    template<typename Input_iterator> void insert(iterator pos, Input_iterator first, Input_iterator last)
       {
         for(;first != last; ++first){
           this->insert(pos, *first);
@@ -227,8 +220,8 @@ namespace util{
         this->insert(this->begin(), n, value);
       }
 
-    template<typename InputIterator>
-    void assign(InputIterator first, InputIterator last)
+    template<typename input_iterator>
+    void assign(input_iterator first, input_iterator last)
       {
         this->clear();
         this->insert(this->begin(), first, last);
@@ -342,8 +335,8 @@ namespace util{
         this->insert(this->begin(), x);
       }
 
-    template <typename UnaryPredicate>
-    void remove_if(UnaryPredicate pred)
+    template <typename unary_predicate>
+    void remove_if(unary_predicate pred)
       {
         iterator cur = this->begin();
         iterator end = this->end();
@@ -389,18 +382,18 @@ namespace util{
         active_list_.sort(apply_binary_predicate<std::less<T> >(std::less<T>()));
       }
   
-    template <typename BinaryPredicate>
-    void sort(BinaryPredicate func)
+    template <typename binary_predicate>
+    void sort(binary_predicate func)
       {
-        active_list_.sort(apply_binary_predicate<BinaryPredicate>(func));
+        active_list_.sort(apply_binary_predicate<binary_predicate>(func));
       }
 
 
-    template <typename BinaryPredicate>
-    void merge(pooled_list& x, BinaryPredicate func)
+    template <typename binary_predicate>
+    void merge(pooled_list& x, binary_predicate func)
       {
         BOOST_ASSERT(this->p_pool_ == x.p_pool_);
-        this->active_list_.merge(x.active_list_, apply_binary_predicate<BinaryPredicate>(func));
+        this->active_list_.merge(x.active_list_, apply_binary_predicate<binary_predicate>(func));
       }
 
     void merge(pooled_list& x)
@@ -428,8 +421,8 @@ namespace util{
         this->active_list_.splice(position.base(), x.active_list, first, last);
       }
 
-    template<class BinaryPredicate>
-    void unique(BinaryPredicate pred)
+    template<class binary_predicate>
+    void unique(binary_predicate pred)
       {
         iterator cur = this->begin();
         iterator end = this->end();

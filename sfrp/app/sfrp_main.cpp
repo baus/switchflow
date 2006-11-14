@@ -2,8 +2,6 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-//
-// Copyright (C) Christopher Baus. All Rights Reserved
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/resource.h>
@@ -15,15 +13,15 @@
 
 #include <asio.hpp>
 
-#include <util/ScopeGuard.h>
+#include <util/scope_guard.h>
 #include <util/logger.hpp>
 #include <util/read_write_buffer.hpp>
-#include <util/PessimisticMemoryManager.h>
+#include <util/pessimistic_memory_manager.h>
 #include <util/config_file.hpp>
 
 #include <http/http.hpp>
-#include <proxylib/ProxyHandler.h>
-#include <proxylib/NewConnectionHandler.h>
+#include <proxylib/proxy_handler.h>
+#include <proxylib/new_connection_handler.h>
 
 #include <http/header_handler.hpp>
 #include <http/header_cache.hpp>
@@ -31,10 +29,10 @@
 #include <event/poller.hpp>
 
 #include "host_map.hpp"
-#include "HTTPProxyStreamHandler.h"
-#include "NonValidatingProxyStreamHandler.h"
-#include "Options.h"
-#include "AccessLog.hpp"
+#include "http_proxy_stream_handler.h"
+#include "non_validating_proxy_stream_handler.h"
+#include "options.h"
+#include "access_log.hpp"
 #include "pipeline_data_factory.hpp"
 
 
@@ -88,26 +86,26 @@ int main(int argc, char *argv[])
   logger_init("sfrp");
   ON_BLOCK_EXIT(logger_shutdown);
   
-  Options options;
-  Options::STATUS optionsStatus = options.processCommandLine(argc, argv);
+  options options;
+  options::STATUS options_status = options.process_command_line(argc, argv);
   
-  if(optionsStatus == Options::ERROR){
+  if(options_status == options::ERROR){
     return -1;
   }
-  else if(optionsStatus == Options::INFO){
+  else if(options_status == options::INFO){
     return 0;
   }
-  assert(optionsStatus == Options::RUN);
+  assert(options_status == options::RUN);
   
   
   config_file config;
-  config.parse_file(options.getConfigFile().c_str());
+  config.parse_file(options.get_config_file().c_str());
   
   http::header_cache headers(config["http-parser"]["header-pool-size"].read<int>(),
                              config["http-parser"]["max-header-name-length"].read<int>(),
                              config["http-parser"]["max-header-value-length"].read<int>());
 
-  AccessLog access_log;
+  access_log access_log;
   
   if(config["access-log"]["enable"].read<bool>()){
     if(!access_log.open(config["access-log"]["location"].read<std::string>().c_str())){
@@ -135,7 +133,7 @@ int main(int argc, char *argv[])
   int val=1;
   ::setsockopt(server_handle, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(int));
   if (::bind(server_handle, bind_point.data(), sizeof(asio::ip::tcp::endpoint::data_type)) == -1) {
-    log_error("Failed to bind server socket.\n\tDoes the current user have privledge to open server sockets?\n\tIs another processing listening on the requested port?");
+    log_error("Failed to bind server socket.\n\t_does the current user have privledge to open server sockets?\n\t_is another processing listening on the requested port?");
     return -1;
   }
   
@@ -171,9 +169,9 @@ int main(int argc, char *argv[])
 
   
   
-  PessimisticMemoryManager<proxylib::ProxyHandler> 
-    proxyHandlers(config["proxy"]["max-connections"].read<unsigned int>(), 
-                  proxylib::ProxyHandler(&poller,
+  pessimistic_memory_manager<proxylib::proxy_handler> 
+    proxy_handlers(config["proxy"]["max-connections"].read<unsigned int>(), 
+                  proxylib::proxy_handler(&poller,
                                          config["proxy"]["input-buffer-size"].read<unsigned int>(),
                                          config["proxy"]["client-timeout-milliseconds"].read<unsigned int>(),
                                          config["proxy"]["server-timeout-milliseconds"].read<unsigned int>(),
@@ -182,15 +180,15 @@ int main(int argc, char *argv[])
 
   
 
-  std::map<std::string, std::pair<httplib::URL, bool> > host_map;
+  std::map<std::string, std::pair<httplib::url, bool> > host_map;
 
   build_host_map(config, host_map);
   
   //
   // This is where most of our memory gets allocated.  This is the key to
-  // the memory strategy for the server core.  If memory is need by a 
-  // connection is should be added to the BufferManager.
-  HTTPProxyStreamHandler requestStreamPrototype( &headers,
+  // the memory strategy for the server core.  If memory is needed by a 
+  // connection it should be added to the buffer_manager.
+  http_proxy_stream_handler request_stream_prototype( &headers,
                                                  host_map,
                                                  http::REQUEST,
                                                  http::max_method_length(),
@@ -205,7 +203,7 @@ int main(int argc, char *argv[])
 //                                                 &rb_processor);
                                                  0);
   
-  HTTPProxyStreamHandler responseStreamPrototype( &headers,
+  http_proxy_stream_handler response_stream_prototype( &headers,
                                                   host_map,
                                                   http::RESPONSE,
                                                   http::max_version_length,
@@ -220,22 +218,22 @@ int main(int argc, char *argv[])
   
 
 
-  PessimisticMemoryManager<proxylib::IProxyStreamHandler> 
-    requestStreamHandlers(config["proxy"]["max-connections"].read<unsigned int>(),
-                          static_cast<proxylib::IProxyStreamHandler*>(&requestStreamPrototype));
+  pessimistic_memory_manager<proxylib::i_proxy_stream_handler> 
+    request_stream_handlers(config["proxy"]["max-connections"].read<unsigned int>(),
+                          static_cast<proxylib::i_proxy_stream_handler*>(&request_stream_prototype));
   
-  PessimisticMemoryManager<proxylib::IProxyStreamHandler> 
-    responseStreamHandlers(config["proxy"]["max-connections"].read<unsigned int>(),
-                           static_cast<proxylib::IProxyStreamHandler*>(&responseStreamPrototype));
+  pessimistic_memory_manager<proxylib::i_proxy_stream_handler> 
+    response_stream_handlers(config["proxy"]["max-connections"].read<unsigned int>(),
+                           static_cast<proxylib::i_proxy_stream_handler*>(&response_stream_prototype));
 
-  proxylib::NewConnectionHandler newConnectionHandler(&proxyHandlers,
-                                                      &requestStreamHandlers,
-                                                      &responseStreamHandlers,
+  proxylib::new_connection_handler new_connection_handler(&proxy_handlers,
+                                                      &request_stream_handlers,
+                                                      &response_stream_handlers,
                                                       &poller);
 
-  eventlib::event newConnectionEvent;
-  newConnectionEvent.set(server_handle, &newConnectionHandler);
-  poller.add_event(newConnectionEvent, EV_READ|EV_WRITE, 0);
+  eventlib::event new_connection_event;
+  new_connection_event.set(server_handle, &new_connection_handler);
+  poller.add_event(new_connection_event, EV_READ|EV_WRITE, 0);
 
 
   //
@@ -244,7 +242,7 @@ int main(int argc, char *argv[])
   
   log_info("Shutting down.");
   //
-  // A lot destructors and ScopeGuards are about to go off here.
+  // A lot destructors and scope_guards are about to go off here.
   //
-#warning not cleaning exiting when signals are fired.  Need to figure out libevent signal handling
+#warning not cleanly exiting when signals are fired.  Need to figure out libevent signal handling
 }

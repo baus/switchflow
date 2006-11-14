@@ -36,35 +36,35 @@ public:
 
   void set_working_length(unsigned int working_length);
 
-  unsigned int getWorkingLength();
+  unsigned int get_working_length();
   
   unsigned int size();
   
-  unsigned int getPhysicalLength();
+  unsigned int get_physical_length();
   
   BYTE& operator[](const unsigned int i);
 
-  void copyFromBuffer(raw_buffer::iterator begin, raw_buffer::iterator end);
+  void copy_from_buffer(raw_buffer::iterator begin, raw_buffer::iterator end);
 
-  void appendFromBuffer(raw_buffer::iterator begin, raw_buffer::iterator end);
+  void append_from_buffer(raw_buffer::iterator begin, raw_buffer::iterator end);
 
-  void appendFromString(const char* str);
+  void append_from_string(const char* str);
   
-  void appendToString(std::string& s);
-  void appendToString(std::string& s, unsigned int begin, unsigned int end);
+  void append_to_string(std::string& s);
+  void append_to_string(std::string& s, unsigned int begin, unsigned int end);
   raw_buffer::iterator begin();
 
-  raw_buffer::iterator workingEnd();
-  bool fullyWritten();
+  raw_buffer::iterator working_end();
+  bool fully_written();
 
-  void setProcessPosition(unsigned int processed_position);
+  void set_process_position(unsigned int processed_position);
 
-  void setWritePosition(unsigned int write_position);
-  void setWriteEndPosition(unsigned int write_end_position);
-  unsigned int getWritePosition();
-  unsigned int getWriteEndPosition();
-  unsigned int getProcessPosition();
-  bool fitsInBuffer(unsigned int size);
+  void set_write_position(unsigned int write_position);
+  void set_write_end_position(unsigned int write_end_position);
+  unsigned int get_write_position();
+  unsigned int get_write_end_position();
+  unsigned int get_process_position();
+  bool fits_in_buffer(unsigned int size);
   bool equals(const char* compare_string);
 
   char asci_tolower(char c);
@@ -75,17 +75,17 @@ public:
     NOT_EQUAL
   };
   
-  COMPARE_RESULT compareNoCase(const char* compare_string);  
+  COMPARE_RESULT compare_no_case(const char* compare_string);  
 
   asio::const_buffer get_const_buffer();
 private:
   void operator=(const read_write_buffer& buffer);
-  raw_buffer* pBuffer_;
-  bool bUsingStaticBuffer_;
-  unsigned int workingLength_;
-  unsigned int processPosition_;
-  unsigned int writeEndPosition_;
-  unsigned int writePosition_;
+  raw_buffer* p_buffer_;
+  bool b_using_static_buffer_;
+  unsigned int working_length_;
+  unsigned int process_position_;
+  unsigned int write_end_position_;
+  unsigned int write_position_;
 };
 
 

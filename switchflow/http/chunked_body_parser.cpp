@@ -2,9 +2,6 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-// 
-// Copyright (C) Christopher Baus.  All rights reserved.
-//
 #include <assert.h>
 
 #include <util/conversions.h>
@@ -15,41 +12,41 @@
 
 namespace http{
 
-ChunkedBodyParser::ChunkedBodyParser(i_body_receiver* pBodyReceiver, unsigned int maxChunksizeLength):
-  pBodyReceiver_(pBodyReceiver),
+chunked_body_parser::Chunked_body_parser(i_body_receiver* p_body_receiver, unsigned int max_chunksize_length):
+  p_body_receiver_(p_body_receiver),
   state_(PARSE_CHUNKSIZE),
   chunksize_(0),
-  currentChunksizeLength_(0),
-  maxChunksizeLength_(maxChunksizeLength),
-  currentChunkLength_(0),
-  numChunkSizeSpaces_(0)
+  current_chunksize_length_(0),
+  max_chunksize_length_(max_chunksize_length),
+  current_chunk_length_(0),
+  num_chunk_size_spaces_(0)
 {
   
 }
 
 
-ChunkedBodyParser::~ChunkedBodyParser()
+chunked_body_parser::~chunked_body_parser()
 {
 }
 
-void ChunkedBodyParser::reset()
+void chunked_body_parser::reset()
 {
   state_ = PARSE_CHUNKSIZE;
   chunksize_ = 0;
-  currentChunksizeLength_ = 0;
-  currentChunkLength_ = 0;
-  numChunkSizeSpaces_ = 0;
+  current_chunksize_length_ = 0;
+  current_chunk_length_ = 0;
+  num_chunk_size_spaces_ = 0;
 }
 
-STATUS ChunkedBodyParser::parseBody(read_write_buffer& buffer)
+STATUS chunked_body_parser::parse_body(read_write_buffer& buffer)
 {
   STATUS status = INVALID;
   for(;;){
     switch(state_){
       case PARSE_CHUNKSIZE:
-        status = parseChunkSize(buffer);
-        buffer.setWritePosition(buffer.getProcessPosition());
-        buffer.setWriteEndPosition(buffer.getProcessPosition());
+        status = parse_chunk_size(buffer);
+        buffer.set_write_position(buffer.get_process_position());
+        buffer.set_write_end_position(buffer.get_process_position());
         if(status == COMPLETE){
           state_ = PARSE_CHUNKSIZE_LF;
           break;
@@ -57,23 +54,23 @@ STATUS ChunkedBodyParser::parseBody(read_write_buffer& buffer)
         return status;
 
       case PARSE_CHUNKSIZE_LF:
-        status = parseChar(buffer, LF);
+        status = parse_char(buffer, LF);
         if(status == COMPLETE){
-          pBodyReceiver_->set_chunk_size(chunksize_);
+          p_body_receiver_->set_chunk_size(chunksize_);
           state_ = FORWARD_CHUNKSIZE;
           break;
         }
         return status;
         
       case FORWARD_CHUNKSIZE:
-        status = pBodyReceiver_->forward_chunk_size();
+        status = p_body_receiver_->forward_chunk_size();
         if(status == COMPLETE){
           if(chunksize_ > 0){
             state_ = PARSE_CHUNK;
             break;
           }
           else{
-            buffer.setWritePosition(buffer.getProcessPosition());
+            buffer.set_write_position(buffer.get_process_position());
             state_ = PARSE_TRAILER_CR;
             break;
           }  
@@ -84,9 +81,9 @@ STATUS ChunkedBodyParser::parseBody(read_write_buffer& buffer)
         return status;
         
       case PARSE_CHUNK:
-        buffer.setWritePosition(buffer.getProcessPosition());
-        status = parseNLengthBuffer(buffer, currentChunkLength_, chunksize_);
-        buffer.setWriteEndPosition(buffer.getProcessPosition());
+        buffer.set_write_position(buffer.get_process_position());
+        status = parse_n_length_buffer(buffer, current_chunk_length_, chunksize_);
+        buffer.set_write_end_position(buffer.get_process_position());
         if(status == COMPLETE){
           state_ = FORWARD_COMPLETE_CHUNK;
         }
@@ -96,9 +93,9 @@ STATUS ChunkedBodyParser::parseBody(read_write_buffer& buffer)
         break;
         
       case FORWARD_INCOMPLETE_CHUNK:
-        status = pBodyReceiver_->set_body(buffer, false);
+        status = p_body_receiver_->set_body(buffer, false);
         if(status == COMPLETE){
-          buffer.setWriteEndPosition(buffer.getWorkingLength());
+          buffer.set_write_end_position(buffer.get_working_length());
           status = INCOMPLETE;
           state_ = PARSE_CHUNK;
         }
@@ -109,9 +106,9 @@ STATUS ChunkedBodyParser::parseBody(read_write_buffer& buffer)
         return status;
         
       case FORWARD_COMPLETE_CHUNK:
-        status = pBodyReceiver_->set_body(buffer, false);
+        status = p_body_receiver_->set_body(buffer, false);
         if(status == COMPLETE){
-          buffer.setWriteEndPosition(buffer.getWorkingLength());
+          buffer.set_write_end_position(buffer.get_working_length());
           state_ = PARSE_TRAILER_CR;
           break;
         }
@@ -121,32 +118,32 @@ STATUS ChunkedBodyParser::parseBody(read_write_buffer& buffer)
         return status;
               
       case PARSE_TRAILER_CR:
-        status = parseChar(buffer, CR);
+        status = parse_char(buffer, CR);
 
         if(status == COMPLETE){
-          buffer.setWritePosition(buffer.getProcessPosition());
+          buffer.set_write_position(buffer.get_process_position());
           state_ = PARSE_TRAILER_LF;
           break;
         }
         return status;
         
       case PARSE_TRAILER_LF:
-        status = parseChar(buffer, LF);
+        status = parse_char(buffer, LF);
         
         if(status == COMPLETE){
           // parse next chunk
-          buffer.setWritePosition(buffer.getProcessPosition());
+          buffer.set_write_position(buffer.get_process_position());
           state_ = FORWARD_TRAILER_CRLF;
           break;
         }
         return status;
         
       case FORWARD_TRAILER_CRLF:
-        status = pBodyReceiver_->forward_chunk_trailer();
+        status = p_body_receiver_->forward_chunk_trailer();
         if(status == COMPLETE){
           if(chunksize_ == 0){
             read_write_buffer null_buffer(0u);
-            status = pBodyReceiver_->set_body(null_buffer, true);
+            status = p_body_receiver_->set_body(null_buffer, true);
             return COMPLETE;
           }
           state_ = PARSE_CHUNKSIZE;
@@ -159,7 +156,7 @@ STATUS ChunkedBodyParser::parseBody(read_write_buffer& buffer)
         return status;
         
       default:
-        CHECK_CONDITION_VAL(false, "invalid state in ChunkedBodyParser", state_);
+        CHECK_CONDITION_VAL(false, "invalid state in Chunked_body_parser", state_);
         break;
     }  
   }
@@ -167,36 +164,36 @@ STATUS ChunkedBodyParser::parseBody(read_write_buffer& buffer)
   return INVALID;
 }
 
-STATUS ChunkedBodyParser::parseChunkSize(read_write_buffer& buffer)
+STATUS chunked_body_parser::parse_chunk_size(read_write_buffer& buffer)
 {
   for(;;){
-    if(buffer.getProcessPosition() >= buffer.getWorkingLength()){
+    if(buffer.get_process_position() >= buffer.get_working_length()){
       return INCOMPLETE;
     }
-    BYTE ch = buffer[buffer.getProcessPosition()];
-    if(ISHEX(ch) && !numChunkSizeSpaces_){
-      if(currentChunksizeLength_ >= maxChunksizeLength_){
-        numChunkSizeSpaces_ = 0;
+    BYTE ch = buffer[buffer.get_process_position()];
+    if(ISHEX(ch) && !num_chunk_size_spaces_){
+      if(current_chunksize_length_ >= max_chunksize_length_){
+        num_chunk_size_spaces_ = 0;
         return DATAOVERFLOW;
       }
       chunksize_ = 16 * chunksize_ + HC2INT(ch);
-      buffer.setProcessPosition(buffer.getProcessPosition() + 1);
-      ++currentChunksizeLength_;
+      buffer.set_process_position(buffer.get_process_position() + 1);
+      ++current_chunksize_length_;
     }
-    else if(ch == ' ' && numChunkSizeSpaces_ < 256){
+    else if(ch == ' ' && num_chunk_size_spaces_ < 256){
       //
       // This is a hack to allow a trailing space in chunksizes.
       // Apache 1.3 appears to incorrectly do this.
-      buffer.setProcessPosition(buffer.getProcessPosition() + 1);
-      ++numChunkSizeSpaces_;
+      buffer.set_process_position(buffer.get_process_position() + 1);
+      ++num_chunk_size_spaces_;
     }
     else if(ch == CR){
-      buffer.setProcessPosition(buffer.getProcessPosition() + 1);
-      numChunkSizeSpaces_ = 0;
+      buffer.set_process_position(buffer.get_process_position() + 1);
+      num_chunk_size_spaces_ = 0;
       return COMPLETE;
     }
     else{
-      numChunkSizeSpaces_ = 0;
+      num_chunk_size_spaces_ = 0;
       return INVALID;
     }
   }

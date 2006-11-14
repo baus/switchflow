@@ -14,15 +14,15 @@
 
 namespace http{
 
-  class ContentLengthBodyParser: private boost::noncopyable
+  class content_length_body_parser: private boost::noncopyable
   {
   public:
-    ContentLengthBodyParser(i_body_receiver* pBodyReceiver);
-    virtual ~ContentLengthBodyParser();
+    content_length_body_parser(i_body_receiver* p_body_receiver);
+    virtual ~content_length_body_parser();
 
-    STATUS parseContentLengthBody(read_write_buffer& buffer);
+    STATUS parse_content_length_body(read_write_buffer& buffer);
 
-    void reset(unsigned int messageSize);
+    void reset(unsigned int message_size);
     
   private:
     enum PARSE_STATE
@@ -32,25 +32,25 @@ namespace http{
       COMPLETE_MESSAGE_BODY_FORWARD          
     };
 
-    void transitionToState(PARSE_STATE newState);
+    void transition_to_state(PARSE_STATE new_state);
     
     /// The content length passed from the headers.
     ///
-    unsigned int contentLength_;
+    unsigned int content_length_;
     
     /// The offset into the buffer being processed.
     ///
-    unsigned int currentOffset_;
+    unsigned int current_offset_;
     
     /// The current length of the element being parsed.
     ///
-    unsigned int currentLength_;
+    unsigned int current_length_;
 
     /// 
     ///
-    PARSE_STATE parseState_;
+    PARSE_STATE parse_state_;
 
-    i_body_receiver* pBodyReceiver_;
+    i_body_receiver* p_body_receiver_;
   };
 }
 #endif // CONTENTLENGTHBODYPARSER_HPP

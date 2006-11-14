@@ -13,4 +13,4 @@ void i_connection_handler::reset(int clientfd)
   socket_data_.state(socketlib::connection::CONNECTED);
 }
 
-}
+} // namespace

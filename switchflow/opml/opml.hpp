@@ -30,7 +30,7 @@
 #include <libxml/parser.h>
 
 //#include "feed.h"
-//feedHandlerPtr  opml_init_feed_handler(void);
+//feed_handler_ptr  opml_init_feed_handler(void);
 
 
 
@@ -40,7 +40,7 @@ class i_opml_handler
   void virtual feed_url(char* url) = 0;
 };
 
-void opml_parse(xmlDocPtr doc, xmlNodePtr cur,
+void opml_parse(xml_doc_ptr doc, xml_node_ptr cur,
                 i_opml_handler* p_opml_handler);
 
 

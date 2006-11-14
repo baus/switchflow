@@ -2,9 +2,6 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-// 
-// Copyright (C) Christopher Baus.  All rights reserved.
-//
 #include <assert.h>
 #include <util/logger.hpp>
 
@@ -27,11 +24,11 @@ size_t max_method_length()
   size_t max = 0;
   for(int i=0; i < NUM_VALID_METHODS; ++i)
   {
-    size_t currentLen = strlen(valid_methods[i]);
+    size_t current_len = strlen(valid_methods[i]);
     // MAX seems to be totally screwed on GCC, so
     // just do it manually.
-    if(currentLen > max){
-      max = currentLen;
+    if(current_len > max){
+      max = current_len;
     } 
   }
   return max;
@@ -72,22 +69,22 @@ void header_handler::reset()
   }
 }
 
-http::STATUS header_handler::startLineToken1(read_write_buffer& buffer, 
-                                                int iBegin, 
-                                                int iEnd, 
-                                                bool bComplete)
+http::STATUS header_handler::start_line_token1(read_write_buffer& buffer, 
+                                                int i_begin, 
+                                                int i_end, 
+                                                bool b_complete)
 {
-  if(message_buffer_.append_to_status_line_1(buffer.get_raw_buffer().begin() + iBegin,
-                                        buffer.get_raw_buffer().begin() + iEnd)){
+  if(message_buffer_.append_to_status_line_1(buffer.get_raw_buffer().begin() + i_begin,
+                                        buffer.get_raw_buffer().begin() + i_end)){
 
     if(stream_type_ == REQUEST){
       for(int i = 0; i < NUM_VALID_METHODS; ++i){
         read_write_buffer::COMPARE_RESULT result = 
-          message_buffer_.get_status_line_1().compareNoCase(valid_methods[i]);
-        if(bComplete && result == read_write_buffer::EQUAL){
+          message_buffer_.get_status_line_1().compare_no_case(valid_methods[i]);
+        if(b_complete && result == read_write_buffer::EQUAL){
           return http::COMPLETE;
         }
-        if(!bComplete && result == read_write_buffer::SUBSTRING){
+        if(!b_complete && result == read_write_buffer::SUBSTRING){
           return http::COMPLETE;
         }
       }
@@ -101,13 +98,13 @@ http::STATUS header_handler::startLineToken1(read_write_buffer& buffer,
   return http::DATAOVERFLOW;
 }
 
-http::STATUS header_handler::startLineToken2(read_write_buffer& buffer,
-                                                int iBegin,
-                                                int iEnd,
-                                                bool bComplete)
+http::STATUS header_handler::start_line_token2(read_write_buffer& buffer,
+                                                int i_begin,
+                                                int i_end,
+                                                bool b_complete)
 {
-  if(message_buffer_.append_to_status_line_2(buffer.get_raw_buffer().begin() + iBegin, buffer.get_raw_buffer().begin() + iEnd)){
-    if(bComplete && stream_type_ == RESPONSE){
+  if(message_buffer_.append_to_status_line_2(buffer.get_raw_buffer().begin() + i_begin, buffer.get_raw_buffer().begin() + i_end)){
+    if(b_complete && stream_type_ == RESPONSE){
       scan_return_code();
     }
     return http::COMPLETE;
@@ -116,11 +113,11 @@ http::STATUS header_handler::startLineToken2(read_write_buffer& buffer,
   return http::DATAOVERFLOW;
 }
 
-http::STATUS header_handler::startLineToken3(read_write_buffer& buffer, int iBegin, int iEnd, bool bComplete)
+http::STATUS header_handler::start_line_token3(read_write_buffer& buffer, int i_begin, int i_end, bool b_complete)
 {
 
 
-  if(message_buffer_.append_to_status_line_3(buffer.get_raw_buffer().begin() + iBegin, buffer.get_raw_buffer().begin() + iEnd)){
+  if(message_buffer_.append_to_status_line_3(buffer.get_raw_buffer().begin() + i_begin, buffer.get_raw_buffer().begin() + i_end)){
     
     return http::COMPLETE;
   }
@@ -128,7 +125,7 @@ http::STATUS header_handler::startLineToken3(read_write_buffer& buffer, int iBeg
   return http::DATAOVERFLOW;
 }
 
-http::STATUS header_handler::setFieldName(read_write_buffer& buffer, int iBegin, int iEnd, bool bComplete)
+http::STATUS header_handler::set_field_name(read_write_buffer& buffer, int i_begin, int i_end, bool b_complete)
 {
   if(message_buffer_.get_num_fields() == current_field_){
     if(current_field_ >= message_buffer_.get_max_fields()){
@@ -141,19 +138,19 @@ http::STATUS header_handler::setFieldName(read_write_buffer& buffer, int iBegin,
     }
   }
 
-  if(message_buffer_.append_to_name(current_field_, buffer.get_raw_buffer().begin() + iBegin, buffer.get_raw_buffer().begin() + iEnd)){
+  if(message_buffer_.append_to_name(current_field_, buffer.get_raw_buffer().begin() + i_begin, buffer.get_raw_buffer().begin() + i_end)){
     return http::COMPLETE;
   }
   log_error("attempt to overrun buffer in header field name ");
   return http::DATAOVERFLOW;
 }
 
-http::STATUS header_handler::setFieldValue(read_write_buffer& buffer, int iBegin, int iEnd, bool bComplete)
+http::STATUS header_handler::set_field_value(read_write_buffer& buffer, int i_begin, int i_end, bool b_complete)
 {
   if(message_buffer_.append_to_value(current_field_, 
-                                    buffer.get_raw_buffer().begin() + iBegin, 
-                                    buffer.get_raw_buffer().begin() + iEnd)){
-    if(bComplete){
+                                    buffer.get_raw_buffer().begin() + i_begin, 
+                                    buffer.get_raw_buffer().begin() + i_end)){
+    if(b_complete){
       scan_field();
       ++current_field_;
     }
@@ -163,14 +160,14 @@ http::STATUS header_handler::setFieldValue(read_write_buffer& buffer, int iBegin
   return http::DATAOVERFLOW;
 }
 
-http::STATUS header_handler::endFields()
+http::STATUS header_handler::end_fields()
 {
   if(stream_type_ == REQUEST){
-    HTTPRequestBufferWrapper requestWrapper(message_buffer_);
-    if(requestWrapper.getHTTPVersion() == HTTPRequestBufferWrapper::HTTP1_1){
+    HTTPRequest_buffer_wrapper request_wrapper(message_buffer_);
+    if(request_wrapper.get_h_tTPVersion() == HTTPRequest_buffer_wrapper::HTTP1_1){
       if(!have_host_header_){
         //
-        // Must have host header see HTTP 1.1 spec 14.23
+        // Must have host header, see HTTP 1.1 spec 14.23
         //
         log_error("HTTP 1.1 request didn't include header line.");
         return http::INVALID;
@@ -182,7 +179,7 @@ http::STATUS header_handler::endFields()
 
 void header_handler::scan_field()
 {
-  read_write_buffer& fieldValue = message_buffer_.get_field_value(current_field_);
+  read_write_buffer& field_value = message_buffer_.get_field_value(current_field_);
 
   if(!have_host_header_ && message_buffer_.field_name_equals(current_field_, "host")){
     have_host_header_ = true;
@@ -193,7 +190,7 @@ void header_handler::scan_field()
     return;
   }
   
-  // Scanning all headers everytime is inefficient.  If wasting cycles
+  // Scanning all headers every time is inefficient.  If wasting cycles
   // at least look for duplicated headers and report error.
   if(message_buffer_.field_name_equals(current_field_, "content-length")){
     //
@@ -202,9 +199,9 @@ void header_handler::scan_field()
     //
     if(body_encoding_ != http::CHUNKED){
       body_encoding_ = http::CONTENT_LENGTH;
-      *fieldValue.workingEnd() = 0;
+      *field_value.working_end() = 0;
 
-      message_size_ = atoi((char*)&(fieldValue.get_raw_buffer()[0]));
+      message_size_ = atoi((char*)&(field_value.get_raw_buffer()[0]));
     }
   }
   else if(message_buffer_.field_name_equals(current_field_, "transfer-encoding")){
@@ -216,8 +213,8 @@ void header_handler::scan_field()
 
 void header_handler::scan_return_code()
 {
-  HTTPResponseBufferWrapper bufferWrapper(message_buffer_);
-  if(bufferWrapper.getStatusCode().equals("304")){
+  HTTPResponse_buffer_wrapper buffer_wrapper(message_buffer_);
+  if(buffer_wrapper.get_status_code().equals("304")){
     body_encoding_ = http::NONE;
     ignore_body_encoding_headers_ = true;
   }

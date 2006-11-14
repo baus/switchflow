@@ -43,7 +43,7 @@ namespace socketlib{
     ///
     // Construct the socket data
     //
-    // @param bufferLength the length of the input buffer
+    // @param buffer_length the length of the input buffer
     connection(unsigned int buffer_length);
 
     void set_nonblocking();
@@ -65,10 +65,10 @@ namespace socketlib{
     STATE state();
     void state(STATE new_state);
 
-    read_write_buffer& readBuffer();
+    read_write_buffer& read_buffer();
 
     int fd();
-    void fd(int newFd);
+    void fd(int new_fd);
 
     void flush();
 
@@ -83,8 +83,8 @@ namespace socketlib{
 
     //
     // These should be private. Need to rethink event notification here.
-    void ready_to_read(bool bValue);
-    void ready_to_write(bool bValue);
+    void ready_to_read(bool b_value);
+    void ready_to_write(bool b_value);
 
     //
     // Perform a non-blocking read to the buffer associated
@@ -94,7 +94,7 @@ namespace socketlib{
     STATUS non_blocking_read();
 
     //
-    // Perform a non-blocking write from the giving buffer.  If
+    // Perform a non-blocking write from the given buffer.  If
     // the dest isn't ready to write the function returns immediately.
     // Also sets the state of the buffer and dest appropriately.
     // callers should take careful note of the return values of this function.

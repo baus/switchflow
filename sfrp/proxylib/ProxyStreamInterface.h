@@ -2,10 +2,8 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-// 
-// Copyright (C) Christopher Baus 2004-2005.  All rights reserved.
-#ifndef PROXYSTREAMINTERFACE_H
-#define PROXYSTREAMINTERFACE_H
+#ifndef PROXY_STREAM_INTERFACE_H
+#define PROXY_STREAM_INTERFACE_H
 
 // library includes
 #include <socketlib/connection.hpp>
@@ -14,9 +12,9 @@
 class pipeline_data_queue;
 
 namespace proxylib{
-  class ProxyHandler;
+  class proxy_handler;
   
-class ProxyStreamInterface{  
+class proxy_stream_interface{  
  public:
 
   //
@@ -24,7 +22,7 @@ class ProxyStreamInterface{
   //
   // returns true only if the socket hasn't been connected,
   // and is not in the process of connecting.  
-  bool isDestDisconnected();
+  bool is_dest_disconnected();
     
   
   //
@@ -38,19 +36,19 @@ class ProxyStreamInterface{
   // Force any buffered data to be flushed to the network.
   void flush(); 
  
-  const char* getSrcAddress();
+  const char* get_src_address();
 
-  const char* getDestAddress();
+  const char* get_dest_address();
 
-  socketlib::connection* getDest();
+  socketlib::connection* get_dest();
 
   pipeline_data_queue* get_pipeline_data_queue();
   
   //
-  // Construct a ProxyStreamInterface.  It is
+  // Construct a proxy_stream_interface.  It is
   // private since it should only be constructed by
-  // ProxyHandler.  
-  ProxyStreamInterface();
+  // proxy_handler.  
+  proxy_stream_interface();
 
   //
   // This resets the private members of the class. This
@@ -58,27 +56,27 @@ class ProxyStreamInterface{
   // objects get recycled, and need to be reset, it is done through
   // this private member function.  
   //
-  // @param pProxyHandler backpointer to the ProxyHandler
-  // @param pSrcData data for the stream socket source 
-  // @param pDestData data for the stream socket destination 
-  void reset(ProxyHandler* pProxyHandler, socketlib::connection* pSrcData, socketlib::connection* pDestData);
+  // @param p_proxy_handler backpointer to the proxy_handler
+  // @param p_src_data data for the stream socket source 
+  // @param p_dest_data data for the stream socket destination 
+  void reset(proxy_handler* p_proxy_handler, socketlib::connection* p_src_data, socketlib::connection* p_dest_data);
 
  private:
-  // ProxyHandler must be a friend, so it can call the following functions.
-  friend class ProxyHandler;
+  // proxy_handler must be a friend, so it can call the following functions.
+  friend class proxy_handler;
     
     
    
     
   //
   // back pointer to the proxy handler
-  ProxyHandler* pProxyHandler_;
+  proxy_handler* p_proxy_handler_;
 
-  socketlib::connection* pSrcData_;
+  socketlib::connection* p_src_data_;
     
-  socketlib::connection* pDestData_;
+  socketlib::connection* p_dest_data_;
 };
 
 } // namespace proxylib
 
-#endif // PROXYSTREAMINTERFACE_H
+#endif // PROXY_STREAM_INTERFACE_H

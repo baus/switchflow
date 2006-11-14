@@ -148,8 +148,8 @@ private:
 
   http::message_buffer response_;
   http::header_handler header_handler_;
-  http::HTTPHeaderParser header_parser_;
-  http::BodyParser body_parser_;
+  http::HTTPHeader_parser header_parser_;
+  http::Body_parser body_parser_;
 
   MESSAGE_STATE response_state_;
 

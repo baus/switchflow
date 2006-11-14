@@ -2,78 +2,76 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-//
-// Copyright (C) Christopher Baus.  All rights reserved.
 #include <assert.h>
 
 #include <string>
 
 #include <util/logger.hpp>
 
-#include "ProxyHandler.h"
-#include "ProxyStreamInterface.h"
+#include "proxy_handler.h"
+#include "proxy_stream_interface.h"
 
 
 //
-// @class ProxyStreamInterface proxystreaminterface.h
+// @class proxy_stream_interface proxystreaminterface.h
 // @author <a href="mailto:christopher@baus.net">christopher</a>
 namespace proxylib{
 
-ProxyStreamInterface::ProxyStreamInterface():
-  pProxyHandler_(0),
-  pSrcData_(0), 
-  pDestData_(0)
+proxy_stream_interface::proxy_stream_interface():
+  p_proxy_handler_(0),
+  p_src_data_(0), 
+  p_dest_data_(0)
 {
 }
 
-bool ProxyStreamInterface::isDestDisconnected()
+bool proxy_stream_interface::is_dest_disconnected()
 {
-  assert(pDestData_ == NULL);
-  return pDestData_->state() == socketlib::connection::NOT_CONNECTED;
+  assert(p_dest_data_ == NULL);
+  return p_dest_data_->state() == socketlib::connection::NOT_CONNECTED;
 }
 
-socketlib::STATUS ProxyStreamInterface::forward(read_write_buffer& buf)
+socketlib::STATUS proxy_stream_interface::forward(read_write_buffer& buf)
 {
-  return pDestData_->non_blocking_write(buf);
+  return p_dest_data_->non_blocking_write(buf);
 }
     
-void ProxyStreamInterface::reset(ProxyHandler* pProxyHandler, 
-                                 socketlib::connection* pSrcData,
-                                 socketlib::connection* pDestData)
+void proxy_stream_interface::reset(proxy_handler* p_proxy_handler, 
+                                 socketlib::connection* p_src_data,
+                                 socketlib::connection* p_dest_data)
 {
-//  assert(pProxyHandler != 0);
-//  assert(pSrcData != 0);
-//  assert(pDestData != 0);
+//  assert(p_proxy_handler != 0);
+//  assert(p_src_data != 0);
+//  assert(p_dest_data != 0);
   
-  pSrcData_ = pSrcData;
-  pDestData_ = pDestData;
-  pProxyHandler_ = pProxyHandler;
+  p_src_data_ = p_src_data;
+  p_dest_data_ = p_dest_data;
+  p_proxy_handler_ = p_proxy_handler;
 }
 
-const char* ProxyStreamInterface::getSrcAddress()
+const char* proxy_stream_interface::get_src_address()
 {
-  return pSrcData_->get_ip_addr();
+  return p_src_data_->get_ip_addr();
 }
 
-const char* ProxyStreamInterface::getDestAddress()
+const char* proxy_stream_interface::get_dest_address()
 {
-  return pDestData_->get_ip_addr();
+  return p_dest_data_->get_ip_addr();
 }
 
-void ProxyStreamInterface::flush()
+void proxy_stream_interface::flush()
 {
-  return pDestData_->flush();
+  return p_dest_data_->flush();
 }
 
-pipeline_data_queue* ProxyStreamInterface::get_pipeline_data_queue()
+pipeline_data_queue* proxy_stream_interface::get_pipeline_data_queue()
 {
-  return &pProxyHandler_->pipeline_data_queue_;
+  return &p_proxy_handler_->pipeline_data_queue_;
 }
 
 
-socketlib::connection* ProxyStreamInterface::getDest()
+socketlib::connection* proxy_stream_interface::get_dest()
 {
-  return pDestData_;
+  return p_dest_data_;
 }
 
 } // namespace proxylib

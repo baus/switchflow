@@ -1,40 +1,32 @@
 //
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
-
 // 
-// Implementation of CombinedLogRecord class
-//
-// christopher <christopher@baus.net>
-//
-// Copyright (C) Summit Sage Designs, LLC.  All rights reserved.
-//
-#include "CombinedLogRecord.hpp"
+// Implementation of combined_log_record class
+
+#include "combined_log_record.hpp"
 #include <string>
 
 
 //
-// @class CombinedLogRecord combinedlogrecord.hpp
-//
-// @author <a href="mailto:christopher@baus.net">christopher</a>
-//
+// @class combined_log_record combined_log_record.hpp
 
-CombinedLogRecord::CombinedLogRecord()
+combined_log_record::combined_log_record()
 {
   reset();
 }
 
-CombinedLogRecord::~CombinedLogRecord()
+combined_log_record::~combined_log_record()
 {
 }
 
-void CombinedLogRecord::setDash()
+void combined_log_record::set_dash()
 {
-  if(remoteIP.size() == 0){
-    remoteIP = "-";
+  if(remote_ip.size() == 0){
+    remote_ip = "-";
   }
-  if(remoteLogname.size() == 0){
-    remoteLogname = "-";
+  if(remote_logname.size() == 0){
+    remote_logname = "-";
   }
   if(user.size() == 0){
     user = "-";
@@ -48,31 +40,31 @@ void CombinedLogRecord::setDash()
   if(status.size() == 0){
     status = "-";
   }
-  if(bytesSent.size() == 0){
-    bytesSent = "-";
+  if(bytes_sent.size() == 0){
+    bytes_sent = "-";
   }
   if(referer.size() == 0){
     referer = "-";
   }
-  if(userAgent.size() == 0){
-    userAgent = "-";
+  if(user_agent.size() == 0){
+    user_agent = "-";
   }
 }
 
-void CombinedLogRecord::reset()
+void combined_log_record::reset()
 {
-  remoteIP.clear();
-  remoteLogname.clear();
+  remote_ip.clear();
+  remote_logname.clear();
   user.clear();
   time.clear();
   requestline.clear();
   status.clear();
-  bytesSent.clear();
+  bytes_sent.clear();
   referer.clear();
-  userAgent.clear();
+  user_agent.clear();
 }
 
-void CombinedLogRecord::setTime()
+void combined_log_record::set_time()
 {
   tm *date;   // Date/time value
   time_t t;

@@ -124,12 +124,12 @@ std::istream& config_file::read(std::istream& is)
     
     
     // Parse the line if it contains a delimiter
-    pos delimPos = line.find( delim );
-    if( delimPos < std::string::npos )
+    pos delim_pos = line.find( delim );
+    if( delim_pos < std::string::npos )
     {
       // Extract the key
-      std::string key = line.substr( 0, delimPos );
-      line.replace( 0, delimPos+skip, "" );
+      std::string key = line.substr( 0, delim_pos );
+      line.replace( 0, delim_pos+skip, "" );
       
       // See if value continues on the next line
       // Stop at blank line, next line with a key, end of stream,
@@ -220,14 +220,14 @@ std::string config_file::parse_key_name(std::string& key)
   std::string ret_val;
   // Parse the line if it contains a delimiter
   std::string delim = array_start_ + subkey_delimiter_;
-  size_t delimPos = key.find_first_of( delim );
-  ret_val = key.substr(0, delimPos);
-  if( delimPos == std::string::npos )
+  size_t delim_pos = key.find_first_of( delim );
+  ret_val = key.substr(0, delim_pos);
+  if( delim_pos == std::string::npos )
   {
-    delimPos = key.size();
+    delim_pos = key.size();
   }
   
-  key = key.substr(delimPos);
+  key = key.substr(delim_pos);
   return ret_val;
 }
 

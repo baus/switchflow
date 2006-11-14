@@ -2,8 +2,6 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-//
-// Copyright (c) Christopher Baus.  All Rights Reserved.
 #include <fcntl.h>
 #include <semaphore.h>
 
@@ -31,22 +29,22 @@
 http_client_handler::http_client_handler(std::auto_ptr<i_http_client> p_http_client,
                                          http::header_cache& cache):
   p_http_client_(p_http_client),
-  endlineBuf_(&http::strings_.endline_),
+  endline_buf_(&http::strings_.endline_),
   header_handler_(p_http_client->get_response(), http::RESPONSE),
-  headerParser_(&header_handler_),
-  bodyParser_(this)
+  header_parser_(&header_handler_),
+  body_parser_(this)
 {
-  messageState_ = PUSH_HEADER;
-  endlineBuf_.reset();
+  message_state_ = PUSH_HEADER;
+  endline_buf_.reset();
   header_handler_.reset();
-  headerParser_.reset();
+  header_parser_.reset();
 }
 
 http_client_handler::http_client_handler(const http_client_handler& rhs):
-  endlineBuf_(&http::strings_.endline_),
+  endline_buf_(&http::strings_.endline_),
   header_handler_(rhs.header_handler_),
-  headerParser_(rhs.headerParser_),
-  bodyParser_(this)
+  header_parser_(rhs.header_parser_),
+  body_parser_(this)
 {
   CHECK_CONDITION(false, "http_client_handler Copy construction not implemented");
 }
@@ -76,14 +74,14 @@ socketlib::STATUS http_client_handler::handle_stream(socketlib::connection& sock
   // Handle stream should return complete if the
   // buffer is complete.
   socketlib::STATUS status;
-  http::STATUS parseStatus;
+  http::STATUS parse_status;
 
   for(;;){
-    switch(messageState_){
+    switch(message_state_){
       case PUSH_HEADER:
         status = header_pusher_.push_header();
         if(status == socketlib::COMPLETE){
-          messageState_ = PUSH_BODY;
+          message_state_ = PUSH_BODY;
           break;
         }
         if(status == socketlib::INCOMPLETE){
@@ -93,9 +91,9 @@ socketlib::STATUS http_client_handler::handle_stream(socketlib::connection& sock
         return status;
         
       case PUSH_BODY:
-        status = socket.non_blocking_write(endlineBuf_);
+        status = socket.non_blocking_write(endline_buf_);
         if(status == socketlib::COMPLETE){
-          messageState_ = PARSE_RESPONSE_HEADER;
+          message_state_ = PARSE_RESPONSE_HEADER;
           break;
         }
         if(status == socketlib::INCOMPLETE){
@@ -105,16 +103,16 @@ socketlib::STATUS http_client_handler::handle_stream(socketlib::connection& sock
         return status;
         
       case PARSE_RESPONSE_HEADER:
-        parseStatus = headerParser_.parseHeaders(socket.readBuffer(),
-                                                  http::HTTPHeaderParser::LOOSE);
-        if(parseStatus == http::COMPLETE){
-          messageState_ = PARSE_BODY;
-          bodyParser_.reset(header_handler_.get_body_encoding(), 
+        parse_status = header_parser_.parse_headers(socket.read_buffer(),
+                                                  http::http_header_parser::LOOSE);
+        if(parse_status == http::COMPLETE){
+          message_state_ = PARSE_BODY;
+          body_parser_.reset(header_handler_.get_body_encoding(), 
                              header_handler_.get_message_size());
           p_http_client_->headers_complete();   
           break;
         }
-        if(parseStatus == http::INVALID || parseStatus == http::DATAOVERFLOW){
+        if(parse_status == http::INVALID || parse_status == http::DATAOVERFLOW){
           p_http_client_->invalid_header();   
           return socketlib::DENY;
         }
@@ -126,14 +124,14 @@ socketlib::STATUS http_client_handler::handle_stream(socketlib::connection& sock
         
       case PARSE_BODY:
       {
-        parseStatus = bodyParser_.parseBody(socket.readBuffer());
-        if(parseStatus == http::INVALID || parseStatus == http::DATAOVERFLOW){
+        parse_status = body_parser_.parse_body(socket.read_buffer());
+        if(parse_status == http::INVALID || parse_status == http::DATAOVERFLOW){
           p_http_client_->invalid_body();
           return socketlib::DENY;
         }
-        if(parseStatus == http::INCOMPLETE){
+        if(parse_status == http::INCOMPLETE){
           if(!socket.open_for_read()){
-            if(bodyParser_.encoding() == http::END_CONNECTION){
+            if(body_parser_.encoding() == http::END_CONNECTION){
               //
               // This marks the end of the connection for HTTP 0.9 style connections.
               // It is ugly to do this here, but the body parser doesn't know when
@@ -158,18 +156,18 @@ socketlib::STATUS http_client_handler::handle_stream(socketlib::connection& sock
   }
 }
 
-http::STATUS http_client_handler::set_body(read_write_buffer& body, bool bComplete)
+http::STATUS http_client_handler::set_body(read_write_buffer& body, bool b_complete)
 {
-  return p_http_client_->handle_body(body, bComplete);
+  return p_http_client_->handle_body(body, b_complete);
 }
 
 
-void http_client_handler::set_body_encoding(http::BODY_ENCODING bodyEncoding)
+void http_client_handler::set_body_encoding(http::BODY_ENCODING body_encoding)
 {
 }
 
 
-void http_client_handler::set_chunk_size(unsigned int chunkSize)
+void http_client_handler::set_chunk_size(unsigned int chunk_size)
 {
 }
 
@@ -196,7 +194,7 @@ bool http_client_handler::get_header_value(const char* header_name, std::string&
     header_handler_
       .get_message_buffer()
       .get_field_value(index_of_header)
-      .appendToString(header_value);
+      .append_to_string(header_value);
     return true;
     
   }

@@ -1,32 +1,27 @@
 //
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
-
 // 
-// Definition of AccessLog class
-//
-// christopher <christopher@baus.net>
-//
-// Copyright (C) Summit Sage Designs, LLC.  All rights reserved.
-//
+// Definition of access_log class
+
 #ifndef SSD_ACCESSLOG_HPP
 #define SSD_ACCESSLOG_HPP
 
-#include "CombinedLogRecord.hpp"
+#include "combined_log_record.hpp"
 
-class AccessLog
+class access_log
 {
 public:
-  AccessLog();
-  virtual ~AccessLog();
+  access_log();
+  virtual ~access_log();
 
   bool open(const char* filename);
 
-  bool isOpen();
+  bool is_open();
   
   //
   // log to access log.
-  void logAccess(CombinedLogRecord& logRecord);
+  void log_access(combined_log_record& log_record);
 
 private:
   int logfd_;

@@ -2,8 +2,6 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-// Copyright (C) Christopher Baus.  All rights reserved.
-//
 #ifndef SSD_CONNECTION_HANDLER_HPP
 #define SSD_CONNECTION_HANDLER_HPP
 
@@ -25,6 +23,6 @@ public:
   socketlib::connection socket_data_;
 };
 
-}
+} // namespace
 
 #endif // CONNECT_HANDLER_HPP
