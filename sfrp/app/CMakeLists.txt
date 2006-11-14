@@ -1,11 +1,11 @@
 SET( APP_SRCS
 sfrp_main.cpp
 host_map.cpp
-NonValidatingProxyStreamHandler.cpp
-HTTPProxyStreamHandler.cpp
-Options.cpp
-CombinedLogRecord.cpp
-AccessLog.cpp
+non_validating_proxy_stream_handler.cpp
+http_proxy_stream_handler.cpp
+options.cpp
+combined_log_record.cpp
+access_log.cpp
 pipeline_data.cpp
 pipeline_data_factory.cpp
 SVNVersion.cpp
