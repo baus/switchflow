@@ -11,7 +11,7 @@
 
 namespace http{
 
-class IHeader_receiver
+class i_header_receiver
 {
  public:
   virtual STATUS start_line_token1(read_write_buffer& buffer, int i_begin, int i_end, bool b_complete) = 0;

@@ -321,7 +321,7 @@ void http_header_parser::next_status_line_state(char delimiter)
   current_length_ = 0;
 }
 
-void HTTPHeader_parser::transition_to_state(PARSE_STATE new_state,
+void http_header_parser::transition_to_state(PARSE_STATE new_state,
                                          TRANSITION_CURRENT_LENGTH_OPTION
                                          reset_option)
 {
@@ -337,7 +337,7 @@ void http_header_parser::reset()
   transition_to_state(STATUS_LINE);
 }
 
-STATUS HTTPHeader_parser::receive_status_line_token(read_write_buffer& buffer, int i_begin, int i_end, bool b_complete)
+STATUS http_header_parser::receive_status_line_token(read_write_buffer& buffer, int i_begin, int i_end, bool b_complete)
 {
   STATUS return_value;
   switch(status_line_state_){

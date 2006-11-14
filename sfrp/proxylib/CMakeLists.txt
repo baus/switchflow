@@ -1,7 +1,7 @@
 ADD_LIBRARY(proxylib 
-ProxyHandler.cpp
-NewConnectionHandler.cpp
-ProxyStreamInterface.cpp
+proxy_handler.cpp
+new_connection_handler.cpp
+proxy_stream_interface.cpp
 pipeline_data_queue.cpp
 )
 

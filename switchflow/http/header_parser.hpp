@@ -88,7 +88,7 @@ class http_header_parser
   
   unsigned int current_length_;
     
-  IHeader_receiver* p_header_receiver_;
+  i_header_receiver* p_header_receiver_;
   read_write_buffer chunk_size_buffer_;
   int message_size_;
 };
