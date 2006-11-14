@@ -14,13 +14,13 @@ void check_condition_val(const char *p_file_name, unsigned int src_line, const c
 if (expr) \
 ; \
 else \
-check_condition(__FILE__, __LINE__, Desc)
+check_condition(__FILE__, __LINE__, desc)
 
-#define CHECK_CONDITION_VAL(Expr, Desc, Err_val) \
-if (Expr) \
+#define CHECK_CONDITION_VAL(expr, desc, err_val) \
+if (expr) \
 ; \
 else \
-check_condition_val(__FILE__, __LINE__, Desc, Err_val)
+check_condition_val(__FILE__, __LINE__, desc, err_val)
 
 
 int logger_init(const char* appname);

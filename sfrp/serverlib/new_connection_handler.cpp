@@ -7,8 +7,8 @@
 #include <netinet/tcp.h>
 #include <netinet/in.h>
 
-#include <util/logger.h>
-#include <util/pessimistic_memory_manager.h>
+#include <util/logger.hpp>
+#include <util/pessimistic_memory_manager.hpp>
 #include <event/event.hpp>
 
 #include "new_connection_handler.hpp"

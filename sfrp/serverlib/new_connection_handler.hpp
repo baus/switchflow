@@ -7,7 +7,7 @@
 #ifndef NEW_CONNECTION_HANDLER_H__
 #define NEW_CONNECTION_HANDLER_H__
 
-#include <util/pessimistic_memory_manager.h>
+#include <util/pessimistic_memory_manager.hpp>
 
 #include <event/i_event_handler.hpp>
 #include <event/poller.hpp>

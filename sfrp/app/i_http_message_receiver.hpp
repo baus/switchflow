@@ -5,7 +5,7 @@
 #ifndef __I_HTTP_MESSAGE_RECEIVER_H__
 #define __I_HTTP_MESSAGE_RECEIVER_H__
 
-#include "buffer.h"
+#include "buffer.hpp"
 
 class i_http_message_receiver
 {

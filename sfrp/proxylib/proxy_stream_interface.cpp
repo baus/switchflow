@@ -8,8 +8,8 @@
 
 #include <util/logger.hpp>
 
-#include "proxy_handler.h"
-#include "proxy_stream_interface.h"
+#include "proxy_handler.hpp"
+#include "proxy_stream_interface.hpp"
 
 
 //

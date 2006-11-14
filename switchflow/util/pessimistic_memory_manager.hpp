@@ -12,7 +12,7 @@
  *
  * The template parameter is the type of the objects that are to be managed.
  */
-template <typename Data_type>
+template <typename data_type>
 class pessimistic_memory_manager
 {
  public:
@@ -89,7 +89,7 @@ class pessimistic_memory_manager
    * This releases an object back to the manager.  It can
    * be recycled with a subsequent allocate_element().  
    */
-  void release_element(Data_type* p_element)
+  void release_element(data_type* p_element)
   {
     --current_free_position_;
     free_data_stack_[current_free_position_] = p_element;
@@ -104,7 +104,7 @@ private:
   //
   // vector used to hold pre allocated objects.
   //
-  std::vector<Data_type*> free_data_stack_;
+  std::vector<data_type*> free_data_stack_;
   //
   // pointer to the top of the free stack.
   //

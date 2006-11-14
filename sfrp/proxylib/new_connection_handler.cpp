@@ -3,7 +3,7 @@
 // Read the LICENSE file for more information.
 
 #include <util/logger.hpp>
-#include "new_connection_handler.h"
+#include "new_connection_handler.hpp"
 
 namespace proxylib{
 

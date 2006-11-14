@@ -36,7 +36,7 @@ enum METHOD_TYPES{
   NUM_VALID_METHODS
 };
 
-class header_handler: public http::IHeader_receiver
+class header_handler: public http::i_header_receiver
 {
 public:
   header_handler(message_buffer& response,

@@ -4,7 +4,7 @@
 
 #include <assert.h>
 
-#include <util/conversions.h>
+#include <util/conversions.hpp>
 #include <util/logger.hpp>
 
 #include "chunked_body_parser.hpp"
@@ -12,7 +12,7 @@
 
 namespace http{
 
-chunked_body_parser::Chunked_body_parser(i_body_receiver* p_body_receiver, unsigned int max_chunksize_length):
+chunked_body_parser::chunked_body_parser(i_body_receiver* p_body_receiver, unsigned int max_chunksize_length):
   p_body_receiver_(p_body_receiver),
   state_(PARSE_CHUNKSIZE),
   chunksize_(0),
@@ -156,11 +156,11 @@ STATUS chunked_body_parser::parse_body(read_write_buffer& buffer)
         return status;
         
       default:
-        CHECK_CONDITION_VAL(false, "invalid state in Chunked_body_parser", state_);
+        CHECK_CONDITION_VAL(false, "invalid state in chunked_body_parser", state_);
         break;
     }  
   }
-  CHECK_CONDITION(false, "Chunked Body Parser fell out of loop.");
+  CHECK_CONDITION(false, "chunked Body Parser fell out of loop.");
   return INVALID;
 }
 

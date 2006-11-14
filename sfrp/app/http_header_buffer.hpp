@@ -5,7 +5,7 @@
 #ifndef SSD_HTTP_HEADERBUFFER_HPP
 #define SSD_HTTP_HEADERBUFFER_HPP
 
-#include <Buffer.h>
+#include <buffer.hpp>
 
 class http_header_buffer
 {

@@ -31,9 +31,9 @@ namespace http{
 }
   
 
-  message_buffer::message_buffer(Raw_buffer* start_line1,
-                                 Raw_buffer* start_line2,
-                                 Raw_buffer* start_line3,
+  message_buffer::message_buffer(raw_buffer* start_line1,
+                                 raw_buffer* start_line2,
+                                 raw_buffer* start_line3,
                                  std::list<header_buffer*>& fields):
     start_line1_(start_line1),
     start_line2_(start_line2),

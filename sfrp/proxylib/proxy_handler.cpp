@@ -8,7 +8,7 @@
 #include <event/poller.hpp>
 #include <socketlib/connection.hpp>
 
-#include "proxy_handler.h"
+#include "proxy_handler.hpp"
 
 namespace proxylib{
 

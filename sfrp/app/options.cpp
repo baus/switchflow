@@ -8,10 +8,10 @@
 #include <boost/program_options.hpp>
 
 #include <util/logger.hpp>
-#include <util/scope_guard.h>
+#include <util/scope_guard.hpp>
 
 #include "version.hpp"
-#include "options.h"
+#include "options.hpp"
 
 
 options::options():

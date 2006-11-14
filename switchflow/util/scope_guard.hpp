@@ -248,7 +248,7 @@ inline obj_scope_guard_impl1<Obj, Mem_fun, P1> make_obj_guard(Obj& obj, Mem_fun 
 }
 
 template <class Obj, typename Mem_fun, typename P1, typename P2>
-class Obj_scope_guard_impl2 : public scope_guard_impl_base
+class obj_scope_guard_impl2 : public scope_guard_impl_base
 {
 public:
   static obj_scope_guard_impl2<Obj, Mem_fun, P1, P2> make_obj_guard(Obj& obj, Mem_fun mem_fun, P1 p1, P2 p2)

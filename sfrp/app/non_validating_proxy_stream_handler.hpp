@@ -5,7 +5,7 @@
 #ifndef NON_VALIDATING_PROXY_STREAM_HANDLER_H__
 #define NON_VALIDATING_PROXY_STREAM_HANDLER_H__
 
-#include <proxylib/Proxy_handler.h>
+#include <proxylib/proxy_handler.hpp>
 
 
 class non_validating_proxy_stream_handler: public proxylib::i_proxy_stream_handler

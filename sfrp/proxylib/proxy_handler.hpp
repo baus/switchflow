@@ -21,13 +21,13 @@
 #include <socketlib/status.hpp>
 
 // local includes
-#include <util/pessimistic_memory_manager.h>
+#include <util/pessimistic_memory_manager.hpp>
 #include <util/read_write_buffer.hpp>
 #include <event/event.hpp>
 #include <event/i_event_handler.hpp>
 
-#include "proxy_stream_interface.h"
-#include "i_proxy_stream_handler.h"
+#include "proxy_stream_interface.hpp"
+#include "i_proxy_stream_handler.hpp"
 #include "pipeline_data_queue.hpp"
 
 

@@ -25,7 +25,7 @@
 #include <http/header_pusher.hpp>
 #include <http/header_handler.hpp>
 
-#include <util/pessimistic_memory_manager.h>
+#include <util/pessimistic_memory_manager.hpp>
 #include <util/read_write_buffer.hpp>
 
 #include <client/i_client.hpp>
@@ -97,8 +97,8 @@ private:
   read_write_buffer endline_buf_;
   MESSAGE_STATE message_state_;
   http::header_handler header_handler_;
-  http::HTTPHeader_parser header_parser_;
-  http::Body_parser body_parser_;
+  http::http_header_parser header_parser_;
+  http::body_parser body_parser_;
 
   std::auto_ptr<i_http_client> p_http_client_;
   

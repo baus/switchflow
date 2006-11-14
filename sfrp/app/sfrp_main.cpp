@@ -13,15 +13,15 @@
 
 #include <asio.hpp>
 
-#include <util/scope_guard.h>
+#include <util/scope_guard.hpp>
 #include <util/logger.hpp>
 #include <util/read_write_buffer.hpp>
-#include <util/pessimistic_memory_manager.h>
+#include <util/pessimistic_memory_manager.hpp>
 #include <util/config_file.hpp>
 
 #include <http/http.hpp>
-#include <proxylib/proxy_handler.h>
-#include <proxylib/new_connection_handler.h>
+#include <proxylib/proxy_handler.hpp>
+#include <proxylib/new_connection_handler.hpp>
 
 #include <http/header_handler.hpp>
 #include <http/header_cache.hpp>
@@ -29,9 +29,9 @@
 #include <event/poller.hpp>
 
 #include "host_map.hpp"
-#include "http_proxy_stream_handler.h"
-#include "non_validating_proxy_stream_handler.h"
-#include "options.h"
+#include "http_proxy_stream_handler.hpp"
+#include "non_validating_proxy_stream_handler.hpp"
+#include "options.hpp"
 #include "access_log.hpp"
 #include "pipeline_data_factory.hpp"
 

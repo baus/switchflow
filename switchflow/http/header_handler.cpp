@@ -163,8 +163,8 @@ http::STATUS header_handler::set_field_value(read_write_buffer& buffer, int i_be
 http::STATUS header_handler::end_fields()
 {
   if(stream_type_ == REQUEST){
-    HTTPRequest_buffer_wrapper request_wrapper(message_buffer_);
-    if(request_wrapper.get_h_tTPVersion() == HTTPRequest_buffer_wrapper::HTTP1_1){
+    http_request_buffer_wrapper request_wrapper(message_buffer_);
+    if(request_wrapper.get_http_version() == http_request_buffer_wrapper::HTTP1_1){
       if(!have_host_header_){
         //
         // Must have host header, see HTTP 1.1 spec 14.23
@@ -213,7 +213,7 @@ void header_handler::scan_field()
 
 void header_handler::scan_return_code()
 {
-  HTTPResponse_buffer_wrapper buffer_wrapper(message_buffer_);
+  http_response_buffer_wrapper buffer_wrapper(message_buffer_);
   if(buffer_wrapper.get_status_code().equals("304")){
     body_encoding_ = http::NONE;
     ignore_body_encoding_headers_ = true;

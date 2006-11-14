@@ -23,12 +23,12 @@ private:
   class static_buffers{
   public:
     static_buffers();
-    Raw_buffer start_line_1;
-    Raw_buffer start_line_2;
-    Raw_buffer start_line_3;
+    raw_buffer start_line_1;
+    raw_buffer start_line_2;
+    raw_buffer start_line_3;
 
-    Raw_buffer connection_field_name;
-    Raw_buffer connection_field_value;
+    raw_buffer connection_field_name;
+    raw_buffer connection_field_value;
     
     header_buffer field;
     std::list<header_buffer*> field_list;

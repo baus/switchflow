@@ -17,7 +17,7 @@
 #include <http/error_response.hpp>
 #include <http/header_cache.hpp>
 
-#include <proxylib/proxy_handler.h>
+#include <proxylib/proxy_handler.hpp>
 #include <http/message_buffer.hpp>
 #include <proxylib/pipeline_data_queue.hpp>
 
@@ -179,7 +179,7 @@ class http_proxy_stream_handler: public proxylib::i_proxy_stream_handler,
   
   http::header_cache* cache_;
 
-  const std::map<std::string, std::pair<httplib::URL, bool> >& host_map_;
+  const std::map<std::string, std::pair<httplib::url, bool> >& host_map_;
   i_request_postprocessor* request_postprocessor_;
 };
 

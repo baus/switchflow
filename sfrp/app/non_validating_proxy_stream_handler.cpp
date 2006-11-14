@@ -2,7 +2,7 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-#include "non_validating_proxy_stream_handler.h"
+#include "non_validating_proxy_stream_handler.hpp"
 
 socketlib::STATUS non_validating_proxy_stream_handler::process_data(read_write_buffer& buf)
 {
