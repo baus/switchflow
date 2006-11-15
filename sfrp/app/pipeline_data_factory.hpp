@@ -5,8 +5,8 @@
 #ifndef SSD_PIPELINE_DATA_FACTORY_HPP
 #define SSD_PIPELINE_DATA_FACTORY_HPP
 
-class i_pipeline_data;
+#include <proxylib/i_pipeline_data.hpp>
 
-i_pipeline_data* create_pipeline_data();
+proxylib::i_pipeline_data* create_pipeline_data();
 
 #endif

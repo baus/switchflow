@@ -86,7 +86,7 @@ void options::print_short_copyright()
   std::cout<<"See the LICENSE file for details, or visit http://www.baus.net/"<<std::endl<<std::endl;
 }
 
-void Options::print_copyright()
+void options::print_copyright()
 {
       printf(
   "THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS\n"

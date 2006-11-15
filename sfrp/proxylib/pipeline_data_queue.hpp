@@ -7,8 +7,9 @@
 
 #include <list>
 #include <boost/function.hpp>
+#include "i_pipeline_data.hpp"
 
-class i_pipeline_data;
+using proxylib::i_pipeline_data;
 
 //
 // This structure maintains PIPELINE_DEPTH number of pipeline_data elements.  The

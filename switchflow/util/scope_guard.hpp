@@ -283,11 +283,11 @@ inline obj_scope_guard_impl2<Obj, Mem_fun, P1, P2> make_obj_guard(Obj& obj, Mem_
 #define ANONYMOUS_VARIABLE(str) CONCATENATE(str, __LINE__)  
 
 #ifdef __GNUC__
-#define ON_BLOCK_EXIT Scope_guard ANONYMOUS_VARIABLE(scope_guard) __attribute__ ((unused)) = Make_guard
-#define ON_BLOCK_EXIT_OBJ Scope_guard ANONYMOUS_VARIABLE(scope_guard) __attribute__ ((unused)) = Make_obj_guard
+#define ON_BLOCK_EXIT scope_guard ANONYMOUS_VARIABLE(scope_guard) __attribute__ ((unused)) = make_guard
+#define ON_BLOCK_EXIT_OBJ scope_guard ANONYMOUS_VARIABLE(scope_guard) __attribute__ ((unused)) = make_obj_guard
 #else
-#define ON_BLOCK_EXIT Scope_guard ANONYMOUS_VARIABLE(scope_guard) = Make_guard
-#define ON_BLOCK_EXIT_OBJ Scope_guard ANONYMOUS_VARIABLE(scope_guard) = Make_obj_guard
+#define ON_BLOCK_EXIT scope_guard ANONYMOUS_VARIABLE(scope_guard) = make_guard
+#define ON_BLOCK_EXIT_OBJ scope_guard ANONYMOUS_VARIABLE(scope_guard) = make_obj_guard
 #endif
 
 #endif //SCOPEGUARD_H_

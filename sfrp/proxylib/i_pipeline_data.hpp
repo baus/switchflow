@@ -25,6 +25,7 @@ namespace proxylib{
 class i_pipeline_data
 {
  public:
+  virtual void reset(){};
   virtual ~i_pipeline_data(){}
 };
 

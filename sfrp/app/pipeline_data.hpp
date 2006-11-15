@@ -10,7 +10,7 @@
 #include <proxylib/i_pipeline_data.hpp>
 #include "combined_log_record.hpp"
 
-class pipeline_data: public i_pipeline_data
+class pipeline_data: public proxylib::i_pipeline_data
 {
 public:
   enum PROCESS_TYPE{

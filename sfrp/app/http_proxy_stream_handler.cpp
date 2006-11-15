@@ -11,7 +11,7 @@
 #include <http/request_buffer_wrapper.hpp>
 #include <http/response_buffer_wrapper.hpp>
 
-#include "http_proxy_stream_handler.h"
+#include "http_proxy_stream_handler.hpp"
 #include "combined_log_record.hpp"
 #include "pipeline_data.hpp"
 #include <string>
