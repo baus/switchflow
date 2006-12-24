@@ -7,6 +7,6 @@
 
 #include "SVNVersion.h"
 
-#define SFRP_VERSION "1.1.1"
+#define SFRP_VERSION "1.1.2"
 
 #endif // VERSION_HPP
