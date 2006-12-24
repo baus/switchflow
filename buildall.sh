@@ -1,18 +1,16 @@
-rm -f $TALLAC/thirdparty/lib/debug/*
-rm -f $TALLAC/thirdparty/lib/release/*
+#!/bin/sh
+dir=$(dirname `echo $0 | sed -e "s,^\([^/]\),$(pwd)/\1,"`)
 
-pushd $TALLAC
+rm -f $dir/thirdparty/lib/debug/*
+rm -f $dir/thirdparty/lib/release/*
 
-pushd switchflow
-sh buildthirdparty.sh
-popd
+$dir/switchflow/buildthirdparty.sh
+$dir/configbuild.sh
 
-sh ./configbuild.sh
-cd $TALLAC/release/sfrp
-make clean
-make
-cd $TALLAC/debug/sfrp
+cd $dir/release/sfrp
 make clean
 make
 
-popd
+cd $dir/debug/sfrp
+make clean
+make

@@ -1,8 +1,7 @@
 #!/bin/sh
+dir=$(dirname `echo $0 | sed -e "s,^\([^/]\),$(pwd)/\1,"`)
 
-TALLAC=`pwd`/..
-
-echo "building with TALLAC=$TALLAC"
+TALLAC=$dir/..
 
 if [ ! -e $TALLAC/thirdparty/lib/release/libevent.a ]; then
 cd $TALLAC/thirdparty/libevent
