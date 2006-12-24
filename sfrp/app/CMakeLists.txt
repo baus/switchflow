@@ -1,7 +1,6 @@
 SET( APP_SRCS
 sfrp_main.cpp
 host_map.cpp
-non_validating_proxy_stream_handler.cpp
 http_proxy_stream_handler.cpp
 options.cpp
 combined_log_record.cpp

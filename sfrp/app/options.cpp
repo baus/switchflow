@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 
+#include <event.h>
 #include <boost/program_options.hpp>
 
 #include <util/logger.hpp>
@@ -32,7 +33,8 @@ options::STATUS options::process_command_line(int argc, char *argv[])
   po::options_description desc("Allowed options");
   desc.add_options()
     ("help", "display help message")
-    ("version", "display version and exit")
+    ("version", "display sfrp version and exit")
+    ("fullversion", "display sfrp and libevent version and exit")
     ("copyright", "display copyright and exit")
     ("file,f", po::value<std::string>(), "configuration file");
   
@@ -45,6 +47,12 @@ options::STATUS options::process_command_line(int argc, char *argv[])
 
     if(vm.count("version")){
       std::cout<<SFRP_VERSION<<"_"<<SVNVersion()<<std::endl;
+      return INFO;
+    }
+
+    if(vm.count("fullversion")){
+      std::cout<<"sfrp version: "<<SFRP_VERSION<<"_"<<SVNVersion()<<std::endl;
+      std::cout<<"libevent version: "<<event_get_version()<<std::endl;
       return INFO;
     }
 

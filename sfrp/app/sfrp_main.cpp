@@ -30,7 +30,6 @@
 
 #include "host_map.hpp"
 #include "http_proxy_stream_handler.hpp"
-#include "non_validating_proxy_stream_handler.hpp"
 #include "options.hpp"
 #include "access_log.hpp"
 #include "pipeline_data_factory.hpp"
