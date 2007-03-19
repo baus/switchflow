@@ -2,7 +2,7 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-// Class for reading named values from configuration files
+// Original implementation:
 // Richard J. Wagner  v2.1  24 May 2004  wagnerr@umich.edu
 
 // Copyright (c) 2004 Richard J. Wagner
@@ -63,6 +63,11 @@ public:
     
     const value& operator[](const char* rec_name) const;
     const value& operator[](size_t index) const;
+
+
+    const value* get(const char* rec_name) const;
+    const value* get(size_t index) const;
+    
     size_t get_array_size() const;
 
     
@@ -76,6 +81,7 @@ public:
   };
 
   const value& operator[](const char* key) const;
+  const value* get(const char* key) const;
 private:
 
   std::istream& read(std::istream& is);

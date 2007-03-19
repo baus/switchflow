@@ -296,6 +296,38 @@ const config_file::value& config_file::operator[](const char* key) const
   return it->second;
 }
 
+const config_file::value* config_file::value::get(const char* rec_name) const
+{
+  if(this->type_ != RECORD){
+    return NULL;
+  }
+  mapci it = record_.find(rec_name);
+  if(it == this->record_.end()){
+    return NULL;
+  }
+  return &(it->second);
+}
+
+const config_file::value* config_file::value::get(size_t index) const
+{
+  if(this->type_ != ARRAY){
+    return NULL;
+  }
+  if(index >= this->array_.size() || index < 0){
+    return NULL;
+  }
+  return &(this->array_[index]);
+}
+
+const config_file::value* config_file::get(const char* key) const
+{
+  mapci it = contents_.find(key);
+  if(it != contents_.end()){
+    return &(it->second);
+  }
+  return NULL;
+}
+
 size_t config_file::value::get_array_size() const
 {
   return array_.size();
