@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
   else if(options_status == options::INFO){
     return 0;
   }
-  assert(options_status == options::RUN);
+  CHECK_CONDITION(options_status == options::RUN, "invalid option status");
   
   
   config_file config;

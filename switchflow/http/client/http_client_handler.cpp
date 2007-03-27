@@ -151,7 +151,7 @@ socketlib::STATUS http_client_handler::handle_stream(socketlib::connection& sock
       }
       
       default:
-        assert(false);
+        CHECK_CONDITION(false, "invalid message state");
     }
   }
 }

@@ -307,7 +307,7 @@ void http_proxy_stream_handler::log_request()
     
   }
   else{
-    assert(false);
+    CHECK_CONDITION(false, "invalid http socket request");
   }
 }
  
@@ -415,7 +415,7 @@ bool http_proxy_stream_handler::set_current_pipeline_data()
     }
   }
   else{
-    assert(false);
+    CHECK_CONDITION(false, "invalid http request type");
   }
   return true;
 }

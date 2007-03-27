@@ -10,7 +10,7 @@
 #include <http/header_cache.hpp>
 #include <http/message_buffer.hpp>
 #include <http/request_buffer_wrapper.hpp>
-
+#include <util/logger.hpp>
 
 #include "http_client.hpp"
 #include "crawler.hpp"
@@ -29,8 +29,8 @@ python_handler_module::python_handler_module()
     
   Py_InitializeEx(0);
 
-  p_name = PyString_FromString("crawler");
-  p_module_ = PyImport_Import(p_name);
+  PyObject *p_name = PyString_FromString("crawler");
+  PyObject *p_module_ = PyImport_Import(p_name);
   Py_DECREF(p_name);
   if(p_module_ == NULL){
     PyErr_Print();
@@ -38,7 +38,7 @@ python_handler_module::python_handler_module()
   }
   if(p_module_ != NULL)
   {
-  p_func_ = PyObject_GetAttrAtring(p_module_, "handle_response");
+  PyObject *p_func_ = PyObject_GetAttrString(p_module_, "handle_response");
   if(!p_func_ || !PyCallable_Check(p_func_)){
     std::cerr<<"Failed to create python callback function"<<std::endl;
     Py_XDECREF(p_func_);
@@ -62,7 +62,8 @@ int python_handler_module::execute_response_callback(const char* response)
   PyObject * p_value;
   int return_val = 0;
 
-  assert(p_func_ || PyCallable_Check(p_func_));
+  CHECK_CONDITION(p_func_ || PyCallable_Check(p_func_),
+      "Python runtime not initialized");
   p_args = PyTuple_New(1);
   p_value = PyString_FromString(response);
   PyTuple_SetItem(p_args, 0, p_value);

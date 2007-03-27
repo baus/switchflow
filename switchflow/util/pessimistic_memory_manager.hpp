@@ -5,6 +5,7 @@
 #ifndef SSVS_PESSIMISTIC_MEMORY_MANAGER_H__
 #define SSVS_PESSIMISTIC_MEMORY_MANAGER_H__
 #include <vector>
+#include <util/logger.hpp>
 
 /**
  * This class implements an object stack which can be used for preallocating
@@ -58,7 +59,7 @@ class pessimistic_memory_manager
     // current_free_position_ should equal 0 all 
     // elements haven't been released.
     //
-    assert(current_free_position_ == 0);
+    CHECK_CONDITION(current_free_position_ == 0, "trying to destroy pessimistic_memory_manager before releasing elements");
     size_t num_elements = free_data_stack_.size();
     for(size_t i = 0; i < num_elements; ++i){
       delete free_data_stack_[i];

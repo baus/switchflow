@@ -91,7 +91,7 @@ int client_handler::handle_event(int fd, short revents, eventlib::event& event)
       }
       if(server_data_.ready_to_write()){
         log_crit("Stream returned WRITE_INCOMPLETE.  The socket is ready to write");
-        assert(server_data_.ready_to_write());
+        CHECK_CONDITION(server_data_.ready_to_write(), "socket not ready to write");
       }
       break;
     }
@@ -104,8 +104,7 @@ int client_handler::handle_event(int fd, short revents, eventlib::event& event)
       return 0;
     }
     else if(status == socketlib::INCOMPLETE){
-      log_crit("Not expecting incomplete return value");
-      assert(false);
+      CHECK_CONDITION(false, "Not expecting incomplete return value");
     }
     else{
       CHECK_CONDITION_VAL(false, "unknown return value from handle_stream", status);

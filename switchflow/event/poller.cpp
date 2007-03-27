@@ -52,11 +52,11 @@ void poller::add_event(event& r_event, short event_id, long timeoutsecs)
     r_event.timeout_.tv_sec = timeoutsecs;
     r_event.timeout_.tv_usec = 0;
     event_add(&(r_event.event_), &(r_event.timeout_));
-    assert(pending(r_event));
+    CHECK_CONDITION(pending(r_event), "event not pending after being added");
   }
   else{
     event_add(&(r_event.event_), 0);
-    assert(pending(r_event));
+    CHECK_CONDITION(pending(r_event), "event not pending after being added");
   }
 }
 
@@ -69,7 +69,7 @@ void poller::del_event(event& r_event)
 {
   if(r_event.fd_ != -1 && pending(r_event)){
     event_del(&r_event.event_);
-    assert(!pending(r_event));
+    CHECK_CONDITION(!pending(r_event), "even pending after deletion");
   }
 }
 
