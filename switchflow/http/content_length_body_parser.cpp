@@ -4,8 +4,6 @@
 
 #include "content_length_body_parser.hpp"
 
-#include <assert.h>
-
 namespace http{
   
 content_length_body_parser::content_length_body_parser(i_body_receiver* p_body_receiver):

@@ -115,7 +115,7 @@ bool message_buffer::append_to_name(unsigned int n, raw_buffer::iterator begin, 
 
 header_buffer& message_buffer::get_header(int n)
 {
-  assert(n < current_num_fields_);
+  CHECK_CONDITION(n < current_num_fields_, "trying to get a non-existant header");
   
   std::list<header_buffer>::iterator current = headers_.begin();
 
@@ -154,25 +154,25 @@ read_write_buffer& message_buffer::get_status_line_3()
 
 read_write_buffer& message_buffer::get_field_name(unsigned int n)
 {
-  assert(n < current_num_fields_);
+  CHECK_CONDITION(n < current_num_fields_, "trying to get non-existant field");
   return get_header(n).get_name();
 }
 
 read_write_buffer& message_buffer::get_field_value(unsigned int n)
 {
-  assert(n < current_num_fields_);
+  CHECK_CONDITION(n < current_num_fields_, "trying to get value of non-existant field");
   return get_header(n).get_value();
 }
 
 bool message_buffer::field_name_equals(unsigned int n, const char* compare_string)
 {
-  assert(n < current_num_fields_);
+  CHECK_CONDITION(n < current_num_fields_, "trying to get name of non-existant field");
   return get_header(n).name_equals(compare_string);
 }
 
 bool message_buffer::field_value_equals(unsigned int n, const char* compare_string)
 {
-  assert(n < current_num_fields_);
+  CHECK_CONDITION(n < current_num_fields_, "trying to get value of non-existant field");
   return get_header(n).value_equals(compare_string);
 }
 
@@ -183,18 +183,18 @@ size_t message_buffer::get_max_fields()
 
 bool message_buffer::add_field()
 {
-  assert(current_num_fields_ < get_max_fields());
+  CHECK_CONDITION(current_num_fields_ < get_max_fields(), "cannot add more fields");
   //
   // This is pretty ugly.  The add_field function
   // currently only works with pool allocated headers.
   // assert if using statically allocated headers.
-  assert(cache_);
+  CHECK_CONDITION(cache_, "using statically-allocated headers where only pool allocated headers are allowed");
   if(cache_->empty()){
     return false;
   }
   cache_->alloc_header(headers_);
   ++current_num_fields_;
-  assert(headers_.size() == current_num_fields_);
+  CHECK_CONDITION(headers_.size() == current_num_fields_, "postcondition failed: field counts disagree");
   return true;
 }
 

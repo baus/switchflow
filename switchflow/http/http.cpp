@@ -2,8 +2,6 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-#include <assert.h>
-
 #include <util/logger.hpp>
 
 #include "http.hpp"
@@ -179,7 +177,7 @@ STATUS parse_n_length_buffer(read_write_buffer& buffer,
   unsigned int chars_left_in_buffer = buffer_size - begin_offset;
   unsigned int chars_to_add = chars_left_in_buffer < (max_length - current_length)?chars_left_in_buffer:(max_length - current_length);
   current_length += chars_to_add;
-  assert(current_length <= max_length);
+  CHECK_CONDITION(current_length <= max_length, "buffer longer than maximum allowed");
   buffer.set_process_position(begin_offset + chars_to_add);
   return (current_length < max_length)?INCOMPLETE:COMPLETE;
 }

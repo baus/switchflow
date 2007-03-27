@@ -2,8 +2,6 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-#include <assert.h>
-
 #include <algorithm>
 
 #include <util/logger.hpp>
@@ -264,7 +262,7 @@ STATUS http_header_parser::parse_headers(read_write_buffer& buffer, PARSE_OPTION
         }
         break;
       default:
-        assert(false);
+        CHECK_CONDITION(false, "invalid condition while parsing buffer");
         break;
     }
   }

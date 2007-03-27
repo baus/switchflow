@@ -2,7 +2,6 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-#include <assert.h>
 #include <util/logger.hpp>
 
 #include <http/http.hpp>
@@ -65,7 +64,7 @@ void header_handler::reset()
     body_encoding_ = http::END_CONNECTION;
   }
   else{
-    assert(false);
+    CHECK_CONDITION(false, "invalid stream type; should be REQUEST or RESPONSE");
   }
 }
 
@@ -244,7 +243,7 @@ void header_handler::log_error(char* error)
     log_info("Response", error);
   }
   else{
-    assert(false);
+    CHECK_CONDITION(false, "invalid stream type; should be REQUEST or RESPONSE");
   }
 }
 

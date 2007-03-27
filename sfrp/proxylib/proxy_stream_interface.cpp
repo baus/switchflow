@@ -2,8 +2,6 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-#include <assert.h>
-
 #include <string>
 
 #include <util/logger.hpp>
@@ -26,7 +24,7 @@ proxy_stream_interface::proxy_stream_interface():
 
 bool proxy_stream_interface::is_dest_disconnected()
 {
-  assert(p_dest_data_ == NULL);
+  CHECK_CONDITION(p_dest_data_ == NULL, "dereferencing null pointer");
   return p_dest_data_->state() == socketlib::connection::NOT_CONNECTED;
 }
 
@@ -39,9 +37,9 @@ void proxy_stream_interface::reset(proxy_handler* p_proxy_handler,
                                  socketlib::connection* p_src_data,
                                  socketlib::connection* p_dest_data)
 {
-//  assert(p_proxy_handler != 0);
-//  assert(p_src_data != 0);
-//  assert(p_dest_data != 0);
+//  CHECK_CONDITION(p_proxy_handler != 0, "copying null pointer");
+//  CHECK_CONDITION(p_src_data != 0, "copying null pointer");
+//  CHECK_CONDITION(p_dest_data != 0, "copying null pointer");
   
   p_src_data_ = p_src_data;
   p_dest_data_ = p_dest_data;

@@ -2,7 +2,6 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-#include <assert.h>
 #include <memory>
 
 #include <util/logger.hpp>
@@ -45,7 +44,7 @@ STATUS body_parser::parse_body(read_write_buffer& buffer)
     return end_connection_body_parser_.parse_end_connection_body(buffer);
   }
 
-  assert(body_encoding_ == CONTENT_LENGTH);
+  CHECK_CONDITION(body_encoding_ == CONTENT_LENGTH, "invalid body encoding");
 
   return content_length_body_parser_.parse_content_length_body(buffer);
   

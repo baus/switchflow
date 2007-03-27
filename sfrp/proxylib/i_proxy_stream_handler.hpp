@@ -5,7 +5,7 @@
 #ifndef IPROXYSTREAMHANDLER_H
 #define IPROXYSTREAMHANDLER_H
 
-#include <assert.h>
+#include <util/logger.hpp>
 #include <netinet/in.h>
 
 namespace proxylib{
@@ -71,7 +71,7 @@ class i_proxy_stream_handler
     
     virtual socketlib::STATUS process_data(read_write_buffer& buf) = 0;
     virtual i_proxy_stream_handler* clone() = 0;
-    proxy_stream_interface* get_proxy_stream_interface(){assert(p_proxy_stream_interface_);return p_proxy_stream_interface_;}
+    proxy_stream_interface* get_proxy_stream_interface(){CHECK_CONDITION(p_proxy_stream_interface_, "copying null pointer");return p_proxy_stream_interface_;}
     virtual void reset() = 0;
     virtual void reset(proxy_stream_interface* p_proxy_stream_interface )
     {

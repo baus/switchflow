@@ -2,8 +2,6 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-#include <assert.h>
-
 #include "i_body_receiver.hpp"
 
 #include "end_connection_body_parser.hpp"

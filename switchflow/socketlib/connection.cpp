@@ -12,7 +12,6 @@
 #include <errno.h>
 
 // c++ includes
-#include <assert.h>
 #include <string>
 #include <iostream>
 
@@ -113,7 +112,7 @@ namespace socketlib{
     socklen_t peerlen=sizeof(struct sockaddr_in);
     int return_val = getpeername(fd_, (struct sockaddr*)&peername, &peerlen);
 
-    // assert(return_val != -1);
+    // CHECK_CONDITION(return_val != -1, "invalid socket");
     //
     // I wanted to assert here, but there seems to be an issue that
     // is undocumented.  When making an asynchronous connection, there is
@@ -256,15 +255,15 @@ STATUS connection::non_blocking_write(read_write_buffer& buf)
     //
     // Sanity check the hell out the buffer positions.  There would be nothing worse than
     // blowing the buffer here. 
-    assert(num_bytes_to_write >= 0);
-    assert(num_bytes_to_write <= buf.get_write_end_position());
-    assert(num_bytes_to_write <= buf.get_working_length());
-    assert(buf.get_working_length() <= buf.get_physical_length());
-    assert(start_position >= 0);
+    CHECK_CONDITION(num_bytes_to_write >= 0, "request to write an invalid number of bytes");
+    CHECK_CONDITION(num_bytes_to_write <= buf.get_write_end_position(), "buffer consistency");
+    CHECK_CONDITION(num_bytes_to_write <= buf.get_working_length(), "buffer consistency");
+    CHECK_CONDITION(buf.get_working_length() <= buf.get_physical_length(), "buffer consistency");
+    CHECK_CONDITION(start_position >= 0, "buffer consistency");
     if(buf.get_working_length() == 0 || num_bytes_to_write == 0){
       return COMPLETE;
     }
-    assert(start_position < buf.get_working_length());
+    CHECK_CONDITION(start_position < buf.get_working_length(), "buffer consistency");
     if(num_bytes_to_write == 0){
       return COMPLETE;
     }

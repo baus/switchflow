@@ -11,7 +11,7 @@
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iterator/reverse_iterator.hpp>
 #include <boost/noncopyable.hpp>
-#include <boost/assert.hpp>
+#include <util/logger.hpp>
 
 namespace switchflow{
 namespace util{  
@@ -392,32 +392,32 @@ namespace util{
     template <typename binary_predicate>
     void merge(pooled_list& x, binary_predicate func)
       {
-        BOOST_ASSERT(this->p_pool_ == x.p_pool_);
+        CHECK_CONDITION(this->p_pool_ == x.p_pool_, "pool sizes do not match");
         this->active_list_.merge(x.active_list_, apply_binary_predicate<binary_predicate>(func));
       }
 
     void merge(pooled_list& x)
       {
-        BOOST_ASSERT(this->p_pool_ == x.p_pool_);
+        CHECK_CONDITION(this->p_pool_ == x.p_pool_, "pool sizes do not match");
         this->active_list_.merge(x.active_list_, apply_binary_predicate<std::less<T> >(std::less<T>())); 
       }
 
 
     void splice(iterator position, pooled_list& x)
       {
-        BOOST_ASSERT(this->p_pool_ == x.p_pool_);
+        CHECK_CONDITION(this->p_pool_ == x.p_pool_, "pool sizes do not match");
         this->active_list_.splice(position.base(), x.active_list_);
       }
 
     void splice(iterator position, pooled_list& x, iterator i)
       {
-        BOOST_ASSERT(this->p_pool_ == x.p_pool_);
+        CHECK_CONDITION(this->p_pool_ == x.p_pool_, "pool sizes do not match");
         this->active_list_.splice(position.base(), x.active_list, i);
       }
 
     void splice(iterator position, pooled_list& x, iterator first, iterator last)
       {
-        BOOST_ASSERT(this->p_pool_ == x.p_pool_);
+        CHECK_CONDITION(this->p_pool_ == x.p_pool_, "pool sizes do not match");
         this->active_list_.splice(position.base(), x.active_list, first, last);
       }
 

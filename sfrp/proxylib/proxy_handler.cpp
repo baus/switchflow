@@ -146,8 +146,9 @@ int proxy_handler::handle_event(int fd, short revents, eventlib::event& event)
   //
   // If a read or write event isn't registered, the 
   // connection will dead lock if the server is connected.
-  assert(client_ev || server_ev || 
-         !(server_data_.open_for_read() || server_data_.open_for_write()) );
+  CHECK_CONDITION(client_ev || server_ev || 
+         !(server_data_.open_for_read() || server_data_.open_for_write()),
+             "connection will deadlock under current conditions");
   if(client_ev){
     //
     // event will be deleted if it is already pending.
@@ -206,7 +207,7 @@ socketlib::STATUS proxy_handler::handle_stream(socketlib::connection& src_data,
        src_data.state() != socketlib::connection::CONNECTING){
       status = src_data.non_blocking_read();
     }
-    assert(p_stream_handler->get_proxy_stream_interface() != 0);
+    CHECK_CONDITION(p_stream_handler->get_proxy_stream_interface() != 0, "copying null pointer");
     status = p_stream_handler->process_data(src_data.read_buffer());
     
     socketlib::STATUS connect_status;
@@ -283,7 +284,8 @@ socketlib::STATUS proxy_handler::attempt_jit_server_connect(socketlib::connectio
       i_proxy_stream_handler::FORWARD_ADDRESS_STATUS address_status =
         p_stream_handler->get_forward_address_status();
       
-      assert(address_status != i_proxy_stream_handler::STREAM_DOES_NOT_PROVIDE_FORWARD_ADDRESS);
+      CHECK_CONDITION(address_status != i_proxy_stream_handler::STREAM_DOES_NOT_PROVIDE_FORWARD_ADDRESS,
+            "cannot find needed address");
       
       if(i_proxy_stream_handler::ERROR_DETERMINING_FORWARD_ADDRESS == address_status){
         return socketlib::DENY;
@@ -325,7 +327,7 @@ socketlib::STATUS proxy_handler::handle_server_connect()
 
 socketlib::STATUS proxy_handler::add_client(int client_socket)
 {
-  assert(client_data_.fd() == -1);
+  CHECK_CONDITION(client_data_.fd() == -1, "trying to add an already-open socket");
   client_data_.fd(client_socket);
   client_data_.state(socketlib::connection::CONNECTED);
   client_event_.set(client_socket, this);
@@ -382,14 +384,14 @@ void proxy_handler::handle_timeout(int fd)
 {
   if(server_data_.fd() == fd){
     log_info("server timed out");
-    assert(!p_poller_->pending(server_event_));
+    CHECK_CONDITION(!p_poller_->pending(server_event_), "cannot handle pending event; connection timed out");
     server_data_.fd(-1);
     server_data_.state(socketlib::connection::HUNGUP);
     ::close(fd);
   }
   else if(client_data_.fd() == fd){
     log_info("client timed out");
-    assert(!p_poller_->pending(client_event_));
+    CHECK_CONDITION(!p_poller_->pending(client_event_), "cannot handle pending event; connection timed out");
     client_data_.fd(-1);
     client_data_.state(socketlib::connection::HUNGUP);
     ::close(fd);
