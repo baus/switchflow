@@ -1,5 +1,5 @@
 //
-// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Copyright 2006-2007 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
 // Original implementation:
