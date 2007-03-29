@@ -88,11 +88,8 @@ int client_handler::handle_event(int fd, short revents, eventlib::event& event)
         log_info("Write incomplete, but socket closed", server_data_.state());
         shutdown();
         return 0;
-      }
-      if(server_data_.ready_to_write()){
-        log_crit("Stream returned WRITE_INCOMPLETE.  The socket is ready to write");
-        CHECK_CONDITION(server_data_.ready_to_write(), "socket not ready to write");
-      }
+      };
+      CHECK_CONDITION(server_data_.ready_to_write(), "Stream returned WRITE_INCOMPLETE.  The socket is ready to write");
       break;
     }
     else if(status == socketlib::DENY){
