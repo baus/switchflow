@@ -89,7 +89,7 @@ int client_handler::handle_event(int fd, short revents, eventlib::event& event)
         shutdown();
         return 0;
       };
-      CHECK_CONDITION(server_data_.ready_to_write(), "Stream returned WRITE_INCOMPLETE.  The socket is ready to write");
+      CHECK_CONDITION(!server_data_.ready_to_write(), "Stream returned WRITE_INCOMPLETE.  The socket is ready to write");
       break;
     }
     else if(status == socketlib::DENY){
