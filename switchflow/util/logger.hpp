@@ -1,22 +1,26 @@
+//
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 #ifndef LOGGER_H_
 #define LOGGER_H_
 
 #include <string>
 
-void check_condition(const char *pFileName, unsigned int SrcLine, const char* Desc);
-void check_condition_val(const char *pFileName, unsigned int SrcLine, const char* Desc, const int ErrVal);
+void check_condition(const char *p_file_name, unsigned int src_line, const char* desc);
+void check_condition_val(const char *p_file_name, unsigned int src_line, const char* desc, const int err_val);
 
-#define CHECK_CONDITION(Expr, Desc) \
-if (Expr) \
+#define CHECK_CONDITION(expr, desc) \
+if (expr) \
 ; \
 else \
-check_condition(__FILE__, __LINE__, Desc)
+check_condition(__FILE__, __LINE__, desc)
 
-#define CHECK_CONDITION_VAL(Expr, Desc, ErrVal) \
-if (Expr) \
+#define CHECK_CONDITION_VAL(expr, desc, err_val) \
+if (expr) \
 ; \
 else \
-check_condition_val(__FILE__, __LINE__, Desc, ErrVal)
+check_condition_val(__FILE__, __LINE__, desc, err_val)
 
 
 int logger_init(const char* appname);
@@ -25,18 +29,18 @@ void logger_shutdown();
 //
 // This should be used if an assertion fails.
 void log_crit(const char *message);
-void log_crit(const char *message, int errorVal);
+void log_crit(const char *message, int error_val);
 
 
 //
 // non critical failure: ie log file is bad
 void log_error(const char *message);
-void log_error(const char *message, int errorVal);
+void log_error(const char *message, int error_val);
 
 //
 // Information that might interest user, but isn't a problem
 void log_info(const char *message);
-void log_info(const char *message, int errorVal);
+void log_info(const char *message, int error_val);
 void log_info(const char *message1, const char *message2);
 
 //

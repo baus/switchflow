@@ -1,3 +1,7 @@
+//
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 #ifndef SF_I_HTTP_CONNECTION_HPP
 #define SF_I_HTTP_CONNECTION_HPP
 

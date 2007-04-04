@@ -34,8 +34,8 @@ extern "C" {
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <winsock2.h>
 #undef WIN32_LEAN_AND_MEAN
-typedef unsigned char u_char;
 #endif
 
 /*
@@ -48,11 +48,15 @@ typedef unsigned char u_char;
  * creating a very simple HTTP server.
  */
 
-/* Response codes */	
+/* Response codes */
 #define HTTP_OK			200
+#define HTTP_NOCONTENT		204
 #define HTTP_MOVEPERM		301
 #define HTTP_MOVETEMP		302
+#define HTTP_NOTMODIFIED	304
+#define HTTP_BADREQUEST		400
 #define HTTP_NOTFOUND		404
+#define HTTP_SERVUNAVAIL	503
 
 struct evhttp;
 struct evhttp_request;
@@ -75,12 +79,74 @@ void evhttp_set_cb(struct evhttp *, const char *,
 void evhttp_set_gencb(struct evhttp *,
     void (*)(struct evhttp_request *, void *), void *);
 
+void evhttp_set_timeout(struct evhttp *, int timeout_in_secs);
+
+/* Request/Response functionality */
+
 void evhttp_send_error(struct evhttp_request *, int, const char *);
 void evhttp_send_reply(struct evhttp_request *, int, const char *,
     struct evbuffer *);
 
+/* Low-level response interface, for streaming/chunked replies */
+void evhttp_send_reply_start(struct evhttp_request *, int, const char *);
+void evhttp_send_reply_chunk(struct evhttp_request *, struct evbuffer *);
+void evhttp_send_reply_end(struct evhttp_request *);
+	
 /* Interfaces for making requests */
 enum evhttp_cmd_type { EVHTTP_REQ_GET, EVHTTP_REQ_POST, EVHTTP_REQ_HEAD };
+
+enum evhttp_request_kind { EVHTTP_REQUEST, EVHTTP_RESPONSE };
+
+/* 
+ * the request structure that a server receives.
+ * WARNING: expect this structure to change.  I will try to provide
+ * reasonable accessors.
+ */
+struct evhttp_request {
+	TAILQ_ENTRY(evhttp_request) next;
+
+	/* the connection object that this request belongs to */
+	struct evhttp_connection *evcon;
+	int flags;
+#define EVHTTP_REQ_OWN_CONNECTION	0x0001	
+#define EVHTTP_PROXY_REQUEST		0x0002
+	
+	struct evkeyvalq *input_headers;
+	struct evkeyvalq *output_headers;
+
+	/* address of the remote host and the port connection came from */
+	char *remote_host;
+	u_short remote_port;
+
+	enum evhttp_request_kind kind;
+	enum evhttp_cmd_type type;
+
+	char *uri;			/* uri after HTTP request was parsed */
+
+	char major;			/* HTTP Major number */
+	char minor;			/* HTTP Minor number */
+	
+	int got_firstline;
+	int response_code;		/* HTTP Response code */
+	char *response_code_line;	/* Readable response */
+
+	struct evbuffer *input_buffer;	/* read data */
+	int ntoread;
+	int chunked;
+
+	struct evbuffer *output_buffer;	/* outgoing post or data */
+
+	/* Callback */
+	void (*cb)(struct evhttp_request *, void *);
+	void *cb_arg;
+
+	/* 
+	 * Chunked data callback - call for each completed chunk if
+	 * specified.  If not specified, all the data is delivered via
+	 * the regular callback.
+	 */
+	void (*chunk_cb)(struct evhttp_request *, void *);
+};
 
 /* 
  * Creates a new request object that needs to be filled in with the request
@@ -89,6 +155,8 @@ enum evhttp_cmd_type { EVHTTP_REQ_GET, EVHTTP_REQ_POST, EVHTTP_REQ_HEAD };
  */
 struct evhttp_request *evhttp_request_new(
 	void (*cb)(struct evhttp_request *, void *), void *arg);
+void evhttp_request_set_chunked_cb(struct evhttp_request *,
+    void (*cb)(struct evhttp_request *, void *));
 
 /* Frees the request object and removes associated events. */
 void evhttp_request_free(struct evhttp_request *req);
@@ -104,6 +172,22 @@ struct evhttp_connection *evhttp_connection_new(
 /* Frees an http connection */
 void evhttp_connection_free(struct evhttp_connection *evcon);
 
+/* Sets the timeout for events related to this connection */
+void evhttp_connection_set_timeout(struct evhttp_connection *evcon,
+    int timeout_in_secs);
+
+/* Sets the retry limit for this connection - -1 repeats indefnitely */
+void evhttp_connection_set_retries(struct evhttp_connection *evcon,
+    int retry_max);
+
+/* Set a callback for connection close. */
+void evhttp_connection_set_closecb(struct evhttp_connection *evcon,
+    void (*)(struct evhttp_connection *, void *), void *);
+
+/* Get the remote address and port associated with this connection. */
+void evhttp_connection_get_peer(struct evhttp_connection *evcon,
+    char **address, u_short *port);
+
 /* The connection gets ownership of the request */
 int evhttp_make_request(struct evhttp_connection *evcon,
     struct evhttp_request *req,
@@ -113,12 +197,14 @@ const char *evhttp_request_uri(struct evhttp_request *req);
 
 /* Interfaces for dealing with HTTP headers */
 
-const char *evhttp_find_header(struct evkeyvalq *, const char *);
+const char *evhttp_find_header(const struct evkeyvalq *, const char *);
 int evhttp_remove_header(struct evkeyvalq *, const char *);
 int evhttp_add_header(struct evkeyvalq *, const char *, const char *);
 void evhttp_clear_headers(struct evkeyvalq *);
 
 /* Miscellaneous utility functions */
+char *evhttp_encode_uri(const char *uri);
+char *evhttp_decode_uri(const char *uri);
 void evhttp_parse_query(const char *uri, struct evkeyvalq *);
 char *evhttp_htmlescape(const char *html);
 #ifdef __cplusplus

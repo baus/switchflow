@@ -1,3 +1,7 @@
+//
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 #include <Python.h>
 
 #include <iostream>
@@ -6,7 +10,7 @@
 #include <http/header_cache.hpp>
 #include <http/message_buffer.hpp>
 #include <http/request_buffer_wrapper.hpp>
-
+#include <util/logger.hpp>
 
 #include "http_client.hpp"
 #include "crawler.hpp"
@@ -25,54 +29,55 @@ python_handler_module::python_handler_module()
     
   Py_InitializeEx(0);
 
-  p_name = PyString_FromString("crawler");
-  p_module_ = PyImport_Import(p_name);
+  PyObject *p_name = PyString_FromString("crawler");
+  PyObject *p_module_ = PyImport_Import(p_name);
   Py_DECREF(p_name);
   if(p_module_ == NULL){
-	  PyErr_Print();
-	  std::cerr<<"Failed to load python module: crawler"<<std::endl;
+    PyErr_Print();
+    std::cerr<<"Failed to load python module: crawler"<<std::endl;
   }
   if(p_module_ != NULL)
   {
-	p_func_ = PyObject_GetAttrString(p_module_, "handle_response");
-	if(!p_func_ || !PyCallable_Check(p_func_)){
-		std::cerr<<"Failed to create python callback function"<<std::endl;
-		Py_XDECREF(p_func_);
+  PyObject *p_func_ = PyObject_GetAttrString(p_module_, "handle_response");
+  if(!p_func_ || !PyCallable_Check(p_func_)){
+    std::cerr<<"Failed to create python callback function"<<std::endl;
+    Py_XDECREF(p_func_);
         Py_DECREF(p_module_);
-	}
+  }
   }
 }
 
 python_handler_module::~python_handler_module()
 {
-	Py_XDECREF(p_func_);
+  Py_XDECREF(p_func_);
     
-	// What if the module failed to load?
-	Py_DECREF(p_module_);
-	Py_Finalize();
+  // What if the module failed to load?
+  Py_DECREF(p_module_);
+  Py_Finalize();
 
 }
 int python_handler_module::execute_response_callback(const char* response)
 {
-	PyObject * p_args;
-	PyObject * p_value;
-	int return_val = 0;
+  PyObject * p_args;
+  PyObject * p_value;
+  int return_val = 0;
 
-	assert(p_func_ || PyCallable_Check(p_func_));
-	p_args = PyTuple_New(1);
-	p_value = PyString_FromString(response);
-	PyTuple_SetItem(p_args, 0, p_value);
-	p_value = PyObject_CallObject(p_func_, p_args);
-	Py_DECREF(p_args);
-	if (p_value != NULL) {
-		return_val = PyInt_AsLong(p_value);
-		Py_DECREF(p_value);
-	}
-	else {
-		//
-		// error occured...
-	}
-	return return_val;
+  CHECK_CONDITION(p_func_ || PyCallable_Check(p_func_),
+      "Python runtime not initialized");
+  p_args = PyTuple_New(1);
+  p_value = PyString_FromString(response);
+  PyTuple_SetItem(p_args, 0, p_value);
+  p_value = PyObject_CallObject(p_func_, p_args);
+  Py_DECREF(p_args);
+  if (p_value != NULL) {
+    return_val = PyInt_AsLong(p_value);
+    Py_DECREF(p_value);
+  }
+  else {
+    //
+    // error occured...
+  }
+  return return_val;
 }
 
 
@@ -87,30 +92,30 @@ void crawler_handler::request_complete()
 void crawler_handler::accept_peer_body(asio::mutable_buffer& buffer)
 {
     feed_.insert(feed_.length(), asio::buffer_cast<char*>(buffer), asio::buffer_size(buffer));
-	//std::cout.write(asio::buffer_cast<char*>(buffer), asio::buffer_size(buffer));
+  //std::cout.write(asio::buffer_cast<char*>(buffer), asio::buffer_size(buffer));
 }  
 
 
 void build_request(http::message_buffer& get_request)
 {
-  http::HTTPRequestBufferWrapper request(get_request);
+  http::http_request_buffer_wrapper request(get_request);
   
-  request.getMethod().appendFromString("GET"); 
-  request.getURI().appendFromString("/");
+  request.get_method().append_from_string("GET"); 
+  request.get_uri().append_from_string("/");
   
-  request.getHTTPVersionBuffer().appendFromString("HTTP/1.1");
+  request.get_http_version_buffer().append_from_string("HTTP/1.1");
 
   get_request.add_field();
-  get_request.get_field_name(0).appendFromString("Host");
+  get_request.get_field_name(0).append_from_string("Host");
 
-  get_request.get_field_value(0).appendFromString("feeds.baus.net");
+  get_request.get_field_value(0).append_from_string("feeds.baus.net");
   
   get_request.add_field();
-  get_request.get_field_name(1).appendFromString("User-Agent");
-  get_request.get_field_value(1).appendFromString("FeedFlow/1.1.1");
+  get_request.get_field_name(1).append_from_string("User-Agent");
+  get_request.get_field_value(1).append_from_string("Feed_flow/1.1.1");
   get_request.add_field();
-  get_request.get_field_name(2).appendFromString("Connection");
-  get_request.get_field_value(2).appendFromString("close");
+  get_request.get_field_name(2).append_from_string("Connection");
+  get_request.get_field_value(2).append_from_string("close");
 
   //
   // We now only right feeds to disk if we need
@@ -119,9 +124,9 @@ void build_request(http::message_buffer& get_request)
   // feed for other reasons, remove this condition
 #define ONLY_WRITE_FEEDS_TO_DETERMINE_UPDATE  
 #ifdef ONLY_WRITE_FEEDS_TO_DETERMINE_UPDATE
-  bool conditionalGET = true;
+  bool conditional_get = true;
 #else
-  bool conditionalGET = p_crawl_request_->have_feed_on_disk_;
+  bool conditional_get = p_crawl_request_->have_feed_on_disk_;
 #endif
   
   int field_num = 3;
@@ -129,16 +134,16 @@ void build_request(http::message_buffer& get_request)
   // Only do conditional get if we already have the feed on disk, other wise the feed
   // will never be retrieved.
   /**
-  if(p_crawl_request_->old_last_modified_.size() > 0 && conditionalGET){
+  if(p_crawl_request_->old_last_modified_.size() > 0 && conditional_get){
     get_request.add_field();
-    get_request.getFieldNameN(field_num).appendFromString("If-Modified-Since");
-    get_request.getFieldValueN(field_num).appendFromString(p_crawl_request_->old_last_modified_.c_str());
+    get_request.get_field_name_n(field_num).append_from_string("If-Modified-Since");
+    get_request.get_field_value_n(field_num).append_from_string(p_crawl_request_->old_last_modified_.c_str());
     ++field_num;
   }
-  if(p_crawl_request_->old_etag_.size() > 0 && conditionalGET){
+  if(p_crawl_request_->old_etag_.size() > 0 && conditional_get){
     get_request.add_field();
-    get_request.getFieldNameN(field_num).appendFromString("If-None-Match");
-    get_request.getFieldValueN(field_num).appendFromString(p_crawl_request_->old_etag_.c_str());
+    get_request.get_field_name_n(field_num).append_from_string("If-None-Match");
+    get_request.get_field_value_n(field_num).append_from_string(p_crawl_request_->old_etag_.c_str());
     ++field_num;
   }
   **/

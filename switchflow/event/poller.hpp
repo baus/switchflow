@@ -1,3 +1,7 @@
+//
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 // 
 // Copyright (C) Christopher Baus.  All rights reserved.
 //
@@ -13,7 +17,7 @@ public:
   poller();
   virtual ~poller();
   
-  void add_event(event& r_event, short eventId, long timeoutsecs);
+  void add_event(event& r_event, short event_id, long timeoutsecs);
   bool pending(event& r_event);
   void del_event(event& r_event);
   
@@ -22,7 +26,7 @@ public:
 private:
   //
   // Static callback function that is passed to libevent. 
-  static void event_callback(int fd, short eventId, void *arg);
+  static void event_callback(int fd, short event_id, void *arg);
 
 };
 

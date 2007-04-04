@@ -3,7 +3,7 @@
 # Copyright (c) 2005 Niels Provos <provos@citi.umich.edu>
 # All rights reserved.
 #
-# Generates marshalling code based on libevent.
+# Generates marshaling code based on libevent.
 
 import sys
 import re
@@ -16,10 +16,9 @@ _STRUCT_RE = '[a-z][a-z_0-9]*'
 # Globals
 line_count = 0
 
-leading = re.compile(r'^\s+')
-trailing = re.compile(r'\s+$')
 white = re.compile(r'^\s+')
 cppcomment = re.compile(r'\/\/.*$')
+headerdirect = []
 cppdirect = []
 
 # Holds everything that makes a struct
@@ -1041,14 +1040,11 @@ class EntryArray(Entry):
         return dcl
 
 def NormalizeLine(line):
-    global leading
-    global trailing
     global white
     global cppcomment
     
     line = cppcomment.sub('', line)
-    line = leading.sub('', line)
-    line = trailing.sub('', line)
+    line = line.strip()
     line = white.sub(' ', line)
 
     return line
@@ -1056,7 +1052,7 @@ def NormalizeLine(line):
 def ProcessOneEntry(newstruct, entry):
     optional = 0
     array = 0
-    type = ''
+    entry_type = ''
     name = ''
     tag = ''
     tag_set = None
@@ -1068,7 +1064,7 @@ def ProcessOneEntry(newstruct, entry):
         token = tokens[0]
         tokens = tokens[1:]
 
-        if not type:
+        if not entry_type:
             if not optional and token == 'optional':
                 optional = 1
                 continue
@@ -1077,8 +1073,8 @@ def ProcessOneEntry(newstruct, entry):
                 array = 1
                 continue
 
-        if not type:
-            type = token
+        if not entry_type:
+            entry_type = token
             continue
 
         if not name:
@@ -1117,22 +1113,23 @@ def ProcessOneEntry(newstruct, entry):
         sys.exit(1)
 
     # Create the right entry
-    if type == 'bytes':
+    if entry_type == 'bytes':
         if fixed_length:
-            newentry = EntryBytes(type, name, tag, fixed_length)
+            newentry = EntryBytes(entry_type, name, tag, fixed_length)
         else:
-            newentry = EntryVarBytes(type, name, tag)
-    elif type == 'int' and not fixed_length:
-        newentry = EntryInt(type, name, tag)
-    elif type == 'string' and not fixed_length:
-        newentry = EntryString(type, name, tag)
+            newentry = EntryVarBytes(entry_type, name, tag)
+    elif entry_type == 'int' and not fixed_length:
+        newentry = EntryInt(entry_type, name, tag)
+    elif entry_type == 'string' and not fixed_length:
+        newentry = EntryString(entry_type, name, tag)
     else:
-        res = re.match(r'^struct\[(%s)\]$' % _STRUCT_RE, type, re.IGNORECASE)
+        res = re.match(r'^struct\[(%s)\]$' % _STRUCT_RE,
+                       entry_type, re.IGNORECASE)
         if res:
             # References another struct defined in our file
-            newentry = EntryStruct(type, name, tag, res.group(1))
+            newentry = EntryStruct(entry_type, name, tag, res.group(1))
         else:
-            print >>sys.stderr, 'Bad type: "%s" in "%s"' % (type, entry)
+            print >>sys.stderr, 'Bad type: "%s" in "%s"' % (entry_type, entry)
             sys.exit(1)
 
     structs = []
@@ -1193,7 +1190,11 @@ def GetNextStruct(file):
 
     have_c_comment = 0
     data = ''
-    for line in file:
+    while 1:
+        line = file.readline()
+        if not line:
+            break
+        
         line_count += 1
         line = line[:-1]
 
@@ -1222,6 +1223,10 @@ def GetNextStruct(file):
             
             if re.match(r'^#(if( |def)|endif)', line):
                 cppdirect.append(line)
+                continue
+
+            if re.match(r'^#define', line):
+                headerdirect.append(line)
                 continue
 
             if not re.match(r'^struct %s {$' % _STRUCT_RE,
@@ -1256,8 +1261,9 @@ def GetNextStruct(file):
         
 
 def Parse(file):
-    """Parses the input file and returns C code and corresponding header
-    file."""
+    """
+    Parses the input file and returns C code and corresponding header file.
+    """
 
     entities = []
 
@@ -1288,6 +1294,12 @@ def HeaderPreamble(name):
         '#ifndef %s\n'
         '#define %s\n\n' ) % (
         name, guard, guard)
+
+    for statement in headerdirect:
+        pre += '%s\n' % statement
+    if headerdirect:
+        pre += '\n'
+
     pre += (
         '#define EVTAG_HAS(msg, member) ((msg)->member##_set == 1)\n'
         '#define EVTAG_ASSIGN(msg, member, args...) '
@@ -1322,8 +1334,8 @@ def BodyPreamble(name):
              '#include <assert.h>\n'
              '#include <event.h>\n\n' )
 
-    for include in cppdirect:
-        pre += '%s\n' % include
+    for statement in cppdirect:
+        pre += '%s\n' % statement
     
     pre += '\n#include "%s"\n\n' % header_file
 
@@ -1335,10 +1347,14 @@ def BodyPreamble(name):
     return pre
 
 def main(argv):
+    if len(argv) < 2 or not argv[1]:
+        print >>sys.stderr, 'Need RPC description file as first argument.'
+        sys.exit(1)
+
     filename = argv[1]
 
-    if filename.split('.')[-1] != 'rpc':
-        ext = filename.split('.')[-1]
+    ext = filename.split('.')[-1]
+    if ext != 'rpc':
         print >>sys.stderr, 'Unrecognized file extension: %s' % ext
         sys.exit(1)
 

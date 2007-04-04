@@ -1,5 +1,7 @@
-// Copyright (C) Christopher Baus.  All rights reserved.
 //
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 #include <http/http.hpp>
 
 #include "static_strings.hpp"

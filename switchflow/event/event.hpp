@@ -1,6 +1,7 @@
-// 
-// Copyright (C) Christopher Baus.  All rights reserved.
 //
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 #ifndef SSD_EVENT_HPP
 #define SSD_EVENT_HPP
 

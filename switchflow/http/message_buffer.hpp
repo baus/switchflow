@@ -1,5 +1,7 @@
 //
-// Copyright (c) Christopher Baus. All Rights Reserved
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 #ifndef SSVS_MESSAGEBUFFER_H
 #define SSVS_MESSAGEBUFFER_H
 
@@ -12,7 +14,7 @@
 #include "header_cache.hpp"
 
 typedef unsigned char BYTE;
-typedef std::vector<BYTE> RawBuffer;
+typedef std::vector<BYTE> raw_buffer;
 
 namespace http{
   
@@ -24,27 +26,27 @@ public:
   // in which the headers are dynamically allocated
   // via the cache.  
   message_buffer(header_cache* cache,
-                 unsigned int maxStartLine1Length, 
-                 unsigned int maxStartLine2Length, 
-                 unsigned int maxStartLine3Length,
-                 unsigned int maxNumHeaders);
+                 unsigned int max_start_line1Length, 
+                 unsigned int max_start_line2Length, 
+                 unsigned int max_start_line3Length,
+                 unsigned int max_num_headers);
 
   
   
-  message_buffer(RawBuffer* startLine1,
-                 RawBuffer* startLine2,
-                 RawBuffer* startLine3,
+  message_buffer(raw_buffer* start_line1,
+                 raw_buffer* start_line2,
+                 raw_buffer* start_line3,
                  std::list<header_buffer*>& fields);
 
   ~message_buffer();
   
   void reset();
-  bool append_to_status_line_1(RawBuffer::iterator begin, RawBuffer::iterator end);
-  bool append_to_status_line_2(RawBuffer::iterator begin, RawBuffer::iterator end);
-  bool append_to_status_line_3(RawBuffer::iterator begin, RawBuffer::iterator end);
+  bool append_to_status_line_1(raw_buffer::iterator begin, raw_buffer::iterator end);
+  bool append_to_status_line_2(raw_buffer::iterator begin, raw_buffer::iterator end);
+  bool append_to_status_line_3(raw_buffer::iterator begin, raw_buffer::iterator end);
 
-  bool append_to_name(unsigned int n, RawBuffer::iterator begin, RawBuffer::iterator end);
-  bool append_to_value(unsigned int n, RawBuffer::iterator begin, RawBuffer::iterator end);
+  bool append_to_name(unsigned int n, raw_buffer::iterator begin, raw_buffer::iterator end);
+  bool append_to_value(unsigned int n, raw_buffer::iterator begin, raw_buffer::iterator end);
    
   read_write_buffer& get_status_line_1();
   read_write_buffer& get_status_line_2();
@@ -55,10 +57,10 @@ public:
   read_write_buffer& get_field_name(unsigned int n);
   read_write_buffer& get_field_value(unsigned int n);
   
-  bool field_name_equals(unsigned int n, const char* compareString);
-  bool field_value_equals(unsigned int n, const char* compareString);
+  bool field_name_equals(unsigned int n, const char* compare_string);
+  bool field_value_equals(unsigned int n, const char* compare_string);
 
-  bool get_header_index_by_name(const char* headerName, unsigned int& index);
+  bool get_header_index_by_name(const char* header_name, unsigned int& index);
 
   header_cache* get_header_cache();
 
@@ -72,13 +74,13 @@ public:
   const static char* space;
 private:
   header_buffer& get_header(int n);
-  bool fitsInBuffer(read_write_buffer& buf, int size);
+  bool fits_in_buffer(read_write_buffer& buf, int size);
   unsigned int current_num_fields_;
   unsigned int max_fields_;
-  read_write_buffer m_startLine1;
-  read_write_buffer m_startLine2;
-  read_write_buffer m_startLine3;
-  std::list<header_buffer> m_headers;
+  read_write_buffer start_line1_;
+  read_write_buffer start_line2_;
+  read_write_buffer start_line3_;
+  std::list<header_buffer> headers_;
   header_cache* cache_;
 };
 

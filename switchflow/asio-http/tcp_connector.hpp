@@ -1,3 +1,7 @@
+//
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 #ifndef TCP_CONNECTOR_H
 #define TCP_CONNECTOR_H
 
@@ -17,14 +21,14 @@ class tcp_connector: private boost::noncopyable
 {
  public:
   tcp_connector(asio::io_service& d,
-	            asio::ip::tcp::endpoint endpoint,
-				boost::function< void (std::auto_ptr<asio::ip::tcp::socket>) > connect_handler,
+              asio::ip::tcp::endpoint endpoint,
+        boost::function< void (std::auto_ptr<asio::ip::tcp::socket>) > connect_handler,
                 i_connect_error_handler& connect_error_handler);
 
   tcp_connector(asio::io_service& d,
                 const char* address,
                 int port,
-				boost::function<void (std::auto_ptr<asio::ip::tcp::socket>) > connect_handler,
+        boost::function<void (std::auto_ptr<asio::ip::tcp::socket>) > connect_handler,
                 i_connect_error_handler& connect_error_handler);
   
   //

@@ -149,8 +149,12 @@ gettime(struct timeval *tp)
 {
 #ifdef HAVE_CLOCK_GETTIME
 	struct timespec	ts;
-	
+
+#ifdef HAVE_CLOCK_MONOTONIC      
 	if (clock_gettime(CLOCK_MONOTONIC, &ts) == -1)
+#else
+	if (clock_gettime(CLOCK_REALTIME, &ts) == -1)
+#endif
 		return (-1);
 	tp->tv_sec = ts.tv_sec;
 	tp->tv_usec = ts.tv_nsec / 1000;
@@ -297,6 +301,8 @@ event_process_active(struct event_base *base)
 		}
 	}
 
+	assert(activeq != NULL);
+
 	for (ev = TAILQ_FIRST(activeq); ev; ev = TAILQ_FIRST(activeq)) {
 		event_queue_remove(base, ev, EVLIST_ACTIVE);
 		
@@ -307,6 +313,8 @@ event_process_active(struct event_base *base)
 			ncalls--;
 			ev->ev_ncalls = ncalls;
 			(*ev->ev_callback)((int)ev->ev_fd, ev->ev_res, ev->ev_arg);
+			if (event_gotsig)
+				return;
 		}
 	}
 }
@@ -459,6 +467,7 @@ event_once(int fd, short events,
 {
 	struct event_once *eonce;
 	struct timeval etv;
+	int res;
 
 	/* We cannot support signals that just fire once */
 	if (events & EV_SIGNAL)
@@ -487,7 +496,11 @@ event_once(int fd, short events,
 		return (-1);
 	}
 
-	event_add(&eonce->ev, tv);
+	res = event_add(&eonce->ev, tv);
+	if (res != 0) {
+		free(eonce);
+		return (res);
+	}
 
 	return (0);
 }

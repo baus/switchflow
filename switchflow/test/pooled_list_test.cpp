@@ -1,9 +1,6 @@
-// Copyright (c) 2006
-// Christopher Baus http://baus.net/ (christopher at baus dot net)
 //
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
 
 #include <iostream>
 #include <list>
@@ -16,8 +13,8 @@
 #include <util/pooled_list.hpp>
  
                      
-template<typename listT>
-void test_performance(listT& l, int num_insert_ops)
+template<typename list_t>
+void test_performance(list_t& l, int num_insert_ops)
 {
   l.clear();
   int outer_limit = num_insert_ops/10;
@@ -39,13 +36,13 @@ void test_performance(listT& l, int num_insert_ops)
   std::cout<<"total insert/erase ops: "<<outer_limit * 10 * 2<<std::endl;
 }
 
-template<typename listT>
-void dump_list(const listT& l)
+template<typename list_t>
+void dump_list(const list_t& l)
 {
-  typename listT::const_iterator cur =
+  typename list_t::const_iterator cur =
     l.begin();
 
-  typename listT::const_iterator end =
+  typename list_t::const_iterator end =
     l.end();
 
   for(;cur != end; ++cur){

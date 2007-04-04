@@ -1,3 +1,7 @@
+//
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 #ifndef SS_I_HTTP_CLIENT_HPP
 #define SS_I_HTTP_CLIENT_HPP
 
@@ -17,7 +21,7 @@ public:
   virtual void send_body_failed() = 0;
 
   virtual void headers_complete() = 0;
-  virtual http::STATUS handle_body(read_write_buffer& body, bool bComplete) = 0;
+  virtual http::STATUS handle_body(read_write_buffer& body, bool b_complete) = 0;
   virtual void request_complete() = 0;
   virtual http::message_buffer& get_request() = 0;
   virtual http::message_buffer& get_response() = 0;

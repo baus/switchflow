@@ -1,7 +1,9 @@
-// Copyright (c) Christopher Baus. All Rights Reserved
 //
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 #include "header_cache.hpp"
-#include <assert.h>
+#include <util/logger.hpp>
 
 namespace http{
 
@@ -21,7 +23,7 @@ bool header_cache::empty()
 
 void header_cache::alloc_header(std::list<header_buffer>& header_list)
 {
-  assert(!empty());
+  CHECK_CONDITION(!empty(), "empty header cache");
   //
   // Can I use end here or do I need --end() ?
   headers_.begin()->reset();
@@ -31,7 +33,7 @@ void header_cache::alloc_header(std::list<header_buffer>& header_list)
 
 void header_cache::release_headers(std::list<header_buffer>& header_list)
 {
-  assert(!empty());
+  CHECK_CONDITION(!empty(), "empty header cache");
   headers_.splice(headers_.end(),
                   header_list);
   

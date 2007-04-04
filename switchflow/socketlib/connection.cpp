@@ -1,4 +1,6 @@
-// Copyright (C) Christopher Baus.  All rights reserved.
+//
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
 
 // system includes 
 #include <arpa/inet.h>
@@ -10,7 +12,6 @@
 #include <errno.h>
 
 // c++ includes
-#include <assert.h>
 #include <string>
 #include <iostream>
 
@@ -22,11 +23,11 @@
 
 namespace socketlib{
   
-  connection::connection(unsigned int bufferLength):
+  connection::connection(unsigned int buffer_length):
     ready_to_read_(false),
     ready_to_write_(false),
     fd_(-1),
-    buffer_(bufferLength),
+    buffer_(buffer_length),
     state_(NOT_CONNECTED)
   {  
     ip_addr_.resize(11);
@@ -42,9 +43,9 @@ namespace socketlib{
     ready_to_write_ = false;
   }
     
-  void connection::ready_to_read(bool bValue)
+  void connection::ready_to_read(bool b_value)
   {
-    ready_to_read_ = bValue;
+    ready_to_read_ = b_value;
   }
 
   bool connection::ready_to_read()
@@ -52,9 +53,9 @@ namespace socketlib{
     return ready_to_read_ && open_for_read();
   }
 
-  void connection::ready_to_write(bool bValue)
+  void connection::ready_to_write(bool b_value)
   {
-    ready_to_write_ = bValue;
+    ready_to_write_ = b_value;
   }
 
   bool connection::ready_to_write()
@@ -68,28 +69,28 @@ namespace socketlib{
     return state_;
   }
 
-  void connection::state(STATE newState)
+  void connection::state(STATE new_state)
   {
-    if(newState == WRITE_SHUT && state_ == READ_SHUT){
+    if(new_state == WRITE_SHUT && state_ == READ_SHUT){
       state_ = HUNGUP;
     }
-    if(newState == READ_SHUT && state_ == WRITE_SHUT){
+    if(new_state == READ_SHUT && state_ == WRITE_SHUT){
       state_ = HUNGUP;
     }
     else{
-      state_ = newState;
+      state_ = new_state;
     } 
   }
   
-  read_write_buffer& connection::readBuffer()
+  read_write_buffer& connection::read_buffer()
   {
     return buffer_;
   }
 
-  void connection::fd(int newFd)
+  void connection::fd(int new_fd)
   {
-    fd_ = newFd;
-    if(newFd != -1){
+    fd_ = new_fd;
+    if(new_fd != -1){
       //
       // for edge triggered these should be
       // true.  For level triggered they should be
@@ -109,18 +110,18 @@ namespace socketlib{
   {
     struct sockaddr_in peername;
     socklen_t peerlen=sizeof(struct sockaddr_in);
-    int returnVal = getpeername(fd_, (struct sockaddr*)&peername, &peerlen);
+    int return_val = getpeername(fd_, (struct sockaddr*)&peername, &peerlen);
 
-    // assert(returnVal != -1);
+    // CHECK_CONDITION(return_val != -1, "invalid socket");
     //
     // I wanted to assert here, but there seems to be an issue that
     // is undocumented.  When making an asynchronous connection, there is
     // a valid fd which is held in fd_, but the socket isn't connected yet.
     // in this case getpeername returns -1.  This is forcing me to rethink
     // the strategy of getting the peername as soon as the fd_ is set into
-    // the socketData structure.
+    // the socket_data structure.
 
-    if(returnVal == -1){
+    if(return_val == -1){
       return 0;
     }
     
@@ -185,7 +186,7 @@ namespace socketlib{
     if(!ready_to_read()){
       return socketlib::COMPLETE;
     }
-    if(!readBuffer().fullyWritten()){
+    if(!read_buffer().fully_written()){
       //
       // It is tempting to buffer up some more data here, but why bother?  It could
       // lead to problems like non-contiguous buffers.  It would cause more problems
@@ -193,17 +194,17 @@ namespace socketlib{
       // Just let the OS buffer it until we are ready to write.
       return socketlib::COMPLETE;
     }
-    readBuffer().reset();
-    int physicalLength = readBuffer().getPhysicalLength();
-    int retVal = ::read(fd(), &(readBuffer().get_raw_buffer()[0]), readBuffer().getPhysicalLength());
-    if(retVal != -1){
+    read_buffer().reset();
+    int physical_length = read_buffer().get_physical_length();
+    int ret_val = ::read(fd(), &(read_buffer().get_raw_buffer()[0]), read_buffer().get_physical_length());
+    if(ret_val != -1){
       //
       // got some of the finest data available...
-      if(retVal == 0){
+      if(ret_val == 0){
         state(socketlib::connection::READ_SHUT);
         return socketlib::SRC_CLOSED;
       }
-      readBuffer().set_working_length(retVal);
+      read_buffer().set_working_length(ret_val);
     }
     else{
       int localerrno = errno;
@@ -249,27 +250,27 @@ STATUS connection::non_blocking_write(read_write_buffer& buf)
     if(!ready_to_write()){
       return INCOMPLETE;
     }   
-    int startPosition = buf.getWritePosition();
-    int numBytesToWrite = buf.getWriteEndPosition() - startPosition;
+    int start_position = buf.get_write_position();
+    int num_bytes_to_write = buf.get_write_end_position() - start_position;
     //
     // Sanity check the hell out the buffer positions.  There would be nothing worse than
     // blowing the buffer here. 
-    assert(numBytesToWrite >= 0);
-    assert(numBytesToWrite <= buf.getWriteEndPosition());
-    assert(numBytesToWrite <= buf.getWorkingLength());
-    assert(buf.getWorkingLength() <= buf.getPhysicalLength());
-    assert(startPosition >= 0);
-    if(buf.getWorkingLength() == 0 || numBytesToWrite == 0){
+    CHECK_CONDITION(num_bytes_to_write >= 0, "request to write an invalid number of bytes");
+    CHECK_CONDITION(num_bytes_to_write <= buf.get_write_end_position(), "buffer consistency");
+    CHECK_CONDITION(num_bytes_to_write <= buf.get_working_length(), "buffer consistency");
+    CHECK_CONDITION(buf.get_working_length() <= buf.get_physical_length(), "buffer consistency");
+    CHECK_CONDITION(start_position >= 0, "buffer consistency");
+    if(buf.get_working_length() == 0 || num_bytes_to_write == 0){
       return COMPLETE;
     }
-    assert(startPosition < buf.getWorkingLength());
-    if(numBytesToWrite == 0){
+    CHECK_CONDITION(start_position < buf.get_working_length(), "buffer consistency");
+    if(num_bytes_to_write == 0){
       return COMPLETE;
     }
-    int retVal = ::write(fd(), &(buf.get_raw_buffer()[startPosition]), numBytesToWrite);
-    if(retVal != -1){
-      buf.setWritePosition(startPosition + retVal);
-      if(retVal >= numBytesToWrite){
+    int ret_val = ::write(fd(), &(buf.get_raw_buffer()[start_position]), num_bytes_to_write);
+    if(ret_val != -1){
+      buf.set_write_position(start_position + ret_val);
+      if(ret_val >= num_bytes_to_write){
         return COMPLETE;
       }
       //

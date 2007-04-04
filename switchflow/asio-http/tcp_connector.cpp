@@ -1,5 +1,7 @@
 //
-// Copyright (c) Christopher Baus.  All Rights Reserved.
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 #include "tcp_connector.hpp"
 
 #include <errno.h>
@@ -14,7 +16,7 @@
 
 tcp_connector::tcp_connector(asio::io_service& d,
                              asio::ip::tcp::endpoint endpoint,
-							 boost::function< void (std::auto_ptr<asio::ip::tcp::socket>) > connect_handler,
+               boost::function< void (std::auto_ptr<asio::ip::tcp::socket>) > connect_handler,
                              i_connect_error_handler& connect_error_handler):d_(d),
                                                                              endpoint_(endpoint),
                                                                              connect_handler_(connect_handler),
@@ -29,7 +31,7 @@ tcp_connector::tcp_connector(asio::io_service& d,
   tcp_connector::tcp_connector(asio::io_service& d,
                                const char* address,
                                int port,
-							   boost::function< void (std::auto_ptr<asio::ip::tcp::socket>) > connect_handler,
+                 boost::function< void (std::auto_ptr<asio::ip::tcp::socket>) > connect_handler,
                                i_connect_error_handler& connect_error_handler):
     d_(d),
     port_(port),
@@ -38,14 +40,14 @@ tcp_connector::tcp_connector(asio::io_service& d,
     resolver_(d_),
     p_s_(0)
 {
-	asio::ip::tcp::resolver::query query(address, "http");
+  asio::ip::tcp::resolver::query query(address, "http");
     
-	resolver_.async_resolve(query,
+  resolver_.async_resolve(query,
           boost::bind(&tcp_connector::resolve_handler, this,
                       asio::placeholders::error,
                       asio::placeholders::iterator));
-	
-	
+  
+  
   
   }
 
@@ -63,16 +65,16 @@ tcp_connector::tcp_connector(asio::io_service& d,
 
   
   void tcp_connector::resolve_handler(const asio::error& error,
-									  asio::ip::tcp::resolver::iterator iter)
+                    asio::ip::tcp::resolver::iterator iter)
   {
-	asio::ip::tcp::resolver::iterator end;
+  asio::ip::tcp::resolver::iterator end;
     if(!error && iter != end){
       //
       // should pass in crawl request here.
       endpoint_ = *iter;;
-	  endpoint_.port(port_);
+    endpoint_.port(port_);
       
-	  p_s_.reset(new asio::ip::tcp::socket(d_));
+    p_s_.reset(new asio::ip::tcp::socket(d_));
       connect();  
     }
     else{

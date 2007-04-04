@@ -1,5 +1,7 @@
-// Copyright (C) Christopher Baus.  All rights reserved.
 //
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 #ifndef SSD_HEADER_PUSHER_HPP
 #define SSD_HEADER_PUSHER_HPP
 
@@ -22,7 +24,7 @@ public:
 private:
   //
   // The current state of pushing headers to 
-  // next up stream HTTP processor.  push_header
+  // next upstream HTTP processor.  push_header
   // can return from any of these states.
   enum PUSH_HEADER_STATE{
     START_LINE_TOKEN1,
@@ -43,9 +45,9 @@ private:
   // pointers are used to write out buffers.  This 
   // demonstrates the problem with Buffer class.
   // The data needs to be removed from the meta data.
-  read_write_buffer m_spaceBuf;
-  read_write_buffer m_endlineBuf;
-  read_write_buffer m_fieldSep;
+  read_write_buffer space_buf_;
+  read_write_buffer endline_buf_;
+  read_write_buffer field_sep_;
 
   read_write_buffer& get_header_buffer_to_push(PUSH_HEADER_STATE header_state);
 

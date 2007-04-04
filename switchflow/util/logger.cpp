@@ -1,3 +1,7 @@
+//
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 #include <boost/config.hpp>
 #ifndef BOOST_WINDOWS
 #include <syslog.h>
@@ -9,7 +13,7 @@
 //
 // Initialize logging functionality.
 //
-// @param accessLogLocation the path to the accessLog.
+// @param access_log_location the path to the access_log.
 // @return 0 on success, -1 on failure.
 int logger_init(const char* appname)
 {
@@ -27,19 +31,19 @@ void logger_shutdown()
 
 }
 
-void check_condition(const char * pFileName, unsigned int SrcLine, const char* Desc)
+void check_condition(const char * p_file_name, unsigned int src_line, const char* desc)
 {
-  std::cout<<"Pre-condition failed: "<<pFileName<<", line "<<SrcLine<<std::endl;
-  std::cout<<Desc<<std::endl;
-  log_crit(Desc);
+  std::cout<<"Pre-condition failed: "<<p_file_name<<", line "<<src_line<<std::endl;
+  std::cout<<desc<<std::endl;
+  log_crit(desc);
   abort();
 }
 
-void check_condition_val(const char *pFileName, unsigned int SrcLine, const char* Desc, const int ErrVal)
+void check_condition_val(const char *p_file_name, unsigned int src_line, const char* desc, const int err_val)
 {
-  std::cout<<"Pre-condition failed: "<<pFileName<<", line "<<SrcLine<<std::endl;
-  std::cout<<Desc<<": "<<ErrVal<<std::endl;
-  log_crit(Desc, ErrVal);
+  std::cout<<"Pre-condition failed: "<<p_file_name<<", line "<<src_line<<std::endl;
+  std::cout<<desc<<": "<<err_val<<std::endl;
+  log_crit(desc, err_val);
   abort();
 }
 
@@ -53,23 +57,23 @@ void log_crit(const char *message)
 #endif
 
 }
-void log_crit(const char *message, int errorVal)
+void log_crit(const char *message, int error_val)
 {
 #ifndef BOOST_WINDOWS
 
-  syslog(LOG_EMERG, "%s: %d", message, errorVal);  
+  syslog(LOG_EMERG, "%s: %d", message, error_val);  
 #endif
 
 }
 
 
-void log_error(const char *message, int errorVal)
+void log_error(const char *message, int error_val)
 {
-  std::cerr<<message<<": "<<errorVal<<std::endl;
+  std::cerr<<message<<": "<<error_val<<std::endl;
 #ifndef BOOST_WINDOWS
 
 
-  syslog(LOG_ERR, "%s: %d", message, errorVal);  
+  syslog(LOG_ERR, "%s: %d", message, error_val);  
 #endif
 
 }
@@ -95,11 +99,11 @@ void log_info(const char *message)
 
 }
 
-void log_info(const char *message, int errorVal)
+void log_info(const char *message, int error_val)
 {
 #ifndef BOOST_WINDOWS
 
-  syslog(LOG_INFO, "%s: %d", message, errorVal);  
+  syslog(LOG_INFO, "%s: %d", message, error_val);  
 #endif
 
 }
@@ -143,7 +147,7 @@ void log_request(const char *message)
 
   
 
-void logDebug(const char* message, int val)
+void log_debug(const char* message, int val)
 {
 #ifndef BOOST_WINDOWS
 

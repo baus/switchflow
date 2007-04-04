@@ -1,12 +1,15 @@
 //
-// Copyright (C) Christopher Baus.  All rights reserved.
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 #ifndef SSD_PIPELINE_DATA_QUEUE_HPP
 #define SSD_PIPELINE_DATA_QUEUE_HPP
 
 #include <list>
 #include <boost/function.hpp>
+#include "i_pipeline_data.hpp"
 
-class i_pipeline_data;
+using proxylib::i_pipeline_data;
 
 //
 // This structure maintains PIPELINE_DEPTH number of pipeline_data elements.  The

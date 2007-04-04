@@ -1,7 +1,6 @@
 //
-// Copyright (C) Christopher Baus.  All rights reserved.
-//
-#include <assert.h>
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
 
 #include "i_body_receiver.hpp"
 
@@ -9,30 +8,30 @@
 
 namespace http{
   
-  EndConnectionBodyParser::EndConnectionBodyParser(i_body_receiver* pBodyReceiver):
-  m_pBodyReceiver(pBodyReceiver)
+  end_connection_body_parser::end_connection_body_parser(i_body_receiver* p_body_receiver):
+  p_body_receiver_(p_body_receiver)
 {
 }
 
-EndConnectionBodyParser::~EndConnectionBodyParser()
+end_connection_body_parser::~end_connection_body_parser()
 {
 }
 
-STATUS EndConnectionBodyParser::parseEndConnectionBody(read_write_buffer& buffer)
+STATUS end_connection_body_parser::parse_end_connection_body(read_write_buffer& buffer)
 {
-  STATUS returnValue = m_pBodyReceiver->set_body(buffer, false);
+  STATUS return_value = p_body_receiver_->set_body(buffer, false);
 
-  if(returnValue == COMPLETE){
+  if(return_value == COMPLETE){
     //
     // We might have successfully forwarded the data, but we
     // aren't complete until the connection has been closed.
     //
-    returnValue = INCOMPLETE;
+    return_value = INCOMPLETE;
   }
-  else if(returnValue == INCOMPLETE){
-    returnValue = WRITE_INCOMPLETE;
+  else if(return_value == INCOMPLETE){
+    return_value = WRITE_INCOMPLETE;
   }
-  return returnValue; 
+  return return_value; 
 }
 
 } // namespace httplib

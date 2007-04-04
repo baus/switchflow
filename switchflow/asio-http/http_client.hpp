@@ -1,3 +1,7 @@
+//
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 #ifndef HTTP_CLIENT
 #define HTTP_CLIENT
 
@@ -144,8 +148,8 @@ private:
 
   http::message_buffer response_;
   http::header_handler header_handler_;
-  http::HTTPHeaderParser header_parser_;
-  http::BodyParser body_parser_;
+  http::HTTPHeader_parser header_parser_;
+  http::Body_parser body_parser_;
 
   MESSAGE_STATE response_state_;
 

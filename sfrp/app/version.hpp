@@ -1,10 +1,12 @@
-// Copyright (C) Christopher Baus.  All rights reserved.
 //
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 #ifndef SSD_VERSION_HPP
 #define SSD_VERSION_HPP
 
 #include "SVNVersion.h"
 
-#define SFRP_VERSION "1.1.1"
+#define SFRP_VERSION "1.1.3"
 
 #endif // VERSION_HPP

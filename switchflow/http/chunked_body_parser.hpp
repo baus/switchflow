@@ -1,3 +1,7 @@
+//
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 #ifndef SSD_CHUNKEDBODYPARSER_HPP
 #define SSD_CHUNKEDBODYPARSER_HPP
 
@@ -10,14 +14,14 @@ namespace http{
 
 class i_body_receiver;
   
-class ChunkedBodyParser: private boost::noncopyable
+class chunked_body_parser: private boost::noncopyable
 {
 public:
-  ChunkedBodyParser(i_body_receiver* pBodyReceiver, unsigned int maxChunksizeLength);
-  virtual ~ChunkedBodyParser();
+  chunked_body_parser(i_body_receiver* p_body_receiver, unsigned int max_chunksize_length);
+  virtual ~chunked_body_parser();
   
   void reset();
-  STATUS parseBody(read_write_buffer& buffer);
+  STATUS parse_body(read_write_buffer& buffer);
   
 private:
   enum STATE
@@ -33,23 +37,23 @@ private:
     FORWARD_TRAILER_CRLF
   };
 
-  STATUS parseChunkSize(read_write_buffer& buffer);
+  STATUS parse_chunk_size(read_write_buffer& buffer);
   
-  STATE m_state;
+  STATE state_;
   
-  i_body_receiver* m_pBodyReceiver;
+  i_body_receiver* p_body_receiver_;
   
-  unsigned int m_chunksize;
+  unsigned int chunksize_;
 
-  unsigned int m_currentChunksizeLength;
+  unsigned int current_chunksize_length_;
 
-  unsigned int m_maxChunksizeLength;
+  unsigned int max_chunksize_length_;
 
-  unsigned int m_currentOffset;
+  unsigned int current_offset_;
 
-  unsigned int m_currentChunkLength;
+  unsigned int current_chunk_length_;
 
-  unsigned int m_numChunkSizeSpaces;
+  unsigned int num_chunk_size_spaces_;
 };
 
 }// namespace httplib

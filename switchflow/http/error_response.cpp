@@ -1,5 +1,7 @@
 //
-// Copyright (C) Christopher Baus.  All rights reserved.
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 #include "error_response.hpp"
 #include "response_buffer_wrapper.hpp"
 
@@ -42,8 +44,8 @@ error_response::static_buffers::static_buffers():start_line_1(8),
   init_raw_buffer(start_line_3, "Bad Request");
   init_raw_buffer(connection_field_name, "Connection");
   init_raw_buffer(connection_field_value, "close");
-  field.getValue().set_static_buffer(&connection_field_value);
-  field.getName().set_static_buffer(&connection_field_name);
+  field.get_value().set_static_buffer(&connection_field_value);
+  field.get_name().set_static_buffer(&connection_field_name);
   
   field_list.push_back(&field);
 }

@@ -17,6 +17,12 @@
 #define HTTP_PREFIX		"http://"
 #define HTTP_DEFAULTPORT	80
 
+enum evhttp_connection_error {
+	EVCON_HTTP_TIMEOUT,
+	EVCON_HTTP_EOF,
+	EVCON_HTTP_INVALID_HEADER
+};
+
 struct evbuffer;
 struct addrinfo;
 struct evhttp_request;
@@ -30,8 +36,12 @@ enum evhttp_connection_state {
 };
 
 struct evhttp_connection {
+	/* we use tailq only if they were created for an http server */
+	TAILQ_ENTRY(evhttp_connection) next;
+
 	int fd;
 	struct event ev;
+	struct event close_ev;
 	struct evbuffer *input_buffer;
 	struct evbuffer *output_buffer;
 	
@@ -41,52 +51,24 @@ struct evhttp_connection {
 	int flags;
 #define EVHTTP_CON_INCOMING	0x0001	/* only one request on it ever */
 #define EVHTTP_CON_OUTGOING	0x0002  /* multiple requests possible */
+#define EVHTTP_CON_CLOSEDETECT  0x0004  /* detecting if persistent close */
+
+	int timeout;			/* timeout in seconds for events */
+	int retry_cnt;			/* retry count */
+	int retry_max;			/* maximum number of retries */
 	
 	enum evhttp_connection_state state;
+
+	/* for server connections, the http server they are connected with */
+	struct evhttp *http_server;
 
 	TAILQ_HEAD(evcon_requestq, evhttp_request) requests;
 	
 	void (*cb)(struct evhttp_connection *, void *);
 	void *cb_arg;
-};
-
-enum evhttp_request_kind { EVHTTP_REQUEST, EVHTTP_RESPONSE };
-
-struct evhttp_request {
-	TAILQ_ENTRY(evhttp_request) next;
-
-	/* the connection object that this request belongs to */
-	struct evhttp_connection *evcon;
-	int flags;
-#define EVHTTP_REQ_OWN_CONNECTION	0x0001	
 	
-	struct evkeyvalq *input_headers;
-	struct evkeyvalq *output_headers;
-
-	/* xxx: do we still need these? */
-	char *remote_host;
-	u_short remote_port;
-
-	enum evhttp_request_kind kind;
-	enum evhttp_cmd_type type;
-
-	char *uri;			/* uri after HTTP request was parsed */
-
-	char major;			/* HTTP Major number */
-	char minor;			/* HTTP Minor number */
-	
-	int got_firstline;
-	int response_code;		/* HTTP Response code */
-	char *response_code_line;	/* Readable response */
-
-	struct evbuffer *input_buffer;	/* read data */
-	int ntoread;
-
-	struct evbuffer *output_buffer;	/* outgoing post or data */
-
-	/* Callback */
-	void (*cb)(struct evhttp_request *, void *);
-	void *cb_arg;
+	void (*closecb)(struct evhttp_connection *, void *);
+	void *closecb_arg;
 };
 
 struct evhttp_cb {
@@ -102,6 +84,9 @@ struct evhttp {
 	struct event bind_ev;
 
 	TAILQ_HEAD(httpcbq, evhttp_cb) callbacks;
+        TAILQ_HEAD(evconq, evhttp_connection) connections;
+
+        int timeout;
 
 	void (*gencb)(struct evhttp_request *req, void *);
 	void *gencbarg;
@@ -114,10 +99,10 @@ void evhttp_connection_reset(struct evhttp_connection *);
 int evhttp_connection_connect(struct evhttp_connection *);
 
 /* notifies the current request that it failed; resets connection */
-void evhttp_connection_fail(struct evhttp_connection *);
+void evhttp_connection_fail(struct evhttp_connection *,
+    enum evhttp_connection_error error);
 
-void evhttp_get_request(int, struct sockaddr *, socklen_t,
-    void (*)(struct evhttp_request *, void *), void *);
+void evhttp_get_request(struct evhttp *, int, struct sockaddr *, socklen_t);
 
 int evhttp_hostportfile(char *, char **, u_short *, char **);
 

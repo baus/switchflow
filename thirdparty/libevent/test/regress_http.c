@@ -128,7 +128,7 @@ http_readcb(struct bufferevent *bev, void *arg)
 
  	event_debug(("%s: %s\n", __func__, EVBUFFER_DATA(bev->input)));
 	
-	if (evbuffer_find(bev->input, what, strlen(what)) != NULL) {
+	if (evbuffer_find(bev->input, (const unsigned char*) what, strlen(what)) != NULL) {
 		struct evhttp_request *req = evhttp_request_new(NULL, NULL);
 		req->kind = EVHTTP_RESPONSE;
 		int done = evhttp_parse_lines(req, bev->input);
@@ -163,7 +163,7 @@ http_errorcb(struct bufferevent *bev, short what, void *arg)
 void
 http_basic_cb(struct evhttp_request *req, void *arg)
 {
-	event_debug((stderr, "%s: called\n", __func__));
+	event_debug(("%s: called\n", __func__));
 
 	struct evbuffer *evb = evbuffer_new();
 	evbuffer_add_printf(evb, "This is funny");
@@ -194,7 +194,8 @@ http_basic_test(void)
 
 	http_request =
 	    "GET /test HTTP/1.1\r\n"
-	    "Host: somehost \r\n"
+	    "Host: somehost\r\n"
+	    "Connection: close\r\n"
 	    "\r\n";
 
 	bufferevent_write(bev, http_request, strlen(http_request));
@@ -217,14 +218,15 @@ http_basic_test(void)
 void http_request_done(struct evhttp_request *, void *);
 
 void
-http_connection_test(void)
+http_connection_test(int persistent)
 {
 	short port = -1;
 	struct evhttp_connection *evcon = NULL;
 	struct evhttp_request *req = NULL;
 	
 	test_ok = 0;
-	fprintf(stdout, "Testing Basic HTTP Connection: ");
+	fprintf(stdout, "Testing Request Connection Pipeline %s: ",
+	    persistent ? "(persistent)" : "");
 
 	http = http_setup(&port);
 
@@ -252,13 +254,36 @@ http_connection_test(void)
 
 	event_dispatch();
 
-	evhttp_connection_free(evcon);
-	evhttp_free(http);
-	
 	if (test_ok != 1) {
 		fprintf(stdout, "FAILED\n");
 		exit(1);
 	}
+
+	/* try to make another request over the same connection */
+	test_ok = 0;
+	
+	req = evhttp_request_new(http_request_done, NULL);
+
+	/* Add the information that we care about */
+	evhttp_add_header(req->output_headers, "Host", "somehost");
+
+	/* 
+	 * if our connections are not supposed to be persistent; request
+	 * a close from the server.
+	 */
+	if (!persistent)
+		evhttp_add_header(req->output_headers, "Connection", "close");
+
+	/* We give ownership of the request to the connection */
+	if (evhttp_make_request(evcon, req, EVHTTP_REQ_GET, "/test") == -1) {
+		fprintf(stdout, "FAILED\n");
+		exit(1);
+	}
+
+	event_dispatch();
+
+	evhttp_connection_free(evcon);
+	evhttp_free(http);
 	
 	fprintf(stdout, "OK\n");
 }
@@ -355,7 +380,7 @@ http_post_test(void)
 void
 http_post_cb(struct evhttp_request *req, void *arg)
 {
-	event_debug((stderr, "%s: called\n", __func__));
+	event_debug(("%s: called\n", __func__));
 
 	/* Yes, we are expecting a post request */
 	if (req->type != EVHTTP_REQ_POST) {
@@ -416,11 +441,189 @@ http_postrequest_done(struct evhttp_request *req, void *arg)
 	event_loopexit(NULL);
 }
 
+void
+http_failure_readcb(struct bufferevent *bev, void *arg)
+{
+	const char *what = "400 Bad Request";
+	if (evbuffer_find(bev->input, (const unsigned char*) what, strlen(what)) != NULL) {
+		test_ok = 2;
+		bufferevent_disable(bev, EV_READ);
+		event_loopexit(NULL);
+	}
+}
+
+/*
+ * Testing that the HTTP server can deal with a malformed request.
+ */
+void
+http_failure_test(void)
+{
+	struct bufferevent *bev;
+	int fd;
+	char *http_request;
+	short port = -1;
+
+	test_ok = 0;
+	fprintf(stdout, "Testing Bad HTTP Request: ");
+
+	http = http_setup(&port);
+	
+	fd = http_connect("127.0.0.1", port);
+
+	/* Stupid thing to send a request */
+	bev = bufferevent_new(fd, http_failure_readcb, http_writecb,
+	    http_errorcb, NULL);
+
+	http_request = "illegal request\r\n";
+
+	bufferevent_write(bev, http_request, strlen(http_request));
+	
+	event_dispatch();
+
+	bufferevent_free(bev);
+	close(fd);
+
+	evhttp_free(http);
+	
+	if (test_ok != 2) {
+		fprintf(stdout, "FAILED\n");
+		exit(1);
+	}
+	
+	fprintf(stdout, "OK\n");
+}
+
+static void
+close_detect_done(struct evhttp_request *req, void *arg)
+{
+	if (req == NULL || req->response_code != HTTP_OK) {
+	
+		fprintf(stderr, "FAILED\n");
+		exit(1);
+	}
+
+	test_ok = 1;
+	event_loopexit(NULL);
+}
+
+static void
+close_detect_launch(int fd, short what, void *arg)
+{
+	struct evhttp_connection *evcon = arg;
+	struct evhttp_request *req;
+
+	req = evhttp_request_new(close_detect_done, NULL);
+
+	/* Add the information that we care about */
+	evhttp_add_header(req->output_headers, "Host", "somehost");
+
+	/* We give ownership of the request to the connection */
+	if (evhttp_make_request(evcon, req, EVHTTP_REQ_GET, "/test") == -1) {
+		fprintf(stdout, "FAILED\n");
+		exit(1);
+	}
+}
+
+static void
+close_detect_cb(struct evhttp_request *req, void *arg)
+{
+	struct evhttp_connection *evcon = arg;
+	struct timeval tv;
+
+	if (req->response_code != HTTP_OK) {
+	
+		fprintf(stderr, "FAILED\n");
+		exit(1);
+	}
+
+	timerclear(&tv);
+	tv.tv_sec = 3;   /* longer than the http time out */
+
+	/* launch a new request on the persistent connection in 6 seconds */
+	event_once(-1, EV_TIMEOUT, close_detect_launch, evcon, &tv);
+}
+
+
+void
+http_close_detection()
+{
+	short port = -1;
+	struct evhttp_connection *evcon = NULL;
+	struct evhttp_request *req = NULL;
+	
+	test_ok = 0;
+	fprintf(stdout, "Testing Connection Close Detection: ");
+
+	http = http_setup(&port);
+
+	/* 2 second timeout */
+	evhttp_set_timeout(http, 2);
+
+	evcon = evhttp_connection_new("127.0.0.1", port);
+	if (evcon == NULL) {
+		fprintf(stdout, "FAILED\n");
+		exit(1);
+	}
+
+	/*
+	 * At this point, we want to schedule a request to the HTTP
+	 * server using our make request method.
+	 */
+
+	req = evhttp_request_new(close_detect_cb, evcon);
+
+	/* Add the information that we care about */
+	evhttp_add_header(req->output_headers, "Host", "somehost");
+
+	/* We give ownership of the request to the connection */
+	if (evhttp_make_request(evcon, req, EVHTTP_REQ_GET, "/test") == -1) {
+		fprintf(stdout, "FAILED\n");
+		exit(1);
+	}
+
+	event_dispatch();
+
+	if (test_ok != 1) {
+		fprintf(stdout, "FAILED\n");
+		exit(1);
+	}
+
+	evhttp_connection_free(evcon);
+	evhttp_free(http);
+	
+	fprintf(stdout, "OK\n");
+}
+
+void
+http_highport_test(void)
+{
+	int i = -1;
+	struct evhttp *myhttp = NULL;
+ 
+	fprintf(stdout, "Testing HTTP Server with high port: ");
+
+	/* Try a few different ports */
+	for (i = 0; i < 50; ++i) {
+		myhttp = evhttp_start("127.0.0.1", 65535 - i);
+		if (myhttp != NULL) {
+			fprintf(stdout, "OK\n");
+			evhttp_free(myhttp);
+			return;
+		}
+	}
+
+	fprintf(stdout, "FAILED\n");
+	exit(1);
+}
 
 void
 http_suite(void)
 {
 	http_basic_test();
-	http_connection_test();
+	http_connection_test(0 /* not-persistent */);
+	http_connection_test(1 /* persistent */);
+	http_close_detection();
 	http_post_test();
+	http_failure_test();
+	http_highport_test();
 }

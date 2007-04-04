@@ -1,26 +1,27 @@
 //
-// Copyright (C) Christopher Baus.  All rights reserved.
-//
-#ifndef SSD_HTTPRESPONSEBUFFERWRAPPER_HPP
-#define SSD_HTTPRESPONSEBUFFERWRAPPER_HPP
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
+#ifndef SSD_HTTP_RESPONSE_BUFFER_WRAPPER_HPP
+#define SSD_HTTP_RESPONSE_BUFFER_WRAPPER_HPP
 
 #include "message_buffer.hpp"
 
 namespace http{
   
-class HTTPResponseBufferWrapper
+class http_response_buffer_wrapper
 {
 public:
-  HTTPResponseBufferWrapper(message_buffer& messageBuffer);
-  virtual ~HTTPResponseBufferWrapper();
+  http_response_buffer_wrapper(message_buffer& message_buffer);
+  virtual ~http_response_buffer_wrapper();
 
-  read_write_buffer& getHTTPVersion();
-  read_write_buffer& getStatusCode();
-  read_write_buffer& getReasonPhrase();
+  read_write_buffer& get_http_version();
+  read_write_buffer& get_status_code();
+  read_write_buffer& get_reason_phrase();
   
 private:
-  message_buffer& m_messageBuffer;
+  message_buffer& message_buffer_;
 };
 
 }
-#endif // HTTPREQUESTBUFFERWRAPPER_HPP
+#endif // SSD_HTTP_RESPONSE_BUFFER_WRAPPER_HP

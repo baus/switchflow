@@ -1,4 +1,5 @@
-#/bin/sh
-echo -n 'const char* SVNVersion(void) { const char* SVN_Version = "' > $TALLAC/sfrp/app/SVNVersion.cpp
-svnversion -n $TALLAC/sfrp >> $TALLAC/sfrp/app/SVNVersion.cpp;
-echo '"; return SVN_Version; }'  >> $TALLAC/sfrp/app/SVNVersion.cpp
+#!/bin/sh
+dir=$(dirname `echo $0 | sed -e "s,^\([^/]\),$(pwd)/\1,"`)
+echo -n 'const char* SVNVersion(void) { const char* SVN_Version = "' > $dir/SVNVersion.cpp
+svnversion -n $dir/.. >> $dir/SVNVersion.cpp;
+echo '"; return SVN_Version; }'  >> $dir/SVNVersion.cpp

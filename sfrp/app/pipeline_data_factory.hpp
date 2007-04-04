@@ -1,10 +1,12 @@
-// 
-// Copyright (C) Christopher Baus.  All rights reserved.
+//
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 #ifndef SSD_PIPELINE_DATA_FACTORY_HPP
 #define SSD_PIPELINE_DATA_FACTORY_HPP
 
-class i_pipeline_data;
+#include <proxylib/i_pipeline_data.hpp>
 
-i_pipeline_data* create_pipeline_data();
+proxylib::i_pipeline_data* create_pipeline_data();
 
 #endif

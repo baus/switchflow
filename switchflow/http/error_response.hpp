@@ -1,5 +1,7 @@
 //
-// Copyright (C) Christopher Baus.  All rights reserved.
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 #ifndef SSD_ERROR_RESPONSE_HPP
 #define SSD_ERROR_RESPONSE_HPP
 
@@ -21,12 +23,12 @@ private:
   class static_buffers{
   public:
     static_buffers();
-    RawBuffer start_line_1;
-    RawBuffer start_line_2;
-    RawBuffer start_line_3;
+    raw_buffer start_line_1;
+    raw_buffer start_line_2;
+    raw_buffer start_line_3;
 
-    RawBuffer connection_field_name;
-    RawBuffer connection_field_value;
+    raw_buffer connection_field_name;
+    raw_buffer connection_field_value;
     
     header_buffer field;
     std::list<header_buffer*> field_list;

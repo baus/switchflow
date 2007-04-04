@@ -1,12 +1,13 @@
 //
-// Copyright (C) Christopher Baus.  All rights reserved.
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
 
 //
 // THIS SHOULD PROBABLY BE PUT INTO SERVERLIB
 #ifndef NEW_CONNECTION_HANDLER_H__
 #define NEW_CONNECTION_HANDLER_H__
 
-#include <util/PessimisticMemoryManager.h>
+#include <util/pessimistic_memory_manager.hpp>
 
 #include <event/i_event_handler.hpp>
 #include <event/poller.hpp>
@@ -20,20 +21,20 @@ namespace serverlib{
 class new_connection_handler: public eventlib::i_event_handler
 {
  public:
-  new_connection_handler(PessimisticMemoryManager<i_connection_handler>*
+  new_connection_handler(pessimistic_memory_manager<i_connection_handler>*
                          p_connection_handlers, 
                          eventlib::poller* p_poller);
 
   /**
-   * Overrides the rnPoller::IEvent::notify() handler.  This will be 
-   * called by the rnPoller framework.
+   * Overrides the rn_poller::i_event::notify() handler.  This will be 
+   * called by the rn_poller framework.
    */
-  virtual int handle_event(int fd, short revents, eventlib::event* pEvent);
+  virtual int handle_event(int fd, short revents, eventlib::event* p_event);
  
  private:
   // The client socket handlers that will be used when a connection has been
   // made.  
-  PessimisticMemoryManager<i_connection_handler>* p_connection_handlers_;
+  pessimistic_memory_manager<i_connection_handler>* p_connection_handlers_;
   
   //
   //

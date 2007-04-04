@@ -1,3 +1,7 @@
+//
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 #ifndef HTTP_CLIENT_HANDLERS_H__
 #define HTTP_CLIENT_HANDLERS_H__
 
@@ -21,7 +25,7 @@
 #include <http/header_pusher.hpp>
 #include <http/header_handler.hpp>
 
-#include <util/PessimisticMemoryManager.h>
+#include <util/pessimistic_memory_manager.hpp>
 #include <util/read_write_buffer.hpp>
 
 #include <client/i_client.hpp>
@@ -63,11 +67,11 @@ class http_client_handler: public http::i_body_receiver,
   socketlib::STATUS handle_stream(socketlib::connection& socket);
   
 
-  http::STATUS set_body(read_write_buffer& body, bool bComplete);
-  void set_body_encoding(http::BODY_ENCODING bodyEncoding);
+  http::STATUS set_body(read_write_buffer& body, bool b_complete);
+  void set_body_encoding(http::BODY_ENCODING body_encoding);
   http::STATUS forward_chunk_size();
   http::STATUS forward_chunk_trailer();
-  void set_chunk_size(unsigned int chunkSize);
+  void set_chunk_size(unsigned int chunk_size);
 
   bool get_header_value(const char* header_name, std::string& header_value);
   
@@ -90,11 +94,11 @@ private:
     PARSE_BODY
   };
 
-  read_write_buffer m_endlineBuf;
-  MESSAGE_STATE m_messageState;
+  read_write_buffer endline_buf_;
+  MESSAGE_STATE message_state_;
   http::header_handler header_handler_;
-  http::HTTPHeaderParser m_headerParser;
-  http::BodyParser m_bodyParser;
+  http::http_header_parser header_parser_;
+  http::body_parser body_parser_;
 
   std::auto_ptr<i_http_client> p_http_client_;
   

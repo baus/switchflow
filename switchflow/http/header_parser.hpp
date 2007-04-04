@@ -1,8 +1,9 @@
 //
-// Copyright (C) Christopher Baus.  All Rights Reserved
-//
-#ifndef SSD_HTTPHeaderParser_hpp
-#define SSD_HTTPHeaderParser_hpp
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
+#ifndef SSD_HTTP_HEADER_PARSER_HPP
+#define SSD_HTTP_HEADER_PARSER_HPP
 #include <set>
 
 #include <util/read_write_buffer.hpp>
@@ -11,12 +12,12 @@
 
 namespace http{
 
-class IHeaderReceiver;  
+class i_header_receiver;  
 
-class HTTPHeaderParser
+class http_header_parser
 {
  public:
-  HTTPHeaderParser(IHeaderReceiver* pHeaderReceiver);
+  http_header_parser(i_header_receiver* p_header_receiver);
 
   enum PARSE_OPTION
   {
@@ -24,7 +25,7 @@ class HTTPHeaderParser
     LOOSE
   };
 
-  STATUS parseHeaders(read_write_buffer& buffer, PARSE_OPTION option=STRICT);
+  STATUS parse_headers(read_write_buffer& buffer, PARSE_OPTION option=STRICT);
   
   void reset();
 
@@ -58,38 +59,38 @@ class HTTPHeaderParser
     NOT_RESET_CURRENT_LENGTH
   };
 
-  STATUS parseStatusLine(read_write_buffer& buffer, PARSE_OPTION option);
+  STATUS parse_status_line(read_write_buffer& buffer, PARSE_OPTION option);
 
-  void nextStatusLineState(char delimiter);
+  void next_status_line_state(char delimiter);
   
-  void transitionToState(STATUS_LINE_PARSE_STATE newState);
+  void transition_to_state(STATUS_LINE_PARSE_STATE new_state);
   
-  void transitionToState(PARSE_STATE newState,
+  void transition_to_state(PARSE_STATE new_state,
                          TRANSITION_CURRENT_LENGTH_OPTION
-                           resetOption = RESET_CURRENT_LENGTH);
+                           reset_option = RESET_CURRENT_LENGTH);
 
 
-  STATUS parseStatusToken(read_write_buffer& buffer,
-                          unsigned int beginOffset,
-                          unsigned int& endOffset,
+  STATUS parse_status_token(read_write_buffer& buffer,
+                          unsigned int begin_offset,
+                          unsigned int& end_offset,
                           PARSE_OPTION option);
 
-  STATUS receiveStatusLineToken(read_write_buffer& buffer, int iBegin, int iEnd, bool bComplete);
+  STATUS receive_status_line_token(read_write_buffer& buffer, int i_begin, int i_end, bool b_complete);
 
-  std::set<char>& getStatusTokenDelimiters(PARSE_OPTION option);
+  std::set<char>& get_status_token_delimiters(PARSE_OPTION option);
 
   // 
   // data members
   //
-  PARSE_STATE m_currentState;
+  PARSE_STATE current_state_;
   
-  STATUS_LINE_PARSE_STATE m_statusLineState;
+  STATUS_LINE_PARSE_STATE status_line_state_;
   
-  unsigned int m_currentLength;
+  unsigned int current_length_;
     
-  IHeaderReceiver* m_pHeaderReceiver;
-  read_write_buffer m_chunkSizeBuffer;
-  int m_messageSize;
+  i_header_receiver* p_header_receiver_;
+  read_write_buffer chunk_size_buffer_;
+  int message_size_;
 };
 
 } //namespace httplib

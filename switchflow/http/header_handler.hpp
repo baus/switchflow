@@ -1,9 +1,13 @@
+//
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 #ifndef SSD_HEADERHANDLER_H
 #define SSD_HEADERHANDLER_H
 
 #include <socketlib/status.hpp>
 #include <util/read_write_buffer.hpp>
-//#include <proxylib/ProxyStreamInterface.h>
+//#include <proxylib/Proxy_stream_interface.h>
 #include <http/i_header_receiver.hpp>
 
 #include "message_buffer.hpp"
@@ -32,7 +36,7 @@ enum METHOD_TYPES{
   NUM_VALID_METHODS
 };
 
-class header_handler: public http::IHeaderReceiver
+class header_handler: public http::i_header_receiver
 {
 public:
   header_handler(message_buffer& response,
@@ -42,13 +46,13 @@ public:
   socketlib::STATUS push_header();
   void reset();
 
-  http::STATUS startLineToken1(read_write_buffer& buffer, int iBegin, int iEnd, bool bComplete);
-  http::STATUS startLineToken2(read_write_buffer& buffer, int iBegin, int iEnd, bool bComplete);
-  http::STATUS startLineToken3(read_write_buffer& buffer, int iBegin, int iEnd, bool bComplete);
-  http::STATUS setFieldName(read_write_buffer& buffer, int iBegin, int iEnd, bool bComplete);
-  http::STATUS setFieldValue(read_write_buffer& buffer, int iBegin, int iEnd, bool bComplete);  
+  http::STATUS start_line_token1(read_write_buffer& buffer, int i_begin, int i_end, bool b_complete);
+  http::STATUS start_line_token2(read_write_buffer& buffer, int i_begin, int i_end, bool b_complete);
+  http::STATUS start_line_token3(read_write_buffer& buffer, int i_begin, int i_end, bool b_complete);
+  http::STATUS set_field_name(read_write_buffer& buffer, int i_begin, int i_end, bool b_complete);
+  http::STATUS set_field_value(read_write_buffer& buffer, int i_begin, int i_end, bool b_complete);  
 
-  http::STATUS endFields();
+  http::STATUS end_fields();
   
   http::BODY_ENCODING get_body_encoding();
 

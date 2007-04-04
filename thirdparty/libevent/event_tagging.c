@@ -32,7 +32,14 @@
 #include "config.h"
 #endif
 
+#ifdef WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#undef WIN32_LEAN_AND_MEAN
+#else
 #include <sys/ioctl.h>
+#endif
+
 #include <sys/tree.h>
 #include <sys/queue.h>
 #ifdef HAVE_SYS_TIME_H
@@ -43,7 +50,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef WIN32
 #include <syslog.h>
+#endif
 #include <unistd.h>
 
 #include "event.h"
@@ -51,11 +60,14 @@
 
 int decode_int(u_int32_t *pnumber, struct evbuffer *evbuf);
 
-static struct evbuffer *_buf;
+static struct evbuffer *_buf;	/* not thread safe */
 
 void
 evtag_init()
 {
+	if (_buf != NULL)
+		return;
+
 	if ((_buf = evbuffer_new()) == NULL)
 		event_err(1, "%s: malloc", __func__);
 }
@@ -100,7 +112,7 @@ encode_int(struct evbuffer *evbuf, u_int32_t number)
 
 void
 evtag_marshal(struct evbuffer *evbuf, u_int8_t tag,
-    const void *data, u_int16_t len)
+    const void *data, u_int32_t len)
 {
 	evbuffer_add(evbuf, &tag, sizeof(tag));
 	encode_int(evbuf, len);
@@ -247,7 +259,7 @@ int
 evtag_unmarshal(struct evbuffer *src, u_int8_t *ptag, struct evbuffer *dst)
 {
 	u_int8_t tag;
-	u_int16_t len;
+	u_int32_t len;
 	u_int32_t integer;
 
 	if (evbuffer_remove(src, &tag, sizeof(tag)) != sizeof(tag))
@@ -275,7 +287,7 @@ evtag_unmarshal_int(struct evbuffer *evbuf, u_int8_t need_tag,
     u_int32_t *pinteger)
 {
 	u_int8_t tag;
-	u_int16_t len;
+	u_int32_t len;
 	u_int32_t integer;
 
 	if (evbuffer_remove(evbuf, &tag, sizeof(tag)) != sizeof(tag) ||

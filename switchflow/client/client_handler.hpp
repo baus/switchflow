@@ -1,5 +1,7 @@
 //
-// Copyright (C) Christopher Baus.  All rights reserved.
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 #ifndef CLIENT_HANDLERS_H__
 #define CLIENT_HANDLERS_H__
 
@@ -15,7 +17,7 @@
 #include <event/i_event_handler.hpp>
 #include <event/event.hpp>
 
-#include <util/PessimisticMemoryManager.h>
+#include <util/pessimistic_memory_manager.hpp>
 #include <util/read_write_buffer.hpp>
 
 #include "i_client.hpp"
@@ -40,8 +42,8 @@ class client_handler: public eventlib::i_event_handler
   
 
   client_handler(eventlib::poller& poller,
-                 unsigned int bufferLength, 
-                 unsigned int serverTimeoutSeconds,
+                 unsigned int buffer_length, 
+                 unsigned int server_timeout_seconds,
                  std::auto_ptr<i_client> p_client,
                  i_fp_monitor* p_fp_monitor = NULL);
 
@@ -50,14 +52,14 @@ class client_handler: public eventlib::i_event_handler
 
   virtual ~client_handler();
   
-  virtual int handle_event(int fd, short revents, eventlib::event& pEvent);
+  virtual int handle_event(int fd, short revents, eventlib::event& p_event);
 
   client_handler* clone();
 
   //
   // This initiates the server connection.  The connection will not
   // be complete until a POLLOUT is received on the server socket handle.
-  socketlib::STATUS initiate_server_connect(const sockaddr_in& serverAddr);
+  socketlib::STATUS initiate_server_connect(const sockaddr_in& server_addr);
 
   void dns_failed();
 
@@ -67,32 +69,32 @@ class client_handler: public eventlib::i_event_handler
   
  private:
   client_handler();
-  void handleTimeout(int fd);
+  void handle_timeout(int fd);
   
   void shutdown();
 
-  void handlePollin(int fd);
+  void handle_pollin(int fd);
 
-  void handlePollout(int fd);  
+  void handle_pollout(int fd);  
   //
   // handles the completion of server socket connection.
-  socketlib::STATUS handleServerConnect();
+  socketlib::STATUS handle_server_connect();
 
-  socketlib::STATUS client_handler::checkForServerConnect(int fd);
+  socketlib::STATUS client_handler::check_for_server_connect(int fd);
   
   std::auto_ptr<i_client> p_client_;
 
   //
   // data for the server
-  socketlib::connection m_serverData;
+  socketlib::connection server_data_;
 
-  eventlib::event m_serverEvent;
+  eventlib::event server_event_;
 
-  unsigned int m_serverTimeoutSeconds;
+  unsigned int server_timeout_seconds_;
   
   eventlib::poller& poller_;
 
-  socketlib::STATUS handleStream();
+  socketlib::STATUS handle_stream();
 
   i_fp_monitor* p_fp_monitor_;
   };

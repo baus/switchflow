@@ -1,3 +1,7 @@
+//
+// Copyright 2003-2006 Christopher Baus. http://baus.net/
+// Read the LICENSE file for more information.
+
 #ifndef I_CONNECT_HANDLER_H
 #define I_CONNECT_HANDLER_H
 
@@ -15,7 +19,7 @@ class i_connect_handler
 {
 public:
   
-	virtual void connect(std::auto_ptr<asio::ip::tcp::socket> p_stream_socket_) = 0;
+  virtual void connect(std::auto_ptr<asio::ip::tcp::socket> p_stream_socket_) = 0;
 };
 
 
