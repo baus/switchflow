@@ -34,6 +34,9 @@
 #include "logger.hpp"
 #include "config_file.hpp"
 
+namespace switchflow{
+namespace util{  
+
 void config_file::set_delimiters()
 {
   array_start_ = "[";
@@ -352,4 +355,7 @@ const config_file::value* config_file::get(const char* key) const
 size_t config_file::value::get_array_size() const
 {
   return array_.size();
+}
+
+}
 }

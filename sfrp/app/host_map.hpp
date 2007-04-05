@@ -10,6 +10,8 @@
 #include <http/url.hpp>
 #include <string>
 
-void build_host_map(const config_file& config, std::map<std::string, std::pair<httplib::url, bool> >& host_map);
+void build_host_map(const switchflow::util::config_file& config,
+                    std::map<std::string,
+                    std::pair<httplib::url, bool> >& host_map);
 
 #endif // SFRP_HOST_MAP

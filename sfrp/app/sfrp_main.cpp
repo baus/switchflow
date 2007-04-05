@@ -35,7 +35,7 @@
 #include "pipeline_data_factory.hpp"
 
 
-bool daemonize(const config_file& config)
+bool daemonize(const switchflow::util::config_file& config)
 {
   bool daemonize = config["proxy"]["run-as-daemon"].read<bool>();
   if(daemonize){
@@ -48,7 +48,7 @@ bool daemonize(const config_file& config)
   return true;
 }
 
-bool switch_user(const config_file& config)
+bool switch_user(const switchflow::util::config_file& config)
 {
   struct passwd *pw;
   std::string username = config["proxy"]["user"].read<std::string>();
@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
   CHECK_CONDITION(options_status == options::RUN, "invalid option status");
   
   
-  config_file config;
+  switchflow::util::config_file config;
   config.parse_file(options.get_config_file().c_str());
   
   http::header_cache headers(config["http-parser"]["header-pool-size"].read<int>(),
