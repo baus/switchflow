@@ -2,19 +2,18 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-#ifndef SSD_HEADERHANDLER_H
-#define SSD_HEADERHANDLER_H
+#ifndef SF_HEADERHANDLER_HPP
+#define SF_HEADERHANDLER_HPP
 
 #include <socketlib/status.hpp>
 #include <util/read_write_buffer.hpp>
-//#include <proxylib/Proxy_stream_interface.h>
 #include <http/i_header_receiver.hpp>
 
 #include "message_buffer.hpp"
 #include "header_cache.hpp"
 
-namespace http
-{
+namespace switchflow{
+namespace http{
 
 //
 // It is required to parameterize the stream handler by type
@@ -95,6 +94,7 @@ private:
   void log_error(char* error);
 };
 
+}
 }
 
 #endif

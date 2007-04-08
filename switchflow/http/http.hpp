@@ -2,13 +2,14 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-#ifndef SSD_HTTPLIB_HPP
-#define SSD_HTTPLIB_HPP
+#ifndef SF_HTTP_HPP
+#define SF_HTTP_HPP
 
 #include <set>
 
 #include <util/read_write_buffer.hpp>
 
+namespace switchflow{
 namespace http{
 
 // Return Status codes used by HTTPParsers.
@@ -129,6 +130,7 @@ STATUS parse_equal(read_write_buffer& buffer,
                   unsigned int max_length,
                   std::set<char>& compare_chars);
 
-} // namespace httplib
+} // namespace http
+} // namespace switchflow
 
-#endif // include guard
+#endif 

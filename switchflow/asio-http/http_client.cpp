@@ -9,7 +9,7 @@
 http_client::http_client(asio::io_service& d,
                          const char* address,
                          int port,
-                         http::header_cache& cache,
+                         switchflow::http::header_cache& cache,
                          i_connect_error_handler& connect_errors,
                          i_http_connection_handler& http_handler):
   connector_(d,
@@ -20,7 +20,7 @@ http_client::http_client(asio::io_service& d,
   http_handler_(http_handler),
   read_buffer_(5000),
   response_(&cache, 15, 15, 15, 50),
-  header_handler_(response_, http::RESPONSE),
+  header_handler_(response_, switchflow::http::RESPONSE),
   header_parser_(&header_handler_),
   body_parser_(this),
   response_state_(PARSE_RESPONSE_HEADER)
@@ -36,7 +36,7 @@ http_client::http_client(asio::io_service& d,
   }
 }
 
-void http_client::make_request(http::message_buffer& message)
+void http_client::make_request(switchflow::http::message_buffer& message)
 {
   if(p_socket_.get() == 0){
     request_queue_.push_back(message.get_const_buffers());
@@ -119,7 +119,7 @@ void http_client::response_read_handler(const asio::error& error, std::size_t by
 }
 
 
-http::STATUS http_client::set_body(read_write_buffer& buffer, bool b_complete)
+switchflow::http::STATUS http_client::set_body(read_write_buffer& buffer, bool b_complete)
 {
   int start_position = buffer.get_write_position();
   int num_bytes_to_write = buffer.get_write_end_position() - start_position;
@@ -127,10 +127,10 @@ http::STATUS http_client::set_body(read_write_buffer& buffer, bool b_complete)
     asio::mutable_buffer mut_buffer(&buffer[start_position], num_bytes_to_write);
     http_handler_.accept_peer_body(mut_buffer);
   }
-  return http::COMPLETE;
+  return switchflow::http::COMPLETE;
 }
 
-void http_client::set_body_encoding(http::BODY_ENCODING body_encoding)
+void http_client::set_body_encoding(switchflow::http::BODY_ENCODING body_encoding)
 {
 }
 
@@ -138,28 +138,30 @@ void http_client::set_chunk_size(unsigned int chunk_size)
 {
 }
 
-http::STATUS http_client::forward_chunk_size()
+switchflow::http::STATUS http_client::forward_chunk_size()
 {
-  return http::COMPLETE;
+  return switchflow::http::COMPLETE;
 }
 
-http::STATUS http_client::forward_chunk_trailer()
+switchflow::http::STATUS http_client::forward_chunk_trailer()
 {
-  return http::COMPLETE;
+  return switchflow::http::COMPLETE;
 }
 
 http_client::PARSE_RESULT http_client::parse_response_headers()
 {
-  http::STATUS parse_status = header_parser_.parse_headers(read_buffer_,
-                                                           http::http_header_parser::LOOSE);
-  if(parse_status == http::COMPLETE){
+  switchflow::http::STATUS parse_status = header_parser_.parse_headers(read_buffer_,
+                                                                       switchflow::http::header_parser::LOOSE);
+  if(parse_status == switchflow::http::COMPLETE){
     response_state_ = PARSE_BODY;
     body_parser_.reset(header_handler_.get_body_encoding(), 
                         header_handler_.get_message_size());
     http_handler_.headers_complete();   
     return COMPLETE;
   }
-  if(parse_status == http::INVALID || parse_status == http::DATAOVERFLOW){
+  if(parse_status == switchflow::http::INVALID ||
+     parse_status == switchflow::http::DATAOVERFLOW){
+    
     http_handler_.invalid_peer_header();    
     return DENY;
     
@@ -173,15 +175,16 @@ http_client::PARSE_RESULT http_client::parse_response_headers()
 
 http_client::PARSE_RESULT http_client::parse_response_body()
 {
-  http::STATUS parse_status = body_parser_.parse_body(read_buffer_);
-  if(parse_status == http::INVALID || parse_status == http::DATAOVERFLOW){
+  switchflow::http::STATUS parse_status = body_parser_.parse_body(read_buffer_);
+  if(parse_status == switchflow::http::INVALID ||
+     parse_status == switchflow::http::DATAOVERFLOW){
     
     http_handler_.invalid_peer_body();
     return DENY;
   }
-  if(parse_status == http::INCOMPLETE){
+  if(parse_status == switchflow::http::INCOMPLETE){
     if(!socket_state_.connected_for_read()){
-      if(body_parser_.encoding() == http::END_CONNECTION){
+      if(body_parser_.encoding() == switchflow::http::END_CONNECTION){
         //
         // This marks the end of the connection for HTTP 0.9 style connections.
         // It is ugly to do this here, but the body parser doesn't know when

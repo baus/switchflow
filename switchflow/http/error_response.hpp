@@ -2,12 +2,13 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-#ifndef SSD_ERROR_RESPONSE_HPP
-#define SSD_ERROR_RESPONSE_HPP
+#ifndef SF_ERROR_RESPONSE_HPP
+#define SF_ERROR_RESPONSE_HPP
 
 #include "message_buffer.hpp"
 #include "header_cache.hpp"
 
+namespace switchflow{
 namespace http{
   
 class error_response
@@ -37,6 +38,7 @@ private:
   static static_buffers buffers_;
 };
 
-}
+} // namespace http
+} // namespace switchflow
 
 #endif // ERROR_RESPONSE_HPP

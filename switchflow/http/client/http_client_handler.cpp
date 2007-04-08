@@ -27,10 +27,10 @@
 
 
 http_client_handler::http_client_handler(std::auto_ptr<i_http_client> p_http_client,
-                                         http::header_cache& cache):
+                                         switchflow::http::header_cache& cache):
   p_http_client_(p_http_client),
-  endline_buf_(&http::strings_.endline_),
-  header_handler_(p_http_client->get_response(), http::RESPONSE),
+  endline_buf_(&switchflow::http::strings_.endline_),
+  header_handler_(p_http_client->get_response(), switchflow::http::RESPONSE),
   header_parser_(&header_handler_),
   body_parser_(this)
 {
@@ -41,7 +41,7 @@ http_client_handler::http_client_handler(std::auto_ptr<i_http_client> p_http_cli
 }
 
 http_client_handler::http_client_handler(const http_client_handler& rhs):
-  endline_buf_(&http::strings_.endline_),
+  endline_buf_(&switchflow::http::strings_.endline_),
   header_handler_(rhs.header_handler_),
   header_parser_(rhs.header_parser_),
   body_parser_(this)
@@ -56,7 +56,7 @@ http_client_handler::~http_client_handler()
 
 void http_client_handler::connect(socketlib::connection& conn)
 {
-  header_pusher_.reset(p_http_client_->get_request(), conn);
+  header_writer_.reset(p_http_client_->get_request(), conn);
 }
 
 void http_client_handler::shutdown()
@@ -74,12 +74,12 @@ socketlib::STATUS http_client_handler::handle_stream(socketlib::connection& sock
   // Handle stream should return complete if the
   // buffer is complete.
   socketlib::STATUS status;
-  http::STATUS parse_status;
+  switchflow::http::STATUS parse_status;
 
   for(;;){
     switch(message_state_){
       case PUSH_HEADER:
-        status = header_pusher_.push_header();
+        status = header_writer_.write_header();
         if(status == socketlib::COMPLETE){
           message_state_ = PUSH_BODY;
           break;
@@ -104,15 +104,15 @@ socketlib::STATUS http_client_handler::handle_stream(socketlib::connection& sock
         
       case PARSE_RESPONSE_HEADER:
         parse_status = header_parser_.parse_headers(socket.read_buffer(),
-                                                  http::http_header_parser::LOOSE);
-        if(parse_status == http::COMPLETE){
+                                                    switchflow::http::header_parser::LOOSE);
+        if(parse_status == switchflow::http::COMPLETE){
           message_state_ = PARSE_BODY;
           body_parser_.reset(header_handler_.get_body_encoding(), 
                              header_handler_.get_message_size());
           p_http_client_->headers_complete();   
           break;
         }
-        if(parse_status == http::INVALID || parse_status == http::DATAOVERFLOW){
+        if(parse_status == switchflow::http::INVALID || parse_status == http::DATAOVERFLOW){
           p_http_client_->invalid_header();   
           return socketlib::DENY;
         }

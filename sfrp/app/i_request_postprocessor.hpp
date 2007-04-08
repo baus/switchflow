@@ -13,7 +13,7 @@ class i_request_postprocessor
 {
 public:
   virtual ~i_request_postprocessor(){};
-  virtual bool process_request(http::message_buffer& buffer) = 0;
+  virtual bool process_request(switchflow::http::message_buffer& buffer) = 0;
   
 private:
 };

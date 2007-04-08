@@ -5,6 +5,7 @@
 #include "error_response.hpp"
 #include "response_buffer_wrapper.hpp"
 
+namespace switchflow{
 namespace http{
 
 // 12345678 123 12345678901
@@ -52,5 +53,7 @@ error_response::static_buffers::static_buffers():start_line_1(8),
 
 error_response::static_buffers error_response::buffers_;
 
-}
+} // namespace http
+} // namespace switchflow
+
 

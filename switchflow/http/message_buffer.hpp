@@ -2,8 +2,8 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-#ifndef SSVS_MESSAGEBUFFER_H
-#define SSVS_MESSAGEBUFFER_H
+#ifndef SF_MESSAGEBUFFER_HPP
+#define SF_MESSAGEBUFFER_HPP
 
 #include <list>
 #include <string>
@@ -16,6 +16,7 @@
 typedef unsigned char BYTE;
 typedef std::vector<BYTE> raw_buffer;
 
+namespace switchflow{
 namespace http{
   
 class message_buffer
@@ -83,6 +84,6 @@ private:
   std::list<header_buffer> headers_;
   header_cache* cache_;
 };
-
-}
+} //namespace httplib
+} //namespace switchflow
 #endif

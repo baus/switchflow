@@ -4,6 +4,7 @@
 
 #include "content_length_body_parser.hpp"
 
+namespace switchflow{
 namespace http{
   
 content_length_body_parser::content_length_body_parser(i_body_receiver* p_body_receiver):
@@ -77,4 +78,5 @@ void content_length_body_parser::transition_to_state(content_length_body_parser:
   parse_state_ = new_state;
 }
 
-}
+}//namespace http
+}//namespace switchflow

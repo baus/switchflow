@@ -6,6 +6,7 @@
 
 #include "static_strings.hpp"
 
+namespace switchflow{
 namespace http{
 
 static_strings strings_;
@@ -20,4 +21,7 @@ static_strings strings_;
   endline_[1] = LF;
 }
 
-}
+
+} // namespace http
+} // namespace switchflow
+

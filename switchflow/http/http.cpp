@@ -6,6 +6,7 @@
 
 #include "http.hpp"
 
+namespace switchflow{
 namespace http{
   
 const int CR = 13;
@@ -247,6 +248,5 @@ STATUS line_parser::parse_line(read_write_buffer& buffer,
 
 
 
-
-
-}; // namespace httplib
+} // namespace httplib
+} // namespace switchflow

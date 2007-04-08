@@ -10,9 +10,10 @@
 #include "header_parser.hpp"
 #include "i_header_receiver.hpp"
 
+namespace switchflow{
 namespace http{
   
-http_header_parser::http_header_parser(i_header_receiver* p_header_receiver):
+header_parser::header_parser(i_header_receiver* p_header_receiver):
   current_state_(STATUS_LINE),
   status_line_state_(STATUS_LINE_TOKEN_1),
   current_length_(0),
@@ -22,7 +23,7 @@ http_header_parser::http_header_parser(i_header_receiver* p_header_receiver):
   
 }
 
-STATUS http_header_parser::parse_status_token(read_write_buffer& buffer,
+STATUS header_parser::parse_status_token(read_write_buffer& buffer,
                                           unsigned int begin_offset,
                                           unsigned int& end_offset,
                                           PARSE_OPTION option)
@@ -62,7 +63,7 @@ STATUS http_header_parser::parse_status_token(read_write_buffer& buffer,
   
 }
 
-STATUS http_header_parser::parse_status_line(read_write_buffer& buffer, PARSE_OPTION option)
+STATUS header_parser::parse_status_line(read_write_buffer& buffer, PARSE_OPTION option)
 {
   
   //
@@ -108,7 +109,7 @@ STATUS http_header_parser::parse_status_line(read_write_buffer& buffer, PARSE_OP
   return return_value;
 }
 
-STATUS http_header_parser::parse_headers(read_write_buffer& buffer, PARSE_OPTION option)
+STATUS header_parser::parse_headers(read_write_buffer& buffer, PARSE_OPTION option)
 {
 
   //
@@ -284,7 +285,7 @@ STATUS http_header_parser::parse_headers(read_write_buffer& buffer, PARSE_OPTION
   return return_value;
 }
 
-void http_header_parser::next_status_line_state(char delimiter)
+void header_parser::next_status_line_state(char delimiter)
 {
   switch(status_line_state_){
     case STATUS_LINE_TOKEN_1:
@@ -319,7 +320,7 @@ void http_header_parser::next_status_line_state(char delimiter)
   current_length_ = 0;
 }
 
-void http_header_parser::transition_to_state(PARSE_STATE new_state,
+void header_parser::transition_to_state(PARSE_STATE new_state,
                                          TRANSITION_CURRENT_LENGTH_OPTION
                                          reset_option)
 {
@@ -329,13 +330,13 @@ void http_header_parser::transition_to_state(PARSE_STATE new_state,
   }
 }
 
-void http_header_parser::reset()
+void header_parser::reset()
 {
   status_line_state_ = STATUS_LINE_TOKEN_1;
   transition_to_state(STATUS_LINE);
 }
 
-STATUS http_header_parser::receive_status_line_token(read_write_buffer& buffer, int i_begin, int i_end, bool b_complete)
+STATUS header_parser::receive_status_line_token(read_write_buffer& buffer, int i_begin, int i_end, bool b_complete)
 {
   STATUS return_value;
   switch(status_line_state_){
@@ -357,7 +358,7 @@ STATUS http_header_parser::receive_status_line_token(read_write_buffer& buffer, 
   
 }
   
-std::set<char>& http_header_parser::get_status_token_delimiters(PARSE_OPTION option)
+std::set<char>& header_parser::get_status_token_delimiters(PARSE_OPTION option)
 {
   switch(status_line_state_){
     case STATUS_LINE_TOKEN_1:
@@ -381,3 +382,4 @@ std::set<char>& http_header_parser::get_status_token_delimiters(PARSE_OPTION opt
 }
 
 }// namespace httplib
+}// namespace switchflow

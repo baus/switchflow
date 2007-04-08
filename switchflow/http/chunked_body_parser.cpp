@@ -8,6 +8,7 @@
 #include "chunked_body_parser.hpp"
 #include "i_body_receiver.hpp"
 
+namespace switchflow{
 namespace http{
 
 chunked_body_parser::chunked_body_parser(i_body_receiver* p_body_receiver, unsigned int max_chunksize_length):
@@ -200,3 +201,4 @@ STATUS chunked_body_parser::parse_chunk_size(read_write_buffer& buffer)
 }
 
 } //namespace httplib
+} //namespace switchflow

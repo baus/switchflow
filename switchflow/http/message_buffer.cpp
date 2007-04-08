@@ -9,7 +9,7 @@
 
 typedef std::vector<BYTE> raw_buffer;
 
-
+namespace switchflow{
 namespace http{
   
   const char* message_buffer::new_line = "\r\n";
@@ -266,5 +266,6 @@ std::list<asio::const_buffer> message_buffer::get_const_buffers()
   return buffers;
 }
 
-}
+} //namespace http
+} //namespace switchflow
 

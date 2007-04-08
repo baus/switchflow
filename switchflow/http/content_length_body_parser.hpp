@@ -2,8 +2,8 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-#ifndef SSD_CONTENTLENGTHBODYPARSER_HPP
-#define SSD_CONTENTLENGTHBODYPARSER_HPP
+#ifndef SF_CONTENTLENGTHBODYPARSER_HPP
+#define SF_CONTENTLENGTHBODYPARSER_HPP
 
 #include <boost/noncopyable.hpp>
 
@@ -11,7 +11,7 @@
 
 #include "i_body_receiver.hpp"
 
-
+namespace switchflow{
 namespace http{
 
   class content_length_body_parser: private boost::noncopyable
@@ -52,5 +52,8 @@ namespace http{
 
     i_body_receiver* p_body_receiver_;
   };
-}
-#endif // CONTENTLENGTHBODYPARSER_HPP
+  
+} //namespace http
+} //namespace switchflow
+
+#endif 

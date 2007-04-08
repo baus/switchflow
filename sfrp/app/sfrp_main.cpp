@@ -99,9 +99,9 @@ int main(int argc, char *argv[])
   switchflow::util::config_file config;
   config.parse_file(options.get_config_file().c_str());
   
-  http::header_cache headers(config["http-parser"]["header-pool-size"].read<int>(),
-                             config["http-parser"]["max-header-name-length"].read<int>(),
-                             config["http-parser"]["max-header-value-length"].read<int>());
+  switchflow::http::header_cache headers(config["http-parser"]["header-pool-size"].read<int>(),
+                                         config["http-parser"]["max-header-name-length"].read<int>(),
+                                         config["http-parser"]["max-header-value-length"].read<int>());
 
   access_log access_log;
   
@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
     return -1;
   }
   
-  http::init();
+  switchflow::http::init();
     
   //
   // Entering run stage
@@ -188,10 +188,10 @@ int main(int argc, char *argv[])
   // connection it should be added to the buffer_manager.
   http_proxy_stream_handler request_stream_prototype( &headers,
                                                       rules,
-                                                      http::REQUEST,
-                                                      http::max_method_length(),
+                                                      switchflow::http::REQUEST,
+                                                      switchflow::http::max_method_length(),
                                                       config["http-parser"]["max-URI-length"].read<unsigned int>(),
-                                                      http::max_version_length, // length of the version.  Only accept 8 characters
+                                                      switchflow::http::max_version_length, // length of the version.  Only accept 8 characters
                                                       config["http-parser"]["max-num-headers"].read<unsigned int>(),
                                                       
                                                       config["http-parser"]["max-header-name-length"].read<unsigned int>(),
@@ -202,8 +202,8 @@ int main(int argc, char *argv[])
   
   http_proxy_stream_handler response_stream_prototype( &headers,
                                                        rules,
-                                                       http::RESPONSE,
-                                                       http::max_version_length,
+                                                       switchflow::http::RESPONSE,
+                                                       switchflow::http::max_version_length,
                                                        config["http-parser"]["max-URI-length"].read<unsigned int>(),
                                                        50, 
                                                        config["http-parser"]["max-num-headers"].read<unsigned int>(),

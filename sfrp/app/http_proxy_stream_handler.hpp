@@ -38,13 +38,13 @@
 // A proxy stream is one way. It handles either a request line, or
 // response line, but not both.
 class http_proxy_stream_handler: public proxylib::i_proxy_stream_handler, 
-                              public http::i_body_receiver
+                                 public switchflow::http::i_body_receiver
 {
  public:
   
-  http_proxy_stream_handler(http::header_cache* cache,
+  http_proxy_stream_handler(switchflow::http::header_cache* cache,
                             const std::map<std::string, host_rules>& rules,
-                            http::STREAM_TYPE stream_type,
+                            switchflow::http::STREAM_TYPE stream_type,
                             unsigned int max_start_line1_length, 
                             unsigned int max_start_line2_length, 
                             unsigned int max_start_line3_length,
@@ -64,13 +64,13 @@ class http_proxy_stream_handler: public proxylib::i_proxy_stream_handler,
   void reset();
 
   unsigned int get_message_size();
-  http::BODY_ENCODING get_body_encoding();
+  switchflow::http::BODY_ENCODING get_body_encoding();
 
   // i_body_receiver interface implementation
-  http::STATUS set_body(read_write_buffer& body, bool b_complete);
-  void set_body_encoding(http::BODY_ENCODING body_encoding);
-  http::STATUS forward_chunk_size();
-  http::STATUS forward_chunk_trailer();
+  switchflow::http::STATUS set_body(read_write_buffer& body, bool b_complete);
+  void set_body_encoding(switchflow::http::BODY_ENCODING body_encoding);
+  switchflow::http::STATUS forward_chunk_size();
+  switchflow::http::STATUS forward_chunk_trailer();
   void set_chunk_size(unsigned int chunk_size);
 
   proxylib::i_proxy_stream_handler::FORWARD_ADDRESS_STATUS get_forward_address_status();
@@ -109,34 +109,32 @@ class http_proxy_stream_handler: public proxylib::i_proxy_stream_handler,
 
   void log_request();
 
-  void copy_request_data_to_log(http::message_buffer& message_buffer,
-                            combined_log_record& log_record);
+  void copy_request_data_to_log(switchflow::http::message_buffer& message_buffer,
+                                combined_log_record& log_record);
 
-  void copy_response_data_to_log(http::message_buffer& message_buffer,
-                            combined_log_record& log_record);
+  void copy_response_data_to_log(switchflow::http::message_buffer& message_buffer,
+                                 combined_log_record& log_record);
 
   bool set_current_pipeline_data();
   void clear_current_pipeline_data();
   void complete_message();
   void initialize_state();
-  http::STATUS convert_proxy_status(socketlib::STATUS status);
+  switchflow::http::STATUS convert_proxy_status(socketlib::STATUS status);
 
   
   //
   // Helper function to retrieve which header buffer to push
   read_write_buffer& get_header_buffer_to_push(PUSH_HEADER_STATE header_state);
 
-  http::header_cache* cache_;
+  switchflow::http::header_cache* cache_;
   const std::map<std::string, host_rules> host_rules_;
   
   //
   // Is this a request or response stream?
-  http::STREAM_TYPE stream_type_;
-  
-  //  http_proxylib::message_buffer message_buffer_;
+  switchflow::http::STREAM_TYPE stream_type_;
 
-  http::http_header_parser header_parser_;
-  http::body_parser body_parser_;
+  switchflow::http::header_parser header_parser_;
+  switchflow::http::body_parser body_parser_;
   
   unsigned int current_field_;
   unsigned int current_dump_header_;
@@ -173,13 +171,13 @@ class http_proxy_stream_handler: public proxylib::i_proxy_stream_handler,
 
   read_write_buffer endline_buf_;
 
-  http::error_response error_response_;
+  switchflow::http::error_response error_response_;
 
-  http::header_pusher header_pusher_;
+  switchflow::http::header_writer header_writer_;
 
-  http::message_buffer response_; 
+  switchflow::http::message_buffer response_; 
 
-  http::header_handler header_handler_;
+  switchflow::http::header_handler header_handler_;
   
   i_request_postprocessor* request_postprocessor_;
 };

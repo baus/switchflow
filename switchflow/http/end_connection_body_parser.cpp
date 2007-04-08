@@ -6,6 +6,7 @@
 
 #include "end_connection_body_parser.hpp"
 
+namespace switchflow{
 namespace http{
   
   end_connection_body_parser::end_connection_body_parser(i_body_receiver* p_body_receiver):
@@ -34,4 +35,5 @@ STATUS end_connection_body_parser::parse_end_connection_body(read_write_buffer& 
   return return_value; 
 }
 
-} // namespace httplib
+} // namespace http
+} // namespace switchflow

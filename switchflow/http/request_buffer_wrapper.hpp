@@ -2,14 +2,15 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-#ifndef HTTP_REQUEST_BUFFER_WRAPPER_HPP
-#define HTTP_REQUEST_BUFFER_WRAPPER_HPP
+#ifndef SF_REQUEST_BUFFER_WRAPPER_HPP
+#define SF_REQUEST_BUFFER_WRAPPER_HPP
 
 #include "message_buffer.hpp"
 
+namespace switchflow{
 namespace http{
 
-class http_request_buffer_wrapper
+class request_buffer_wrapper
 {
 public:
   enum VERSION{
@@ -18,8 +19,8 @@ public:
     INVALID
   };
   
-  http_request_buffer_wrapper(message_buffer& message_buffer);
-  virtual ~http_request_buffer_wrapper();
+  request_buffer_wrapper(message_buffer& message_buffer);
+  virtual ~request_buffer_wrapper();
 
   read_write_buffer& get_method();
   read_write_buffer& get_uri();
@@ -32,6 +33,7 @@ private:
   message_buffer& message_buffer_;
 };
 
-}
+} //namespace http
+} //namespace switchflow
 
-#endif // HTTPREQUESTBUFFERWRAPPER_HPP
+#endif 

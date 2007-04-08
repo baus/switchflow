@@ -2,8 +2,8 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-#ifndef SSD_BODYPARSER_HPP
-#define SSD_BODYPARSER_HPP
+#ifndef SF_BODYPARSER_HPP
+#define SF_BODYPARSER_HPP
 
 #include <memory>
 #include <boost/noncopyable.hpp>
@@ -16,6 +16,7 @@
 #include "end_connection_body_parser.hpp"
 
 
+namespace switchflow{
 namespace http{
 
   class body_parser: private boost::noncopyable
@@ -39,5 +40,6 @@ namespace http{
   };
   
 } //namespace httplib
+} //namespace switchflow
 
 #endif // BODYPARSER_H

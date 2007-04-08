@@ -2,8 +2,8 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-#ifndef SSD_ENDCONNECTIONBODYPARSER_HPP
-#define SSD_ENDCONNECTIONBODYPARSER_HPP
+#ifndef SF_ENDCONNECTIONBODYPARSER_HPP
+#define SF_ENDCONNECTIONBODYPARSER_HPP
 
 #include <boost/noncopyable.hpp>
 
@@ -12,6 +12,7 @@
 #include "http.hpp"
 
 
+namespace switchflow{
 namespace http{
   class i_body_receiver;
   
@@ -27,6 +28,7 @@ namespace http{
     i_body_receiver* p_body_receiver_;
   };
 
-} // namespace httplib
+} // namespace http
+} // namespace switchflow
 
-#endif // ENDCONNECTIONBODYPARSER_HPP
+#endif 

@@ -16,9 +16,9 @@
 #include "pipeline_data.hpp"
 #include <string>
 
-http_proxy_stream_handler::http_proxy_stream_handler(http::header_cache* cache,
+http_proxy_stream_handler::http_proxy_stream_handler(switchflow::http::header_cache* cache,
                                                      const std::map<std::string, host_rules>& rules,
-                                                     http::STREAM_TYPE stream_type,
+                                                     switchflow::http::STREAM_TYPE stream_type,
                                                      unsigned int max_start_line1_length, 
                                                      unsigned int max_start_line2_length, 
                                                      unsigned int max_start_line3_length,
@@ -42,10 +42,10 @@ http_proxy_stream_handler::http_proxy_stream_handler(http::header_cache* cache,
   max_header_value_length_(max_header_value_length),
   message_state_(START_MESSAGE),
   push_header_state_(START_LINE_TOKEN1),
-  chunk_size_(http::CHUNK_SIZE_LENGTH + 2), // this allows room for the trailing CRLF
+  chunk_size_(switchflow::http::CHUNK_SIZE_LENGTH + 2), // this allows room for the trailing CRLF
   p_access_log_(p_access_log),
   current_pipeline_data_(0),
-  endline_buf_(&http::strings_.endline_),
+  endline_buf_(&switchflow::http::strings_.endline_),
   response_(cache,
             max_start_line1_length, 
             max_start_line2_length, 
@@ -86,7 +86,7 @@ socketlib::STATUS http_proxy_stream_handler::process_data(read_write_buffer& buf
       case START_MESSAGE:
         if(!set_current_pipeline_data()){
 #warning not sure about this return value
-          if(stream_type_ == http::REQUEST){
+          if(stream_type_ == switchflow::http::REQUEST){
             return socketlib::INCOMPLETE;
           }
           else{
@@ -95,7 +95,7 @@ socketlib::STATUS http_proxy_stream_handler::process_data(read_write_buffer& buf
         }
         if(current_pipeline_data_->process_type_ == pipeline_data::DENY){
           error_response_.reset();
-          header_pusher_.reset(error_response_.get_message_buffer(),
+          header_writer_.reset(error_response_.get_message_buffer(),
                                *get_proxy_stream_interface()->get_dest());
           message_state_ = PUSH_HEADER;
         }
@@ -105,20 +105,20 @@ socketlib::STATUS http_proxy_stream_handler::process_data(read_write_buffer& buf
         break;
         
       case PARSE_HEADER:  
-        http::STATUS parse_status;
+        switchflow::http::STATUS parse_status;
         parse_status = header_parser_.parse_headers(buf);
-        if(parse_status == http::COMPLETE){
+        if(parse_status == switchflow::http::COMPLETE){
           message_state_ = PUSH_HEADER;
-          header_pusher_.reset(header_handler_.get_message_buffer(),
+          header_writer_.reset(header_handler_.get_message_buffer(),
                                *get_proxy_stream_interface()->get_dest());
-          if(request_postprocessor_ && stream_type_ == http::REQUEST){
+          if(request_postprocessor_ && stream_type_ == switchflow::http::REQUEST){
             if(request_postprocessor_->process_request(
                  header_handler_.get_message_buffer())){
               log_request();
               break;
             }
             else{
-              parse_status = http::INVALID;
+              parse_status = switchflow::http::INVALID;
             }
           }
           else{
@@ -127,8 +127,8 @@ socketlib::STATUS http_proxy_stream_handler::process_data(read_write_buffer& buf
           }
           break;
         }
-        if(parse_status == http::INVALID || parse_status == http::DATAOVERFLOW){
-          if(stream_type_ == http::REQUEST){
+        if(parse_status == switchflow::http::INVALID || parse_status == switchflow::http::DATAOVERFLOW){
+          if(stream_type_ == switchflow::http::REQUEST){
             current_pipeline_data_->process_type_ = pipeline_data::DENY;
             current_pipeline_data_->request_complete_ = true;
             log_info("invalid request");
@@ -142,7 +142,7 @@ socketlib::STATUS http_proxy_stream_handler::process_data(read_write_buffer& buf
 
       case PUSH_HEADER:
         socketlib::STATUS push_status;
-        push_status = header_pusher_.push_header();
+        push_status = header_writer_.write_header();
         if(push_status == socketlib::COMPLETE){
           message_state_ = PARSE_BODY;
           current_pipeline_data_->request_complete_ = true;
@@ -151,14 +151,14 @@ socketlib::STATUS http_proxy_stream_handler::process_data(read_write_buffer& buf
             // Force the end of connection.
             return socketlib::SRC_CLOSED;
           }
-          else if(stream_type_ == http::RESPONSE && 
+          else if(stream_type_ == switchflow::http::RESPONSE && 
              current_pipeline_data_->process_type_ == pipeline_data::HEAD){
             // 
             // If the request was a HEAD request, override 
             // what the response headers claim that the body encoding
             // is and set the body encoding to none.  This shit
             // drives me nuts about the HTTP spec.
-            body_parser_.reset(http::NONE, 0);
+            body_parser_.reset(switchflow::http::NONE, 0);
           }
           else{
             //
@@ -173,13 +173,13 @@ socketlib::STATUS http_proxy_stream_handler::process_data(read_write_buffer& buf
 
       case PARSE_BODY:
         parse_status = body_parser_.parse_body(buf);
-        if(parse_status == http::COMPLETE){
+        if(parse_status == switchflow::http::COMPLETE){
           get_proxy_stream_interface()->flush();
           complete_message();
           break;
         }
-        if(parse_status == http::INVALID ||
-           parse_status == http::DATAOVERFLOW){
+        if(parse_status == switchflow::http::INVALID ||
+           parse_status == switchflow::http::DATAOVERFLOW){
           return socketlib::DENY;
         }
         //
@@ -196,13 +196,13 @@ socketlib::STATUS http_proxy_stream_handler::process_data(read_write_buffer& buf
         // the state-machine jams.
         //
         // The problem was fixed by adding the second WRITE_INCOMPLETE code.
-        if(parse_status == http::INCOMPLETE){
+        if(parse_status == switchflow::http::INCOMPLETE){
           return socketlib::COMPLETE;
         }
-        if(parse_status == http::WRITE_INCOMPLETE){
+        if(parse_status == switchflow::http::WRITE_INCOMPLETE){
           return socketlib::INCOMPLETE;
         }
-        if(parse_status == http::IOFAILURE){
+        if(parse_status == switchflow::http::IOFAILURE){
           return socketlib::DEST_CLOSED;
         }
         CHECK_CONDITION_VAL(false, "unknown return value from parse_body", parse_status);
@@ -216,7 +216,7 @@ socketlib::STATUS http_proxy_stream_handler::process_data(read_write_buffer& buf
   CHECK_CONDITION(false, "fell out process_data loop");
 }
 
-http::STATUS http_proxy_stream_handler::set_body(read_write_buffer& body, bool b_complete)
+switchflow::http::STATUS http_proxy_stream_handler::set_body(read_write_buffer& body, bool b_complete)
 {
   //
   //
@@ -244,14 +244,14 @@ void http_proxy_stream_handler::initialize_state()
   message_state_ = START_MESSAGE;
   push_header_state_ = START_LINE_TOKEN1;
   header_parser_.reset();
-  body_parser_.reset(http::NONE, 0);
+  body_parser_.reset(switchflow::http::NONE, 0);
   chunk_size_.reset();
   header_handler_.reset();
   
 }
 
 
-void http_proxy_stream_handler::set_body_encoding(http::BODY_ENCODING body_encoding)
+void http_proxy_stream_handler::set_body_encoding(switchflow::http::BODY_ENCODING body_encoding)
 {
   //
   // This is a no-op as we already know what the body_encoding is.
@@ -264,19 +264,19 @@ void http_proxy_stream_handler::set_chunk_size(unsigned int chunk_size)
 {
   int chunk_size_chars = snprintf((char*)(&chunk_size_.get_raw_buffer()[0]), chunk_size_.get_physical_length(), "%X", chunk_size);
   chunk_size_.set_working_length(chunk_size_chars + 2);
-  chunk_size_[chunk_size_chars] = http::CR;
-  chunk_size_[chunk_size_chars + 1] = http::LF;
+  chunk_size_[chunk_size_chars] = switchflow::http::CR;
+  chunk_size_[chunk_size_chars + 1] = switchflow::http::LF;
   
   endline_buf_.set_write_position(0);
 }
 
-http::STATUS http_proxy_stream_handler::forward_chunk_trailer()
+switchflow::http::STATUS http_proxy_stream_handler::forward_chunk_trailer()
 {
   socketlib::STATUS return_val = get_proxy_stream_interface()->forward(endline_buf_);
   return convert_proxy_status(return_val);
 }
 
-http::STATUS http_proxy_stream_handler::forward_chunk_size()
+switchflow::http::STATUS http_proxy_stream_handler::forward_chunk_size()
 {
   socketlib::STATUS return_val = get_proxy_stream_interface()->forward(chunk_size_);
   return convert_proxy_status(return_val);
@@ -293,12 +293,12 @@ void http_proxy_stream_handler::log_request()
     return;
   }
   
-  if(stream_type_ == http::REQUEST){
+  if(stream_type_ == switchflow::http::REQUEST){
     current_pipeline_data_->logrecord_.reset();
     copy_request_data_to_log(header_handler_.get_message_buffer(),
                          current_pipeline_data_->logrecord_);
   }
-  else if(stream_type_ == http::RESPONSE){
+  else if(stream_type_ == switchflow::http::RESPONSE){
 
     copy_response_data_to_log(header_handler_.get_message_buffer(),
                           current_pipeline_data_->logrecord_);
@@ -311,10 +311,10 @@ void http_proxy_stream_handler::log_request()
   }
 }
  
-void http_proxy_stream_handler::copy_request_data_to_log(http::message_buffer& message_buffer,
+void http_proxy_stream_handler::copy_request_data_to_log(switchflow::http::message_buffer& message_buffer,
                                                   combined_log_record& log_record)
 {
-  http::http_request_buffer_wrapper buffer_wrapper(message_buffer);
+  switchflow::http::request_buffer_wrapper buffer_wrapper(message_buffer);
   
   log_record.remote_ip = get_proxy_stream_interface()->get_src_address();
   
@@ -334,24 +334,24 @@ void http_proxy_stream_handler::copy_request_data_to_log(http::message_buffer& m
   }
 }
 
-void http_proxy_stream_handler::copy_response_data_to_log(http::message_buffer& message_buffer,
-                                                   combined_log_record& log_record)
+void http_proxy_stream_handler::copy_response_data_to_log(switchflow::http::message_buffer& message_buffer,
+                                                          combined_log_record& log_record)
 {
   
-  http::http_response_buffer_wrapper buffer_wrapper(message_buffer);
+  switchflow::http::response_buffer_wrapper buffer_wrapper(message_buffer);
   buffer_wrapper.get_status_code().append_to_string(log_record.status);
 }
 
 proxylib::i_proxy_stream_handler::FORWARD_ADDRESS_STATUS http_proxy_stream_handler::get_forward_address_status()
 {
-  http::message_buffer& buffer = header_handler_.get_message_buffer();
+  switchflow::http::message_buffer& buffer = header_handler_.get_message_buffer();
   
-  if(stream_type_ != http::REQUEST){
+  if(stream_type_ != switchflow::http::REQUEST){
     return proxylib::i_proxy_stream_handler::STREAM_DOES_NOT_PROVIDE_FORWARD_ADDRESS;
   }
 
-  http::http_request_buffer_wrapper request_wrapper(header_handler_.get_message_buffer());
-  if(request_wrapper.get_http_version() == http::http_request_buffer_wrapper::HTTP1){
+  switchflow::http::request_buffer_wrapper request_wrapper(header_handler_.get_message_buffer());
+  if(request_wrapper.get_http_version() == switchflow::http::request_buffer_wrapper::HTTP1){
     return proxylib::i_proxy_stream_handler::CONNECTION_DOES_NOT_PROVIDE_FORWARD_ADDRESS;
   }
   
@@ -408,14 +408,14 @@ sockaddr& http_proxy_stream_handler::get_forward_address_from_stream()
 
 bool http_proxy_stream_handler::set_current_pipeline_data()
 {
-  if(stream_type_ == http::REQUEST){
+  if(stream_type_ == switchflow::http::REQUEST){
     if(get_proxy_stream_interface()->get_pipeline_data_queue()->queue_full()){
       return false;
     }
     current_pipeline_data_ =
       boost::polymorphic_downcast<pipeline_data*>(get_proxy_stream_interface()->get_pipeline_data_queue()->queue_element());
   }
-  else if(stream_type_ == http::RESPONSE){
+  else if(stream_type_ == switchflow::http::RESPONSE){
     if(get_proxy_stream_interface()->get_pipeline_data_queue()->queue_empty()){
       return false;
     }
@@ -439,22 +439,22 @@ void http_proxy_stream_handler::clear_current_pipeline_data()
   current_pipeline_data_ = 0;
 }
 
-http::STATUS http_proxy_stream_handler::convert_proxy_status(socketlib::STATUS status)
+switchflow::http::STATUS http_proxy_stream_handler::convert_proxy_status(socketlib::STATUS status)
 {
   if(status == socketlib::DEST_CLOSED){
-    return http::IOFAILURE;
+    return switchflow::http::IOFAILURE;
   }
   else if(status == socketlib::COMPLETE){
-    return http::COMPLETE;
+    return switchflow::http::COMPLETE;
   }
   else if(status == socketlib::INCOMPLETE){
-    return http::INCOMPLETE;
+    return switchflow::http::INCOMPLETE;
   }
   else if(status == socketlib::SRC_CLOSED){
-    return http::IOFAILURE;
+    return switchflow::http::IOFAILURE;
   }
   else if(status == socketlib::DENY){
-    return http::INVALID;
+    return switchflow::http::INVALID;
   }
   else{
     CHECK_CONDITION_VAL(false, "invalid status", status);
@@ -462,5 +462,5 @@ http::STATUS http_proxy_stream_handler::convert_proxy_status(socketlib::STATUS s
   //
   // return something to avoid warning.
   //
-  return http::INVALID;
+  return switchflow::http::INVALID;
 }

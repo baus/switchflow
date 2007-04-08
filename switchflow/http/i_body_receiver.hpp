@@ -9,14 +9,14 @@
 
 #include "http.hpp"
 
+namespace switchflow{
 namespace http{
  
 class i_body_receiver
 {
  public:
   //
-  // The implementor shouldn't do anything here that may fail (ie I/O or, forbid, memory allocation). 
-  //
+  // The implementor shouldn't do anything here that may fail (ie I/O or memory allocation). 
   virtual void set_body_encoding(BODY_ENCODING body_encoding) = 0;
 
   virtual STATUS set_body(read_write_buffer& buffer, bool b_complete) = 0;
@@ -29,5 +29,6 @@ class i_body_receiver
 };
 
 } // namespace httplib
+} // namespace switchflow
 
 #endif

@@ -84,17 +84,17 @@ private:
   SOCKET_STATE state_;
 };
 
-class http_client: private boost::noncopyable, private http::i_body_receiver
+class http_client: private boost::noncopyable, private switchflow::http::i_body_receiver
 {
 public:
   http_client(asio::io_service& d,
               const char* ipv4_tcp_address,
               int ipv4_tcp_port,
-              http::header_cache& cache,
+              switchflow::http::header_cache& cache,
               i_connect_error_handler& connect_errors,
               i_http_connection_handler& http_handler);
 
-  void make_request(http::message_buffer& message);
+  void make_request(switchflow::http::message_buffer& message);
 
 private:
   
@@ -122,7 +122,7 @@ private:
   void response_read_handler(const asio::error& error, 
                              std::size_t bytes_transferred);
 
-  void set_body_encoding(http::BODY_ENCODING body_encoding);
+  void set_body_encoding(switchflow::http::BODY_ENCODING body_encoding);
 
   PARSE_RESULT parse_response();
 
@@ -130,13 +130,13 @@ private:
 
   PARSE_RESULT parse_response_body();
 
-  http::STATUS set_body(read_write_buffer& buffer, bool complete);
+  switchflow::http::STATUS set_body(read_write_buffer& buffer, bool complete);
 
   void set_chunk_size(unsigned int chunk_size);
 
-  http::STATUS forward_chunk_size();
+  switchflow::http::STATUS forward_chunk_size();
 
-  http::STATUS forward_chunk_trailer();
+  switchflow::http::STATUS forward_chunk_trailer();
 
   tcp_connector connector_;
   i_http_connection_handler& http_handler_;
@@ -147,10 +147,10 @@ private:
 
   read_write_buffer read_buffer_;
 
-  http::message_buffer response_;
-  http::header_handler header_handler_;
-  http::http_header_parser header_parser_;
-  http::body_parser body_parser_;
+  switchflow::http::message_buffer response_;
+  switchflow::http::header_handler header_handler_;
+  switchflow::http::header_parser header_parser_;
+  switchflow::http::body_parser body_parser_;
 
   MESSAGE_STATE response_state_;
 

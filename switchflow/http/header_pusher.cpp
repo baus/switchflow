@@ -10,9 +10,10 @@
 #include "header_pusher.hpp"
 
 
+namespace switchflow{
 namespace http{
   
-header_pusher::header_pusher():message_buffer_(0),
+header_writer::header_writer():message_buffer_(0),
                                space_buf_(&strings_.space_),
                                endline_buf_(&strings_.endline_),
                                field_sep_(&strings_.fieldsep_),
@@ -20,11 +21,11 @@ header_pusher::header_pusher():message_buffer_(0),
 {
 }
 
-void header_pusher::reset(message_buffer& message,
+void header_writer::reset(message_buffer& message,
                           socketlib::connection& dest)
 {
   p_dest_ = &dest;
-  push_header_state_ = START_LINE_TOKEN1;
+  write_header_state_ = START_LINE_TOKEN1;
   message_buffer_ = &message;
   current_dump_header_ = 0;
   space_buf_.reset();
@@ -32,23 +33,23 @@ void header_pusher::reset(message_buffer& message,
   field_sep_.reset();
 }
 
-header_pusher::~header_pusher()
+header_writer::~header_writer()
 {
 }
 
-socketlib::STATUS header_pusher::push_header()
+socketlib::STATUS header_writer::write_header()
 {
   socketlib::STATUS status;
 
   for(;;){
-    if(push_header_state_ == FIELD_NAME){
+    if(write_header_state_ == FIELD_NAME){
       if(current_dump_header_ == message_buffer_->get_num_fields()){
-        push_header_state_ = END_FIELDS;
+        write_header_state_ = END_FIELDS;
       }
     }
     
-    read_write_buffer& buffer_to_push = get_header_buffer_to_push(static_cast<PUSH_HEADER_STATE>(push_header_state_));
-    status = p_dest_->non_blocking_write(buffer_to_push);
+    read_write_buffer& buffer_to_write = get_header_buffer_to_write(static_cast<WRITE_HEADER_STATE>(write_header_state_));
+    status = p_dest_->non_blocking_write(buffer_to_write);
     if(status == socketlib::INCOMPLETE){
       return status;
     }
@@ -56,11 +57,11 @@ socketlib::STATUS header_pusher::push_header()
       space_buf_.reset();
       endline_buf_.reset();
       field_sep_.reset();
-      if(push_header_state_ == FIELD_SEPERATOR){
-        push_header_state_ = FIELD_NAME;
+      if(write_header_state_ == FIELD_SEPERATOR){
+        write_header_state_ = FIELD_NAME;
         ++current_dump_header_;
       }
-      else if(push_header_state_ == END_FIELDS){
+      else if(write_header_state_ == END_FIELDS){
         //
         // All done dumping headers.
         return socketlib::COMPLETE;
@@ -68,7 +69,7 @@ socketlib::STATUS header_pusher::push_header()
       else{
         //
         // just go to the next sequential state
-        ++push_header_state_; 
+        ++write_header_state_; 
       }
     }
     else if(status == socketlib::DEST_CLOSED){
@@ -80,9 +81,9 @@ socketlib::STATUS header_pusher::push_header()
   }
 }
 
-read_write_buffer& header_pusher::get_header_buffer_to_push(PUSH_HEADER_STATE header_state)
+read_write_buffer& header_writer::get_header_buffer_to_write(WRITE_HEADER_STATE header_state)
 {
-  switch(push_header_state_){
+  switch(write_header_state_){
     case START_LINE_TOKEN1:
       return message_buffer_->get_status_line_1();
       break;
@@ -119,4 +120,5 @@ read_write_buffer& header_pusher::get_header_buffer_to_push(PUSH_HEADER_STATE he
   };
 }
 
-}
+} //namespace http
+} //namespace switchflow

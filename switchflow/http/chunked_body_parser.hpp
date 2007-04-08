@@ -2,14 +2,14 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-#ifndef SSD_CHUNKEDBODYPARSER_HPP
-#define SSD_CHUNKEDBODYPARSER_HPP
+#ifndef SF_CHUNKEDBODYPARSER_HPP
+#define SF_CHUNKEDBODYPARSER_HPP
 
 #include <boost/noncopyable.hpp>
 
 #include "http.hpp"
 
-
+namespace switchflow{
 namespace http{
 
 class i_body_receiver;
@@ -55,7 +55,7 @@ private:
 
   unsigned int num_chunk_size_spaces_;
 };
-
-}// namespace httplib
+} // namespace http
+} // namespace switchflow
   
-#endif // CHUNKEDBODYPARSER_HPP
+#endif 

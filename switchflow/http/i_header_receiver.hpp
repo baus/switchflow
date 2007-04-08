@@ -2,13 +2,14 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-#ifndef HTTP_MESSAGE_RECEIVER_H__
-#define HTTP_MESSAGE_RECEIVER_H__
+#ifndef SF_HTTP_MESSAGE_RECEIVER_HPP
+#define SF_HTTP_MESSAGE_RECEIVER_HPP
 
 #include <util/read_write_buffer.hpp>
 
 #include "http.hpp"
 
+namespace switchflow{
 namespace http{
 
 class i_header_receiver
@@ -24,4 +25,5 @@ class i_header_receiver
 };
 
 } // namespace httplib
+} // namespace switchflow
 #endif

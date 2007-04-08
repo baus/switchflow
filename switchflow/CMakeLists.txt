@@ -31,5 +31,6 @@ SUBDIRS(util
         client 
         http
 	test
+	asio-http
 )
 

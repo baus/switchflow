@@ -185,9 +185,9 @@ class http_handler: public i_http_connection_handler
 };
 
 
-void build_request(http::message_buffer& get_request)
+void build_request(switchflow::http::message_buffer& get_request)
 {
-  http::http_request_buffer_wrapper request(get_request);
+  switchflow::http::request_buffer_wrapper request(get_request);
   
   request.get_method().append_from_string("GET"); 
   request.get_uri().append_from_string("/");
@@ -241,11 +241,11 @@ void build_request(http::message_buffer& get_request)
 int main(int argc, char* argv[])
 {
 
-  http::init();
+  switchflow::http::init();
   asio::io_service d;
   connection_error error_handler;
   http_handler handler;
-  http::header_cache cache(5000, 256, 256);
+  switchflow::http::header_cache cache(5000, 256, 256);
   http_client client(d,
                      "baus.net", 
                      80,
@@ -255,7 +255,7 @@ int main(int argc, char* argv[])
 
 
   
-  http::message_buffer request(&cache, 3, 256, 10, 50);
+  switchflow::http::message_buffer request(&cache, 3, 256, 10, 50);
 
   build_request(request);
 

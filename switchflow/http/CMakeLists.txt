@@ -15,7 +15,6 @@ request_buffer_wrapper.cpp
 response_buffer_wrapper.cpp
 error_response.cpp
 static_strings.cpp
-client/http_client_handler.cpp	    
 )
 
 TARGET_LINK_LIBRARIES(http util)

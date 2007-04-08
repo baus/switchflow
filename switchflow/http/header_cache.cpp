@@ -5,6 +5,7 @@
 #include "header_cache.hpp"
 #include <util/logger.hpp>
 
+namespace switchflow{
 namespace http{
 
 header_cache::header_cache(unsigned int num_headers,
@@ -48,4 +49,5 @@ size_t header_cache::num_available_headers()
   return headers_.size();
 }
 
-}
+} //namespace http
+} //namespace switchflow

@@ -42,14 +42,14 @@ class i_http_client;
 // http_client_handler handles notifications client proxy connections.  It maintains
 // the state of the client socket handles.  
 //
-class http_client_handler: public http::i_body_receiver,
+class http_client_handler: public switchflow::http::i_body_receiver,
                            public i_client
 {
  public:
   http_client_handler();
 
   http_client_handler(std::auto_ptr<i_http_client> p_http_client,
-                      http::header_cache& cache);
+                      switchflow::http::header_cache& cache);
 
   //
   // copy construction
@@ -67,10 +67,10 @@ class http_client_handler: public http::i_body_receiver,
   socketlib::STATUS handle_stream(socketlib::connection& socket);
   
 
-  http::STATUS set_body(read_write_buffer& body, bool b_complete);
-  void set_body_encoding(http::BODY_ENCODING body_encoding);
-  http::STATUS forward_chunk_size();
-  http::STATUS forward_chunk_trailer();
+  switchflow::http::STATUS set_body(read_write_buffer& body, bool b_complete);
+  void set_body_encoding(switchflow::http::BODY_ENCODING body_encoding);
+  switchflow::http::STATUS forward_chunk_size();
+  switchflow::http::STATUS forward_chunk_trailer();
   void set_chunk_size(unsigned int chunk_size);
 
   bool get_header_value(const char* header_name, std::string& header_value);
@@ -81,9 +81,7 @@ class http_client_handler: public http::i_body_receiver,
   void connect(socketlib::connection& conn);
 
 private:
-  
-  
-  http::header_pusher header_pusher_;
+  switchflow::http::header_writer header_writer_;
   
 
   enum MESSAGE_STATE
@@ -96,9 +94,9 @@ private:
 
   read_write_buffer endline_buf_;
   MESSAGE_STATE message_state_;
-  http::header_handler header_handler_;
-  http::http_header_parser header_parser_;
-  http::body_parser body_parser_;
+  switchflow::http::header_handler header_handler_;
+  switchflow::http::header_parser header_parser_;
+  switchflow::http::body_parser body_parser_;
 
   std::auto_ptr<i_http_client> p_http_client_;
   

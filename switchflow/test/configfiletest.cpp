@@ -10,7 +10,7 @@
 
 int main(int argc, char* argv[])
 {
-  config_file test_config_file;
+  switchflow::util::config_file test_config_file;
   test_config_file.parse_file("test_config.txt");
   test_config_file.dump(std::cout);
   return 0;

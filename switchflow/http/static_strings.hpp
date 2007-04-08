@@ -2,12 +2,13 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-#ifndef SSD_STATIC_STRINGS_HPP
-#define SSD_STATIC_STRINGS_HPP
+#ifndef SF_STATIC_STRINGS_HPP
+#define SF_STATIC_STRINGS_HPP
 
 #include <util/read_write_buffer.hpp>
 
 
+namespace switchflow{
 namespace http{
   
 class static_strings
@@ -22,6 +23,7 @@ public:
 
 extern static_strings strings_;
 
-}
+} //namespace http
+} //namespace switchflow
 
-#endif // STATIC_STRINGS_HPP
+#endif 

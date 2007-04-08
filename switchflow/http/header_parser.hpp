@@ -2,22 +2,23 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-#ifndef SSD_HTTP_HEADER_PARSER_HPP
-#define SSD_HTTP_HEADER_PARSER_HPP
+#ifndef SF_HEADER_PARSER_HPP
+#define SF_HEADER_PARSER_HPP
 #include <set>
 
 #include <util/read_write_buffer.hpp>
 
 #include "http.hpp" 
 
+namespace switchflow{
 namespace http{
 
 class i_header_receiver;  
 
-class http_header_parser
+class header_parser
 {
  public:
-  http_header_parser(i_header_receiver* p_header_receiver);
+  header_parser(i_header_receiver* p_header_receiver);
 
   enum PARSE_OPTION
   {
@@ -94,6 +95,7 @@ class http_header_parser
 };
 
 } //namespace httplib
+} //namespace switchflow
 
 #endif
 

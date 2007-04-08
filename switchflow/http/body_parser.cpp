@@ -10,6 +10,7 @@
 #include "body_parser.hpp"
 #include "http.hpp"
 
+namespace switchflow{
 namespace http{
   body_parser::body_parser(i_body_receiver* p_body_receiver):
   chunked_body_parser_(p_body_receiver, CHUNK_SIZE_LENGTH),
@@ -50,6 +51,6 @@ STATUS body_parser::parse_body(read_write_buffer& buffer)
   
 }
 
-} // namespace httplib
-
+} // namespace http
+} // namespace switchflow
 
