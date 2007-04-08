@@ -28,12 +28,11 @@
 
 #include <event/poller.hpp>
 
-#include "host_map.hpp"
 #include "http_proxy_stream_handler.hpp"
 #include "options.hpp"
 #include "access_log.hpp"
 #include "pipeline_data_factory.hpp"
-
+#include "host_rules.hpp"
 
 bool daemonize(const switchflow::util::config_file& config)
 {
@@ -179,41 +178,39 @@ int main(int argc, char *argv[])
 
   
 
-  std::map<std::string, std::pair<httplib::url, bool> > host_map;
+  std::map<std::string, host_rules> rules;
 
-  build_host_map(config, host_map);
+  build_host_rules(config, rules);
   
   //
   // This is where most of our memory gets allocated.  This is the key to
   // the memory strategy for the server core.  If memory is needed by a 
   // connection it should be added to the buffer_manager.
   http_proxy_stream_handler request_stream_prototype( &headers,
-                                                 host_map,
-                                                 http::REQUEST,
-                                                 http::max_method_length(),
-                                                 config["http-parser"]["max-URI-length"].read<unsigned int>(),
-                                                 http::max_version_length, // length of the version.  Only accept 8 characters
-                                                 config["http-parser"]["max-num-headers"].read<unsigned int>(),
-
-                                                 config["http-parser"]["max-header-name-length"].read<unsigned int>(),
-                                                 config["http-parser"]["max-header-value-length"].read<unsigned int>(),
-                                              
-                                                 &access_log,
-//                                                 &rb_processor);
-                                                 0);
+                                                      rules,
+                                                      http::REQUEST,
+                                                      http::max_method_length(),
+                                                      config["http-parser"]["max-URI-length"].read<unsigned int>(),
+                                                      http::max_version_length, // length of the version.  Only accept 8 characters
+                                                      config["http-parser"]["max-num-headers"].read<unsigned int>(),
+                                                      
+                                                      config["http-parser"]["max-header-name-length"].read<unsigned int>(),
+                                                      config["http-parser"]["max-header-value-length"].read<unsigned int>(),
+                                                      
+                                                      &access_log,
+                                                      0);
   
   http_proxy_stream_handler response_stream_prototype( &headers,
-                                                  host_map,
-                                                  http::RESPONSE,
-                                                  http::max_version_length,
-                                                  config["http-parser"]["max-URI-length"].read<unsigned int>(),
-                                                  50, 
-                                                  config["http-parser"]["max-num-headers"].read<unsigned int>(),
-                                                  config["http-parser"]["max-header-name-length"].read<unsigned int>(),
-                                                  config["http-parser"]["max-header-value-length"].read<unsigned int>(),
-                                                  &access_log,
-//                                                  &rb_processor);
-                                                  0);
+                                                       rules,
+                                                       http::RESPONSE,
+                                                       http::max_version_length,
+                                                       config["http-parser"]["max-URI-length"].read<unsigned int>(),
+                                                       50, 
+                                                       config["http-parser"]["max-num-headers"].read<unsigned int>(),
+                                                       config["http-parser"]["max-header-name-length"].read<unsigned int>(),
+                                                       config["http-parser"]["max-header-value-length"].read<unsigned int>(),
+                                                       &access_log,
+                                                       0);
   
 
 

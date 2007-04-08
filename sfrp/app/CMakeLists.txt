@@ -1,12 +1,12 @@
 SET( APP_SRCS
 sfrp_main.cpp
-host_map.cpp
 http_proxy_stream_handler.cpp
 options.cpp
 combined_log_record.cpp
 access_log.cpp
 pipeline_data.cpp
 pipeline_data_factory.cpp
+host_rules.cpp
 SVNVersion.cpp
 ) 
 

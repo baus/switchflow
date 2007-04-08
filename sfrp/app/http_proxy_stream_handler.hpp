@@ -2,8 +2,8 @@
 // Copyright 2003-2006 Christopher Baus. http://baus.net/
 // Read the LICENSE file for more information.
 
-#ifndef SSD_HTTP_PROXY_STREAM_HANDLER_H
-#define SSD_HTTP_PROXY_STREAM_HANDLER_H
+#ifndef SFRP_HTTP_PROXY_STREAM_HANDLER_H
+#define SFRP_HTTP_PROXY_STREAM_HANDLER_H
 
 #include <boost/function.hpp>
 
@@ -25,7 +25,8 @@
 #include "access_log.hpp"
 #include "pipeline_data.hpp"
 #include "i_request_postprocessor.hpp"
-#include "host_map.hpp"
+#include "host_rules.hpp"
+#include <string>
 
 // This class is the glue between the low level proxylib and the httplib
 // application layer.  It implements interfaces from both layers to provide
@@ -42,16 +43,16 @@ class http_proxy_stream_handler: public proxylib::i_proxy_stream_handler,
  public:
   
   http_proxy_stream_handler(http::header_cache* cache,
-                         const std::map<std::string, std::pair<httplib::url, bool> >& host_map,
-                         http::STREAM_TYPE stream_type,
-                         unsigned int max_start_line1_length, 
-                         unsigned int max_start_line2_length, 
-                         unsigned int max_start_line3_length,
-                         unsigned int num_headers,
-                         unsigned int max_header_name_length,
-                         unsigned int max_header_value_length,
-                         access_log* p_access_log,
-                         i_request_postprocessor* p_postprocessor);
+                            const std::map<std::string, host_rules>& rules,
+                            http::STREAM_TYPE stream_type,
+                            unsigned int max_start_line1_length, 
+                            unsigned int max_start_line2_length, 
+                            unsigned int max_start_line3_length,
+                            unsigned int num_headers,
+                            unsigned int max_header_name_length,
+                            unsigned int max_header_value_length,
+                            access_log* p_access_log,
+                            i_request_postprocessor* p_postprocessor);
 
   virtual ~http_proxy_stream_handler(){}
 
@@ -90,7 +91,8 @@ class http_proxy_stream_handler: public proxylib::i_proxy_stream_handler,
   // The current state of pushing headers to the
   // next upstream HTTP processor.  We might return 
   // from any of these sub-states.
-  enum PUSH_HEADER_STATE{
+  enum PUSH_HEADER_STATE
+  {
     START_LINE_TOKEN1,
     START_LINE_SEPERATOR1,
     START_LINE_TOKEN2,
@@ -124,6 +126,9 @@ class http_proxy_stream_handler: public proxylib::i_proxy_stream_handler,
   // Helper function to retrieve which header buffer to push
   read_write_buffer& get_header_buffer_to_push(PUSH_HEADER_STATE header_state);
 
+  http::header_cache* cache_;
+  const std::map<std::string, host_rules> host_rules_;
+  
   //
   // Is this a request or response stream?
   http::STREAM_TYPE stream_type_;
@@ -175,12 +180,8 @@ class http_proxy_stream_handler: public proxylib::i_proxy_stream_handler,
   http::message_buffer response_; 
 
   http::header_handler header_handler_;
-
   
-  http::header_cache* cache_;
-
-  const std::map<std::string, std::pair<httplib::url, bool> >& host_map_;
   i_request_postprocessor* request_postprocessor_;
 };
 
-#endif // SSD_HTTP_PROXY_STREAM_HANDLER_H
+#endif // SFRP_HTTP_PROXY_STREAM_HANDLER_H

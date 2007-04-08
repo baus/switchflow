@@ -17,18 +17,18 @@
 #include <string>
 
 http_proxy_stream_handler::http_proxy_stream_handler(http::header_cache* cache,
-                                               const std::map<std::string, std::pair<httplib::url, bool> >& host_map,
-                                               http::STREAM_TYPE stream_type,
-                                               unsigned int max_start_line1_length, 
-                                               unsigned int max_start_line2_length, 
-                                               unsigned int max_start_line3_length,
-                                               unsigned int num_headers,
-                                               unsigned int max_header_name_length,
-                                               unsigned int max_header_value_length,
-                                               access_log* p_access_log,                                               
-                                               i_request_postprocessor* p_postprocessor):
+                                                     const std::map<std::string, host_rules>& rules,
+                                                     http::STREAM_TYPE stream_type,
+                                                     unsigned int max_start_line1_length, 
+                                                     unsigned int max_start_line2_length, 
+                                                     unsigned int max_start_line3_length,
+                                                     unsigned int num_headers,
+                                                     unsigned int max_header_name_length,
+                                                     unsigned int max_header_value_length,
+                                                     access_log* p_access_log,                                               
+                                                     i_request_postprocessor* p_postprocessor):
   cache_(cache),
-  host_map_(host_map),
+  host_rules_(rules),
   stream_type_(stream_type),
   header_parser_(&header_handler_),
   body_parser_(this),
@@ -49,7 +49,7 @@ http_proxy_stream_handler::http_proxy_stream_handler(http::header_cache* cache,
   response_(cache,
             max_start_line1_length, 
             max_start_line2_length, 
-		    max_start_line3_length,
+            max_start_line3_length,
             num_headers),
   header_handler_(response_, stream_type),
   request_postprocessor_(p_postprocessor)
@@ -59,7 +59,7 @@ http_proxy_stream_handler::http_proxy_stream_handler(http::header_cache* cache,
 http_proxy_stream_handler* http_proxy_stream_handler::clone()
 {
   return new http_proxy_stream_handler( cache_,
-                                     host_map_,
+                                     host_rules_,
                                      stream_type_,
                                      max_start_line1_length_,
                                      max_start_line2_length_,
@@ -363,19 +363,22 @@ proxylib::i_proxy_stream_handler::FORWARD_ADDRESS_STATUS http_proxy_stream_handl
   std::string hostname;
   buffer.get_field_value(hostname_index).append_to_string(hostname);
 
-  std::map<std::string, std::pair<httplib::url, bool> >::const_iterator it;
+  std::map<std::string, host_rules>::const_iterator it;
 
-  it = host_map_.find(hostname);
-  if(it == host_map_.end()){
+  it = host_rules_.find(hostname);
+  if(it == host_rules_.end()){
     return proxylib::i_proxy_stream_handler::CONNECTION_DOES_NOT_PROVIDE_FORWARD_ADDRESS;
   }
 
-  forward_address_ = *it->second.first.endpoint.data();
-  std::string base_path = it->second.first.path;
+  std::string path;
+  request_wrapper.get_uri().append_to_string(path);
+  const httplib::url& forward_url = it->second.find_forward_url(path.c_str());
+  forward_address_ = *forward_url.endpoint.data();
+  std::string base_path = forward_url.path;
   buffer.get_status_line_2().append_to_string(base_path);
   buffer.get_status_line_2().append_from_string(base_path.c_str());
-  if(!it->second.second){
-    buffer.get_field_value(hostname_index).append_from_string(it->second.first.hostname.c_str());
+  if(!it->second.preserve_host()){
+    buffer.get_field_value(hostname_index).append_from_string(forward_url.hostname.c_str());
   }
   return proxylib::i_proxy_stream_handler::FORWARD_ADDRESS_AVAILABLE;
 
