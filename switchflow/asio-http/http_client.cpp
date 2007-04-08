@@ -42,18 +42,19 @@ void http_client::make_request(http::message_buffer& message)
     request_queue_.push_back(message.get_const_buffers());
   }
   else{
-    write_request(message.get_const_buffers());
+    std::list<asio::const_buffer> buffers = message.get_const_buffers();
+    write_request(buffers);
   }
 } 
 
 
 void http_client::write_request(std::list<asio::const_buffer>& request)
 {
-  asio::async_write(*p_socket_, 
-                          request, 
-                          boost::bind(&http_client::request_write_handler,
-                                      this,
-                                      asio::placeholders::error));
+  asio::async_write(*p_socket_,
+                    request,
+                    boost::bind(&http_client::request_write_handler,
+                                this,
+                                asio::placeholders::error));
 
 }
 
@@ -123,7 +124,8 @@ http::STATUS http_client::set_body(read_write_buffer& buffer, bool b_complete)
   int start_position = buffer.get_write_position();
   int num_bytes_to_write = buffer.get_write_end_position() - start_position;
   if(num_bytes_to_write > 0){
-    http_handler_.accept_peer_body(asio::mutable_buffer(&buffer[start_position], num_bytes_to_write));
+    asio::mutable_buffer mut_buffer(&buffer[start_position], num_bytes_to_write);
+    http_handler_.accept_peer_body(mut_buffer);
   }
   return http::COMPLETE;
 }
@@ -149,7 +151,7 @@ http::STATUS http_client::forward_chunk_trailer()
 http_client::PARSE_RESULT http_client::parse_response_headers()
 {
   http::STATUS parse_status = header_parser_.parse_headers(read_buffer_,
-                                               http::HTTPHeader_parser::LOOSE);
+                                                           http::http_header_parser::LOOSE);
   if(parse_status == http::COMPLETE){
     response_state_ = PARSE_BODY;
     body_parser_.reset(header_handler_.get_body_encoding(), 

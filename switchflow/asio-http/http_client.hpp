@@ -15,6 +15,7 @@
 #include "tcp_connector.hpp"
 #include "i_connect_handler.hpp"
 #include "i_http_connection_handler.hpp"
+#include <memory>
 
 class stream_socket_connection_state
 {
@@ -148,8 +149,8 @@ private:
 
   http::message_buffer response_;
   http::header_handler header_handler_;
-  http::HTTPHeader_parser header_parser_;
-  http::Body_parser body_parser_;
+  http::http_header_parser header_parser_;
+  http::body_parser body_parser_;
 
   MESSAGE_STATE response_state_;
 

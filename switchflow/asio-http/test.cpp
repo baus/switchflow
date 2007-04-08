@@ -16,6 +16,7 @@ ip::tcp::resolver::iterator iter)
 #include <http/request_buffer_wrapper.hpp>
 
 #include "http_client.hpp"
+#include <string>
 //
 // Make the demuxer global, so I don't have to pass it around.
 //boost::asio::demuxer d;
@@ -186,12 +187,12 @@ class http_handler: public i_http_connection_handler
 
 void build_request(http::message_buffer& get_request)
 {
-  http::HTTPRequest_buffer_wrapper request(get_request);
+  http::http_request_buffer_wrapper request(get_request);
   
   request.get_method().append_from_string("GET"); 
-  request.get_uRI().append_from_string("/");
+  request.get_uri().append_from_string("/");
   
-  request.get_hTTPVersion_buffer().append_from_string("HTTP/1.1");
+  request.get_http_version_buffer().append_from_string("HTTP/1.1");
 
   get_request.add_field();
   get_request.get_field_name(0).append_from_string("Host");
