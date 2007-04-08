@@ -13,7 +13,7 @@
 #include <http/body_parser.hpp>
 #include <http/i_body_receiver.hpp>
 #include <http/header_handler.hpp>
-#include <http/header_pusher.hpp>
+#include <http/header_writer.hpp>
 #include <http/error_response.hpp>
 #include <http/header_cache.hpp>
 
