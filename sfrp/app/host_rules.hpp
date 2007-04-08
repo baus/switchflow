@@ -37,21 +37,26 @@ public:
       rules_.push_back(host_rule);
     }
 
-  const httplib::url& find_forward_url(const char* path) const
+  const httplib::url* find_forward_url(const char* path) const
     {
       std::list<host_rule>::const_iterator cur = rules_.begin();
       std::list<host_rule>::const_iterator end = rules_.end();
       for(;cur != end;++cur){
         if(cur->match_path_ == path){
-          return cur->forward_url_;
+          return &cur->forward_url_;
         }
       }
-      return default_forward_url_;
+      return NULL;
     }
 
   bool preserve_host() const
     {
       return preserve_host_;
+    }
+
+  const httplib::url& default_forward_url() const
+    {
+      return default_forward_url_;
     }
   
 private:

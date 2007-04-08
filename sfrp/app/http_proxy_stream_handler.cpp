@@ -372,13 +372,24 @@ proxylib::i_proxy_stream_handler::FORWARD_ADDRESS_STATUS http_proxy_stream_handl
 
   std::string path;
   request_wrapper.get_uri().append_to_string(path);
-  const httplib::url& forward_url = it->second.find_forward_url(path.c_str());
-  forward_address_ = *forward_url.endpoint.data();
-  std::string base_path = forward_url.path;
-  buffer.get_status_line_2().append_to_string(base_path);
-  buffer.get_status_line_2().append_from_string(base_path.c_str());
-  if(!it->second.preserve_host()){
-    buffer.get_field_value(hostname_index).append_from_string(forward_url.hostname.c_str());
+  const httplib::url* p_forward_url = it->second.find_forward_url(path.c_str());
+  if(p_forward_url == NULL){
+    const httplib::url& forward_url = it->second.default_forward_url();
+    forward_address_ = *forward_url.endpoint.data();
+    std::string base_path = forward_url.path;
+    buffer.get_status_line_2().append_to_string(base_path);
+    buffer.get_status_line_2().append_from_string(base_path.c_str());
+    if(!it->second.preserve_host()){
+      buffer.get_field_value(hostname_index).append_from_string(forward_url.hostname.c_str());
+    }
+  }
+  else{
+    forward_address_ = *p_forward_url->endpoint.data();
+    buffer.get_status_line_2().reset();
+    buffer.get_status_line_2().append_from_string(p_forward_url->path.c_str());
+    if(!it->second.preserve_host()){
+      buffer.get_field_value(hostname_index).append_from_string(p_forward_url->hostname.c_str());
+    }
   }
   return proxylib::i_proxy_stream_handler::FORWARD_ADDRESS_AVAILABLE;
 
