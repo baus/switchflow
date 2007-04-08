@@ -23,7 +23,7 @@ void build_host_rules(const switchflow::util::config_file& config,
       switchflow::util::config_file::value cur_rule_value =   
       config["virtual-host"][i]["rule"][cur_rule];
       httplib::url default_url(cur_rule_value["forward-url"].read<std::string>().c_str(), true);
-      host_rule rule(cur_rule_value["match-path"].read<std::string>().c_str(), url);
+      host_rule rule(cur_rule_value["match-path"].read<std::string>().c_str(), default_url);
       rules.add_rule(rule);
     }
     
