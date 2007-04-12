@@ -1,6 +1,0 @@
-
-# Tell that QT should be used. QTDIR will give installation
-# prefix. 
-using qt ;
-
-
