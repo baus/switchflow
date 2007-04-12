@@ -246,6 +246,67 @@ STATUS line_parser::parse_line(read_write_buffer& buffer,
   }
 }
 
+parse_result parse_token(asio::const_buffer buffer,
+                         size_t current_length,
+                         size_t max_length,
+                         const std::set<char>& delimiters)
+{
+  parse_result result;
+  
+  int buffer_size = asio::buffer_size(buffer);
+  const char* raw_buffer = asio::buffer_cast<const char*>(buffer);
+  
+  int i;
+  for(i = 0; i < buffer_size && current_length < max_length; ++i, ++current_length){
+    if(delimiters.find(raw_buffer[i]) != delimiters.end()){
+      //
+      // found delimiter
+      //
+      result.result_buffer = asio::const_buffer(raw_buffer, i);
+      result.remaining_buffer = buffer + (i + 1);
+      result.status = COMPLETE;
+      result.delimiter=raw_buffer[i];
+      return result;
+    }
+    //
+    // This is correct for Tokens, but I am using this function to parse URIs.  That
+    // needs to be fixed...
+    //    if(s_separators.find(buffer[i]) != s_separators.end() || is_ctl_char(buffer[i])){
+    if(is_ctl_char(raw_buffer[i])){
+      //
+      // found separator other than than those used to delimit
+      // the token, or a control character.  Either is Invaild
+      //
+      log_info("invalid delimiter in HTTP token");
+      result.status = INVALID;
+      return result;
+    }
+  }
+  if(current_length >= max_length){
+    log_info("HTTP token exceeded defined size");
+    result.status = DATAOVERFLOW;
+    return result;
+  }
+  result.result_buffer = buffer;
+  result.status = INCOMPLETE;
+  return result;
+}
+
+std::pair<STATUS, asio::const_buffer> parse_char(asio::const_buffer buffer,
+                                                 char c)
+{
+  int buffer_size = asio::buffer_size(buffer);
+  if(buffer_size < 1){
+    return std::make_pair(INCOMPLETE, buffer);
+  }
+  
+  const char* raw_buffer = asio::buffer_cast<const char*>(buffer);
+  if(raw_buffer[0] != c){
+    return std::make_pair(INVALID, buffer);
+  }
+
+  return std::make_pair(COMPLETE, buffer + 1);
+}
 
 
 } // namespace httplib

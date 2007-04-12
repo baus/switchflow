@@ -104,15 +104,33 @@ private:
 };
 
 STATUS parse_n_length_buffer(read_write_buffer& buffer,
-                          unsigned int& current_length,
-                          unsigned int max_length);
+                             unsigned int& current_length,
+                             unsigned int max_length);
 
 STATUS parse_char(read_write_buffer& buffer, char c);
 
+
 STATUS parse_char(read_write_buffer& buffer,
-                 unsigned int begin_offset,
-                 unsigned int& end_offset,
-                 char c);
+                  unsigned int begin_offset,
+                  unsigned int& end_offset,
+                  char c);
+
+struct parse_result
+{
+  STATUS status;
+  asio::const_buffer result_buffer;
+  asio::const_buffer remaining_buffer;
+  char delimiter;
+};
+
+parse_result parse_token(asio::const_buffer buffer,
+                         size_t current_length,
+                         size_t max_length,
+                         const std::set<char>& delimiters);
+
+std::pair<STATUS, asio::const_buffer> parse_char(asio::const_buffer buffer,
+                                                 char c);
+
 
 STATUS parse_token(read_write_buffer& buffer,
                   unsigned int begin_offset,
@@ -122,6 +140,7 @@ STATUS parse_token(read_write_buffer& buffer,
                   std::set<char>& delimiters);
 
 bool is_ctl_char(char c);
+
 
 STATUS parse_equal(read_write_buffer& buffer,
                   unsigned int begin_offset,

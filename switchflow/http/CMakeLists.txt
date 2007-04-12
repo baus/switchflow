@@ -15,6 +15,11 @@ request_buffer_wrapper.cpp
 response_buffer_wrapper.cpp
 error_response.cpp
 static_strings.cpp
+start_line_parser.cpp
+
 )
 
 TARGET_LINK_LIBRARIES(http util)
+
+ADD_EXECUTABLE(start_line_test tests/start_line_test.cpp)
+TARGET_LINK_LIBRARIES(start_line_test http util pthread)
