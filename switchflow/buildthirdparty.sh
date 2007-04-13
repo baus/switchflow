@@ -34,33 +34,17 @@ make
 make install
 
 fi
-#
-# build bjam.  bjam is boost's maker
-#
-OS=`uname -s`
-echo $OS
 
-if [ "$OS" = "Linux" ]; then
-BJAM=$TALLAC/thirdparty/boost/tools/build/jam_src/bin.linuxx86/bjam
-fi
-
-if [ "$OS" = "FreeBSD" ]; then
-BJAM=$TALLAC/thirdparty/boost/tools/build/jam_src/bin.freebsd/bjam
-fi
-
-if [ ! -e $BJAM ]; then
-cd $TALLAC/thirdparty/boost/tools/build/jam_src
-sh ./build.sh
-fi
-
-
-#
-# now build boost
-#
+GCC_VERSION=`gcc -dumpversion`
 cd $TALLAC/thirdparty/boost
-$BJAM --with-program_options --without-python
 
-cp -f $TALLAC/thirdparty/boost/bin/boost/libs/program_options/build/libboost_program_options.a/gcc/debug/threading-multi/libboost_program_options-gcc-mt-d-1_33.a $TALLAC/thirdparty/lib/debug/libboost_program_options.a 
-cp -f $TALLAC/thirdparty/boost/bin/boost/libs/program_options/build/libboost_program_options.a/gcc/release/threading-multi/libboost_program_options-gcc-mt-1_33.a $TALLAC/thirdparty/lib/release/libboost_program_options.a 
+./configure --prefix=$TALLAC/thirdparty/libevent/installdir\
+            --with-libraries=program_options
 
-cd $TALLAC/switchflow
+make clean
+make
+
+cp $TALLAC/thirdparty/boost/bin.v2/libs/program_options/build/gcc-$GCC_VERSION/debug/link-static/libboost_program_options*.a $TALLAC/thirdparty/lib/debug/libboost_program_options.a
+
+cp $TALLAC/thirdparty/boost/bin.v2/libs/program_options/build/gcc-$GCC_VERSION/release/link-static/libboost_program_options*.a $TALLAC/thirdparty/lib/release/libboost_program_options.a
+
