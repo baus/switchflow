@@ -1,4 +1,6 @@
 ADD_LIBRARY(http
+line_parser.cpp
+
 http.cpp 
 header_parser.cpp 
 body_parser.cpp
@@ -23,6 +25,9 @@ TARGET_LINK_LIBRARIES(http util)
 
 ADD_EXECUTABLE(start_line_test tests/start_line_test.cpp)
 TARGET_LINK_LIBRARIES(start_line_test http util pthread)
+
+ADD_EXECUTABLE(line_test tests/line_parser_test.cpp)
+TARGET_LINK_LIBRARIES(line_test http util pthread)
 
 ADD_EXECUTABLE(uri_query_test tests/uri_query_test.cpp)
 TARGET_LINK_LIBRARIES(uri_query_test http util pthread)

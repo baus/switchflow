@@ -23,7 +23,10 @@ start_line_parser::start_line_parser(i_start_line_receiver& receiver,
   receiver_(receiver),
   token1_max_length_(token1_max_length),
   token2_max_length_(token2_max_length),
-  token3_max_length_(token3_max_length)
+  token3_max_length_(token3_max_length),
+  line_parser_(*this,token1_max_length +
+                     token2_max_length +
+                     token3_max_length + 2)
 {
 }
 
@@ -31,6 +34,12 @@ void start_line_parser::reset()
 {
   state_ = STATE_TOKEN_1;
   current_length_ = 0;
+}
+
+
+STATUS start_line_parser::receive_line(asio::const_buffer buffer, bool b_complete)
+{
+  
 }
 
 std::pair<STATUS, asio::const_buffer> start_line_parser::parse_start_line(asio::const_buffer buffer, PARSE_OPTION option)

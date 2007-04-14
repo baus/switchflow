@@ -77,7 +77,16 @@ extern std::set<char> s_space_endline_delimiters;
 
 void init();
 
-class line_parser
+struct parse_result
+{
+  STATUS status;
+  asio::const_buffer result_buffer;
+  asio::const_buffer remaining_buffer;
+  char delimiter;
+};
+
+
+class old_line_parser
 {
 public:
   enum LINE_END_OPTION{
@@ -103,6 +112,7 @@ private:
   unsigned int begin_offset;
 };
 
+
 STATUS parse_n_length_buffer(read_write_buffer& buffer,
                              unsigned int& current_length,
                              unsigned int max_length);
@@ -115,13 +125,6 @@ STATUS parse_char(read_write_buffer& buffer,
                   unsigned int& end_offset,
                   char c);
 
-struct parse_result
-{
-  STATUS status;
-  asio::const_buffer result_buffer;
-  asio::const_buffer remaining_buffer;
-  char delimiter;
-};
 
 parse_result parse_token(asio::const_buffer buffer,
                          size_t current_length,
@@ -148,6 +151,11 @@ STATUS parse_equal(read_write_buffer& buffer,
                   unsigned int& current_length,
                   unsigned int max_length,
                   std::set<char>& compare_chars);
+
+
+std::pair<STATUS, asio::const_buffer> parse_equal(asio::const_buffer buffer,
+                                                 size_t max_length,
+                                                 std::set<char>& compare_chars);
 
 } // namespace http
 } // namespace switchflow

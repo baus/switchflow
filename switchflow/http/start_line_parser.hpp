@@ -8,13 +8,15 @@
 #include <set>
 #include <asio.hpp>
 #include "http.hpp" 
+#include "line_parser.hpp"
+#include "i_line_receiver.hpp"
 
 namespace switchflow{
 namespace http{
 
 class i_start_line_receiver;  
 
-class start_line_parser
+class start_line_parser: private i_line_receiver
 {
  public:
   start_line_parser(i_start_line_receiver& receiver,
@@ -35,6 +37,7 @@ class start_line_parser
   
 private:
 
+  virtual STATUS receive_line(asio::const_buffer buffer, bool b_complete);
     
   enum PARSE_STATE
   {
@@ -63,6 +66,7 @@ private:
   size_t token1_max_length_;
   size_t token2_max_length_;
   size_t token3_max_length_;
+  line_parser line_parser_;
 };
 
 } //namespace httplib

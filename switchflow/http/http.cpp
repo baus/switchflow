@@ -183,7 +183,7 @@ STATUS parse_n_length_buffer(read_write_buffer& buffer,
   return (current_length < max_length)?INCOMPLETE:COMPLETE;
 }
 
-void line_parser::reset(LINE_END_OPTION option, unsigned int max_length)
+void old_line_parser::reset(LINE_END_OPTION option, unsigned int max_length)
 {
   line_end_option_ = option;
   current_length_ = 0;
@@ -191,7 +191,7 @@ void line_parser::reset(LINE_END_OPTION option, unsigned int max_length)
   state_ = PARSE_LINE;
 }
 
-STATUS line_parser::parse_line(read_write_buffer& buffer,
+STATUS old_line_parser::parse_line(read_write_buffer& buffer,
                                unsigned int begin_offset,
                                unsigned int& end_offset)
 {
@@ -306,6 +306,13 @@ std::pair<STATUS, asio::const_buffer> parse_char(asio::const_buffer buffer,
   }
 
   return std::make_pair(COMPLETE, buffer + 1);
+}
+
+std::pair<STATUS, asio::const_buffer> parse_equal(asio::const_buffer buffer,
+                                                 size_t max_length,
+                                                 std::set<char>& compare_chars)
+{
+
 }
 
 
