@@ -17,7 +17,7 @@ public:
     std::cout<<"key buffer size: "<<asio::buffer_size(buffer)<<std::endl;
     std::cout<<"key complete: "<<(complete?"true":"false")<<std::endl;
     dump_buffer(buffer);
-      
+    return COMPLETE;      
   }
 
   virtual STATUS value(asio::const_buffer buffer, bool complete)
@@ -25,7 +25,7 @@ public:
     std::cout<<"value buffer size: "<<asio::buffer_size(buffer)<<std::endl;
     std::cout<<"value complete: "<<(complete?"true":"false")<<std::endl;
     dump_buffer(buffer);
-
+    return COMPLETE;
   }
 
   void dump_buffer(asio::const_buffer buffer)
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
   
   for(int i = 0; i < 5; ++i)
   {
-    parser.parse_uri_query(asio::const_buffer(segments[i], strlen(segments[i])));
+    parser.parse_uri_query(asio::const_buffer(segments[i], strlen(segments[i])), i >= 4);
   }
   
   return 0;

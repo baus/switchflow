@@ -22,7 +22,7 @@ class uri_query_parser
                    size_t max_value_length);
 
 
-  std::pair<STATUS, asio::const_buffer> parse_uri_query(asio::const_buffer buffer);
+  std::pair<STATUS, asio::const_buffer> parse_uri_query(asio::const_buffer buffer, bool end_of_buffer);
 
   void reset();
   
