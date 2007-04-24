@@ -4,3 +4,5 @@ TARGET_LINK_LIBRARIES(performance_test util)
 
 ADD_EXECUTABLE(configfiletest configfiletest.cpp)
 TARGET_LINK_LIBRARIES(configfiletest util)
+
+ADD_EXECUTABLE(strategy_vs_policy_performance strategy_vs_policy_performance.cpp)
