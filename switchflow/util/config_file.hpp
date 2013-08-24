@@ -42,19 +42,19 @@ namespace util{
 ///
 /// The config_file class used to manage configuration files.
 /// The motivation for the class was to replace
-/// XML as a configuration file format.  I found XML to be
+/// XML as a configuration file format. I found XML to be
 /// cumbersome as both developer and user.
 ///
 /// SwitchFlow config files can be thought of as more
-/// highly structured ini files.  Windows ini files are
-/// line oriented key/value pair files.  SwitchFlow config_file
+/// highly structured ini files. Windows ini files are
+/// line oriented key/value pair files. SwitchFlow config_file
 /// supplement that concept by adding key records and arrays.
 ///
 /// While record and array types can be synthesized using simple
 /// key/value pairs, applications have to provide this
 /// functionality themselves, and often do so in a non-standard
 /// manner.  All application which use SwitchFlow config files
-/// provide a common syntax.  Plus using SwitchFlow config files
+/// provide a common syntax. Plus using SwitchFlow config files
 /// frees the developer from having to build structuring layers
 /// on top of traditional key/value pair files.
 ///  

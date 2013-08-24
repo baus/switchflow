@@ -137,8 +137,8 @@ class proxy_handler: public eventlib::i_event_handler
    *
    * It also handles setting up the connection to the server.
    */
-  socketlib::STATUS proxy_handler::handle_stream(socketlib::connection& src_data,
-                                    i_proxy_stream_handler* p_stream_handler);  
+  socketlib::STATUS handle_stream(socketlib::connection& src_data,
+				  i_proxy_stream_handler* p_stream_handler);  
 
   void handle_pollin(int fd);
 

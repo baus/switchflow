@@ -33,13 +33,14 @@ void start_line_parser::reset()
   current_length_ = 0;
 }
 
-std::pair<STATUS, asio::const_buffer> start_line_parser::parse_start_line(asio::const_buffer buffer, PARSE_OPTION option)
+std::pair<STATUS, boost::asio::const_buffer> start_line_parser::parse_start_line(boost::asio::const_buffer buffer, 
+										 PARSE_OPTION option)
 {
 
-  std::pair<STATUS, asio::const_buffer> return_value = std::make_pair(INCOMPLETE, buffer);
+  std::pair<STATUS, boost::asio::const_buffer> return_value = std::make_pair(INCOMPLETE, buffer);
 
   size_t token_max_length = 0;
-  while(asio::buffer_size(buffer) > 0){
+  while(boost::asio::buffer_size(buffer) > 0){
     switch(state_){
       case STATE_TOKEN_1:
         token_max_length = token1_max_length_;
@@ -69,9 +70,9 @@ std::pair<STATUS, asio::const_buffer> start_line_parser::parse_start_line(asio::
   return return_value;
 }
 
-std::pair<STATUS, asio::const_buffer> start_line_parser::parse_token(asio::const_buffer buffer,
-                                                                     size_t max_length,
-                                                                     PARSE_OPTION option)
+std::pair<STATUS, boost::asio::const_buffer> start_line_parser::parse_token(boost::asio::const_buffer buffer,
+                                                                            size_t max_length,
+                                                                            PARSE_OPTION option)
 {
   parse_result result = http::parse_token(buffer,
                                           current_length_,
@@ -82,7 +83,7 @@ std::pair<STATUS, asio::const_buffer> start_line_parser::parse_token(asio::const
     return std::make_pair(result.status, result.result_buffer);
   }
 
-  current_length_ += asio::buffer_size(result.result_buffer);
+  current_length_ += boost::asio::buffer_size(result.result_buffer);
     
   STATUS return_value = set_token(result.result_buffer, result.status == COMPLETE);
 
@@ -131,7 +132,7 @@ void start_line_parser::next_state(char delimiter)
   current_length_ = 0;
 }
 
-STATUS start_line_parser::set_token(asio::const_buffer buffer, bool b_complete)
+STATUS start_line_parser::set_token(boost::asio::const_buffer buffer, bool b_complete)
 {
   STATUS return_value;
   switch(state_){

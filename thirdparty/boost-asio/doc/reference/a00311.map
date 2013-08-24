@@ -1,7 +1,0 @@
-base referer
-rect $a00102.html 8,82 202,109
-rect $a00101.html 162,8 301,34
-rect $a00103.html 226,82 426,109
-rect $a00136.html 356,8 486,34
-rect $a00165.html 450,82 634,109
-rect $a00166.html 658,82 848,109

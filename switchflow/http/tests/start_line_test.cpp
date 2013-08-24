@@ -13,14 +13,14 @@ class test_handler: public i_start_line_receiver
 {
 public:
 
-  STATUS dump_result(asio::const_buffer buffer, bool b_complete, size_t line)
+  STATUS dump_result(boost::asio::const_buffer buffer, bool b_complete, size_t line)
     {
       std::cout<<"line: "<<line<<std::endl;
-      std::cout<<"buffer size: "<<asio::buffer_size(buffer)<<std::endl;
+      std::cout<<"buffer size: "<<boost::asio::buffer_size(buffer)<<std::endl;
       
-      const char* raw_buffer = asio::buffer_cast<const char*>(buffer);
+      const char* raw_buffer = boost::asio::buffer_cast<const char*>(buffer);
       std::string token;
-      for(int i = 0 ; i < asio::buffer_size(buffer); ++i)
+      for(int i = 0 ; i < boost::asio::buffer_size(buffer); ++i)
       {
         token += raw_buffer[i];
       }
@@ -29,15 +29,15 @@ public:
       return COMPLETE;
     
     }
-  virtual STATUS start_line_token1(asio::const_buffer buffer, bool b_complete)
+  virtual STATUS start_line_token1(boost::asio::const_buffer buffer, bool b_complete)
     {
       return dump_result(buffer, b_complete, 1);
     }
-  virtual STATUS start_line_token2(asio::const_buffer buffer, bool b_complete)
+  virtual STATUS start_line_token2(boost::asio::const_buffer buffer, bool b_complete)
     {
       return dump_result(buffer, b_complete, 2);
     }
-  virtual STATUS start_line_token3(asio::const_buffer buffer, bool b_complete)
+  virtual STATUS start_line_token3(boost::asio::const_buffer buffer, bool b_complete)
     {      return dump_result(buffer, b_complete, 3); }
 };
 
@@ -50,10 +50,10 @@ int main(int argc, char* argv[])
   const char* t3= "HTTP/1.1\r";
   const char* t4="\n";
   
-  asio::const_buffer buf1(t1, 2);
-  asio::const_buffer buf2(t2, 4);
-  asio::const_buffer buf3(t3, 9);
-  asio::const_buffer buf4(t4, 1);
+  boost::asio::const_buffer buf1(t1, 2);
+  boost::asio::const_buffer buf2(t2, 4);
+  boost::asio::const_buffer buf3(t3, 9);
+  boost::asio::const_buffer buf4(t4, 1);
 
   test_handler my_handler;
   start_line_parser parser(my_handler, 3, 512, 8);

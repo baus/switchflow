@@ -15,9 +15,9 @@ namespace http{
 class i_start_line_receiver
 {
  public:
-  virtual STATUS start_line_token1(asio::const_buffer buffer, bool b_complete) = 0;
-  virtual STATUS start_line_token2(asio::const_buffer buffer, bool b_complete) = 0;
-  virtual STATUS start_line_token3(asio::const_buffer buffer, bool b_complete) = 0;
+  virtual STATUS start_line_token1(boost::asio::const_buffer buffer, bool b_complete) = 0;
+  virtual STATUS start_line_token2(boost::asio::const_buffer buffer, bool b_complete) = 0;
+  virtual STATUS start_line_token3(boost::asio::const_buffer buffer, bool b_complete) = 0;
   
 };
 

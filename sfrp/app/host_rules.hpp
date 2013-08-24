@@ -8,6 +8,7 @@
 #include <http/url.hpp>
 #include <util/config_file.hpp>
 #include <string>
+#include <list>
 
 class host_rule
 {

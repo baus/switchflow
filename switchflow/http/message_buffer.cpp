@@ -3,6 +3,7 @@
 // Read the LICENSE file for more information.
 
 #include <util/logger.hpp>
+#include <cstring>
 #include <string>
 
 #include "message_buffer.hpp"
@@ -240,12 +241,12 @@ bool message_buffer::get_header_value(const char* header_name, std::string& head
   return false;
 }
 
-std::list<asio::const_buffer> message_buffer::get_const_buffers()
+std::list<boost::asio::const_buffer> message_buffer::get_const_buffers()
 {
-  std::list<asio::const_buffer> buffers;
-  asio::const_buffer new_line_buf(new_line, strlen(new_line));
-  asio::const_buffer field_sep_buf(field_sep, strlen(field_sep));
-  asio::const_buffer space_buf(space, strlen(space));
+  std::list<boost::asio::const_buffer> buffers;
+  boost::asio::const_buffer new_line_buf(new_line, strlen(new_line));
+  boost::asio::const_buffer field_sep_buf(field_sep, strlen(field_sep));
+  boost::asio::const_buffer space_buf(space, strlen(space));
   
   
   buffers.push_back(start_line1_.get_const_buffer());

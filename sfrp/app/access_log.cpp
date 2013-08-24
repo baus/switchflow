@@ -8,6 +8,7 @@
 
 #include <syslog.h>
 #include <string>
+#include <cstring>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/uio.h>

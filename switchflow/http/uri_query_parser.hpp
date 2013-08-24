@@ -5,7 +5,7 @@
 #ifndef SF_URI_QUERY_PARSER_HPP
 #define SF_URI_QUERY_PARSER_HPP
 
-#include <asio.hpp>
+#include <boost/asio.hpp>
 
 #include "http.hpp" 
 
@@ -22,7 +22,7 @@ class uri_query_parser
                    size_t max_value_length);
 
 
-  std::pair<STATUS, asio::const_buffer> parse_uri_query(asio::const_buffer buffer);
+  std::pair<STATUS, boost::asio::const_buffer> parse_uri_query(boost::asio::const_buffer buffer);
 
   void reset();
   

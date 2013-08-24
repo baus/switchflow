@@ -17,7 +17,7 @@ uri_query_parser::uri_query_parser(i_uri_query_receiver& receiver,
 {
 }
 
-std::pair<STATUS, asio::const_buffer> uri_query_parser::parse_uri_query(asio::const_buffer buffer)
+std::pair<STATUS, boost::asio::const_buffer> uri_query_parser::parse_uri_query(boost::asio::const_buffer buffer)
 {
 }
 

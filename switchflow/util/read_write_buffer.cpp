@@ -4,6 +4,7 @@
 
 #include <stdlib.h>
 #include <string>
+#include <cstring>
 #include <iostream>
 #include <locale>
 
@@ -262,7 +263,7 @@ void read_write_buffer::append_to_string(std::string& s, unsigned int begin, uns
   } 
 }
 
-asio::const_buffer read_write_buffer::get_const_buffer()
+boost::asio::const_buffer read_write_buffer::get_const_buffer()
 {
-  return asio::const_buffer(&((*p_buffer_)[write_position_]), write_end_position_);
+  return boost::asio::const_buffer(&((*p_buffer_)[write_position_]), write_end_position_);
 }

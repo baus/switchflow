@@ -118,18 +118,18 @@ STATUS parse_char(read_write_buffer& buffer,
 struct parse_result
 {
   STATUS status;
-  asio::const_buffer result_buffer;
-  asio::const_buffer remaining_buffer;
+  boost::asio::const_buffer result_buffer;
+  boost::asio::const_buffer remaining_buffer;
   char delimiter;
 };
 
-parse_result parse_token(asio::const_buffer buffer,
+parse_result parse_token(boost::asio::const_buffer buffer,
                          size_t current_length,
                          size_t max_length,
                          const std::set<char>& delimiters);
 
-std::pair<STATUS, asio::const_buffer> parse_char(asio::const_buffer buffer,
-                                                 char c);
+std::pair<STATUS, boost::asio::const_buffer> parse_char(boost::asio::const_buffer buffer,
+                                                        char c);
 
 
 STATUS parse_token(read_write_buffer& buffer,

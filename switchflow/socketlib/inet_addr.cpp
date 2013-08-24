@@ -62,15 +62,15 @@ namespace socketlib{
     dest.sin_addr   = src.sin_addr;   
   }
 
-  bool resolve_addr(const char* address, asio::ip::address& addr )
+  bool resolve_addr(const char* address, boost::asio::ip::address& addr )
   {
-    asio::io_service io_service;
-    asio::ip::tcp::resolver resolver(io_service);
-    asio::ip::tcp::resolver::query query(address, "0");
-    asio::ip::tcp::resolver::iterator iter = resolver.resolve(query);
-    asio::ip::tcp::resolver::iterator end;
+    boost::asio::io_service io_service;
+    boost::asio::ip::tcp::resolver resolver(io_service);
+    boost::asio::ip::tcp::resolver::query query(address, "0");
+    boost::asio::ip::tcp::resolver::iterator iter = resolver.resolve(query);
+    boost::asio::ip::tcp::resolver::iterator end;
     if(iter != end){
-      asio::ip::tcp::endpoint ep = *iter;
+      boost::asio::ip::tcp::endpoint ep = *iter;
       addr = ep.address();
       return true;
     }

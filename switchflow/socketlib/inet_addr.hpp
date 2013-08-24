@@ -9,7 +9,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
-#include <asio.hpp>
+#include <boost/asio.hpp>
 
 
 namespace socketlib{
@@ -31,7 +31,7 @@ namespace socketlib{
 
   };
 
-  bool resolve_addr(const char* address, asio::ip::address& addr );
+  bool resolve_addr(const char* address, boost::asio::ip::address& addr );
 
 } // namespace socketlib
 

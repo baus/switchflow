@@ -6,6 +6,7 @@
 
 #include "combined_log_record.hpp"
 #include <string>
+#include <stdio.h>
 
 
 //

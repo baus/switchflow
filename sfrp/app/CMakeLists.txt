@@ -21,6 +21,6 @@ ADD_CUSTOM_COMMAND(OUTPUT  ${CMAKE_CURRENT_SOURCE_DIR}/SVNVersion.cpp
 
 ADD_EXECUTABLE(sfrp ${APP_SRCS})
 
-TARGET_LINK_LIBRARIES(sfrp util sfevent proxylib http socketlib event boost_program_options pthread)
+TARGET_LINK_LIBRARIES(sfrp util sfevent proxylib http socketlib event boost_program_options boost_system pthread)
 
 

@@ -11,7 +11,7 @@
 #include <string>
 #include <iostream>
 
-#include <asio.hpp>
+#include <boost/asio.hpp>
 
 #include <util/scope_guard.hpp>
 #include <util/logger.hpp>
@@ -111,9 +111,9 @@ int main(int argc, char *argv[])
     }
   }
 
-  asio::ip::address bind_addr = asio::ip::address::from_string(config["proxy"]["listen-address"][(size_t)0]["address"].read<std::string>());
+  boost::asio::ip::address bind_addr = boost::asio::ip::address::from_string(config["proxy"]["listen-address"][(size_t)0]["address"].read<std::string>());
   unsigned short bind_port = config["proxy"]["listen-address"][(size_t)0]["port"].read<unsigned short>();
-  asio::ip::tcp::endpoint bind_point(bind_addr, bind_port);
+  boost::asio::ip::tcp::endpoint bind_point(bind_addr, bind_port);
   
   
   int server_handle;
@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
   // Set the socket option SO_REUSEADDR so users can re-bind to the port right away
   int val=1;
   ::setsockopt(server_handle, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(int));
-  if (::bind(server_handle, bind_point.data(), sizeof(asio::ip::tcp::endpoint::data_type)) == -1) {
+  if (::bind(server_handle, bind_point.data(), sizeof(boost::asio::ip::tcp::endpoint::data_type)) == -1) {
     log_error("Failed to bind server socket.\n\t_does the current user have privledge to open server sockets?\n\t_is another processing listening on the requested port?");
     return -1;
   }
@@ -160,9 +160,9 @@ int main(int argc, char *argv[])
   // fire up libevent
   eventlib::poller poller;
 
-  asio::ip::address forward_addr = asio::ip::address::from_string(config["proxy"]["default-forward-address"]["address"].read<std::string>());
+  boost::asio::ip::address forward_addr = boost::asio::ip::address::from_string(config["proxy"]["default-forward-address"]["address"].read<std::string>());
   unsigned short forward_port = config["proxy"]["default-forward-address"]["port"].read<unsigned short>();
-  asio::ip::tcp::endpoint forward_point(forward_addr, forward_port);
+  boost::asio::ip::tcp::endpoint forward_point(forward_addr, forward_port);
 
 
   

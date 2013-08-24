@@ -12,27 +12,27 @@ using namespace switchflow::http;
 class test_handler: public i_uri_query_receiver
 {
 public:
-  virtual STATUS key(asio::const_buffer buffer, bool complete)
+  virtual STATUS key(boost::asio::const_buffer buffer, bool complete)
   {
-    std::cout<<"key buffer size: "<<asio::buffer_size(buffer)<<std::endl;
+    std::cout<<"key buffer size: "<<boost::asio::buffer_size(buffer)<<std::endl;
     std::cout<<"key complete: "<<(complete?"true":"false")<<std::endl;
     dump_buffer(buffer);
       
   }
 
-  virtual STATUS value(asio::const_buffer buffer, bool complete)
+  virtual STATUS value(boost::asio::const_buffer buffer, bool complete)
   {
-    std::cout<<"value buffer size: "<<asio::buffer_size(buffer)<<std::endl;
+    std::cout<<"value buffer size: "<<boost::asio::buffer_size(buffer)<<std::endl;
     std::cout<<"value complete: "<<(complete?"true":"false")<<std::endl;
     dump_buffer(buffer);
 
   }
 
-  void dump_buffer(asio::const_buffer buffer)
+  void dump_buffer(boost::asio::const_buffer buffer)
   {
-    const char* raw_buffer = asio::buffer_cast<const char*>(buffer);
+    const char* raw_buffer = boost::asio::buffer_cast<const char*>(buffer);
     std::string token;
-    for(int i = 0 ; i < asio::buffer_size(buffer); ++i)
+    for(int i = 0 ; i < boost::asio::buffer_size(buffer); ++i)
       {
         token += raw_buffer[i];
       }
@@ -47,14 +47,14 @@ int main(int argc, char* argv[])
 
   const char* segments[5] = {"fo", "o=%20b", "ar&", "foobar2", "=baz"};
 
-  std::vector<asio::const_buffer> buffers;
+  std::vector<boost::asio::const_buffer> buffers;
   
   test_handler my_handler;
   uri_query_parser parser(my_handler, 256, 256);
   
   for(int i = 0; i < 5; ++i)
   {
-    parser.parse_uri_query(asio::const_buffer(segments[i], strlen(segments[i])));
+    parser.parse_uri_query(boost::asio::const_buffer(segments[i], strlen(segments[i])));
   }
   
   return 0;

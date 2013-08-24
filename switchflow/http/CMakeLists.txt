@@ -22,7 +22,7 @@ uri_query_parser.cpp
 TARGET_LINK_LIBRARIES(http util)
 
 ADD_EXECUTABLE(start_line_test tests/start_line_test.cpp)
-TARGET_LINK_LIBRARIES(start_line_test http util pthread)
+TARGET_LINK_LIBRARIES(start_line_test http util pthread boost_system)
 
 ADD_EXECUTABLE(uri_query_test tests/uri_query_test.cpp)
-TARGET_LINK_LIBRARIES(uri_query_test http util pthread)
+TARGET_LINK_LIBRARIES(uri_query_test http util pthread boost_system)
