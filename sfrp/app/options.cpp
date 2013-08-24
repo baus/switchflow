@@ -46,12 +46,12 @@ options::STATUS options::process_command_line(int argc, char *argv[])
     
 
     if(vm.count("version")){
-      std::cout<<SFRP_VERSION<<"_"<<SVNVersion()<<std::endl;
+      std::cout<<SFRP_VERSION<<std::endl;
       return INFO;
     }
 
     if(vm.count("fullversion")){
-      std::cout<<"sfrp version: "<<SFRP_VERSION<<"_"<<SVNVersion()<<std::endl;
+      std::cout<<"sfrp version: "<<SFRP_VERSION<<"_"<<std::endl;
       std::cout<<"libevent version: "<<event_get_version()<<std::endl;
       return INFO;
     }
