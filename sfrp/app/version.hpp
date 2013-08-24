@@ -5,8 +5,6 @@
 #ifndef SSD_VERSION_HPP
 #define SSD_VERSION_HPP
 
-#include "SVNVersion.h"
-
-#define SFRP_VERSION "1.1.3"
+#define SFRP_VERSION "0.9"
 
 #endif // VERSION_HPP

@@ -7,17 +7,11 @@ access_log.cpp
 pipeline_data.cpp
 pipeline_data_factory.cpp
 host_rules.cpp
-SVNVersion.cpp
 ) 
 
 
 SET_SOURCE_FILES_PROPERTIES(SVNVersion.cpp PROPERTIES GENERATED 1)
 
-ADD_CUSTOM_COMMAND(OUTPUT  ${CMAKE_CURRENT_SOURCE_DIR}/SVNVersion.cpp
-                   COMMAND ${BASH}
-                   ARGS ${CMAKE_CURRENT_SOURCE_DIR}/gensvnversion.sh
-		   COMMENT building SVNVersion.cpp
-		   DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/SVNVersion.h)
 
 ADD_EXECUTABLE(sfrp ${APP_SRCS})
 
