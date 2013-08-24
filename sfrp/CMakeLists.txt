@@ -23,7 +23,6 @@ ${SFRP_SOURCE_DIR}
 ${SFRP_SOURCE_DIR}/../switchflow
 ${SFRP_SOURCE_DIR}/../thirdparty/include
 ${SFRP_SOURCE_DIR}/../thirdparty/boost
-${SFRP_SOURCE_DIR}/../thirdparty/boost-asio/include
 )
 
 

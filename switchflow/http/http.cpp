@@ -246,15 +246,15 @@ STATUS old_line_parser::parse_line(read_write_buffer& buffer,
   }
 }
 
-parse_result parse_token(asio::const_buffer buffer,
-                         size_t current_length,
-                         size_t max_length,
-                         const std::set<char>& delimiters)
+http_parse_result parse_token(boost::asio::const_buffer buffer,
+			      size_t current_length,
+			      size_t max_length,
+			      const std::set<char>& delimiters)
 {
-  parse_result result;
+  http_parse_result result;
   
-  int buffer_size = asio::buffer_size(buffer);
-  const char* raw_buffer = asio::buffer_cast<const char*>(buffer);
+  int buffer_size = boost::asio::buffer_size(buffer);
+  const char* raw_buffer = boost::asio::buffer_cast<const char*>(buffer);
   
   int i;
   for(i = 0; i < buffer_size && current_length < max_length; ++i, ++current_length){
@@ -262,7 +262,7 @@ parse_result parse_token(asio::const_buffer buffer,
       //
       // found delimiter
       //
-      result.result_buffer = asio::const_buffer(raw_buffer, i);
+      result.result_buffer = boost::asio::const_buffer(raw_buffer, i);
       result.remaining_buffer = buffer + (i + 1);
       result.status = COMPLETE;
       result.delimiter=raw_buffer[i];
@@ -292,15 +292,15 @@ parse_result parse_token(asio::const_buffer buffer,
   return result;
 }
 
-std::pair<STATUS, asio::const_buffer> parse_char(asio::const_buffer buffer,
+std::pair<STATUS, boost::asio::const_buffer> parse_char(boost::asio::const_buffer buffer,
                                                  char c)
 {
-  int buffer_size = asio::buffer_size(buffer);
+  int buffer_size = boost::asio::buffer_size(buffer);
   if(buffer_size < 1){
     return std::make_pair(INCOMPLETE, buffer);
   }
   
-  const char* raw_buffer = asio::buffer_cast<const char*>(buffer);
+  const char* raw_buffer = boost::asio::buffer_cast<const char*>(buffer);
   if(raw_buffer[0] != c){
     return std::make_pair(INVALID, buffer);
   }
@@ -308,7 +308,7 @@ std::pair<STATUS, asio::const_buffer> parse_char(asio::const_buffer buffer,
   return std::make_pair(COMPLETE, buffer + 1);
 }
 
-std::pair<STATUS, asio::const_buffer> parse_equal(asio::const_buffer buffer,
+std::pair<STATUS, boost::asio::const_buffer> parse_equal(boost::asio::const_buffer buffer,
                                                  size_t max_length,
                                                  std::set<char>& compare_chars)
 {

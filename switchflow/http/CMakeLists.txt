@@ -1,6 +1,4 @@
 ADD_LIBRARY(http
-line_parser.cpp
-
 http.cpp 
 header_parser.cpp 
 body_parser.cpp

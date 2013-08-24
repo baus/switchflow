@@ -6,7 +6,7 @@
 #define SF_START_LINE_PARSER_HPP
 
 #include <set>
-#include <asio.hpp>
+#include <boost/asio.hpp>
 #include "http.hpp" 
 #include "line_parser.hpp"
 #include "i_line_receiver.hpp"
@@ -30,14 +30,14 @@ class start_line_parser: private i_line_receiver
     LOOSE
   };
 
-  std::pair<STATUS, asio::const_buffer> parse_start_line(asio::const_buffer buffer,
+  std::pair<STATUS, boost::asio::const_buffer> parse_start_line(boost::asio::const_buffer buffer,
                                                          PARSE_OPTION option=STRICT);
 
   void reset();
   
 private:
 
-  virtual STATUS receive_line(asio::const_buffer buffer, bool b_complete);
+  virtual STATUS receive_line(boost::asio::const_buffer buffer, bool b_complete);
     
   enum PARSE_STATE
   {
@@ -49,11 +49,11 @@ private:
 
   void next_state(char delimiter);
   
-  std::pair<STATUS, asio::const_buffer> parse_token(asio::const_buffer buffer,
-                                                    size_t max_length,
-                                                    PARSE_OPTION option);
+  std::pair<STATUS, boost::asio::const_buffer> parse_token(boost::asio::const_buffer buffer,
+							   size_t max_length,
+							   PARSE_OPTION option);
 
-  STATUS set_token(asio::const_buffer buffer, bool b_complete);
+  STATUS set_token(boost::asio::const_buffer buffer, bool b_complete);
 
   std::set<char>& get_token_delimiters(PARSE_OPTION option);
 

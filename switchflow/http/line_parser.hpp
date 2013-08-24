@@ -5,7 +5,7 @@
 #ifndef SF_HTTP_LINE_PARSER_HPP
 #define SF_HTTP_LINE_PARSER_HPP
 
-#include <asio/buffer.hpp>
+#include <boost/asio/buffer.hpp>
 #include <boost/bind.hpp>
 
 #include "token_parser.hpp"
@@ -26,9 +26,9 @@ class line_parser
      }
   
   template<typename line_receiver>
-  receive::status token_receiver(asio::const_buffer buffer, char delimiter, buffer_status buf_status, line_receiver receiver)
+  receive::status token_receiver(boost::asio::const_buffer buffer, char delimiter, buffer_status buf_status, line_receiver receiver)
   {
-    if(buf_status == COMPLETE){
+    if(buf_status == BUFFER_COMPLETE){
         //
         // Store the line here to look for the LF w/out calling back
         complete_line_ = buffer;
@@ -45,7 +45,7 @@ class line_parser
   }
 
   template<typename line_receiver>
-  parse_result parse(asio::const_buffer buffer, line_receiver receiver)
+  parse_result parse(boost::asio::const_buffer buffer, line_receiver receiver)
   {
       while(true){
         if(state_ == PARSE_LINE){
@@ -66,11 +66,12 @@ class line_parser
           }
         }
         else if(state_ == PARSE_LF){
-          if(asio::buffer_size(buffer) < 1){
+          if(boost::asio::buffer_size(buffer) < 1){
             parse_result result;
             
             if(send_complete_line_){
               buffer_status buf_status = INCOMPLETE;
+
               result.status = convert_to_parse_status(receiver(complete_line_, buf_status), INCOMPLETE);
               send_complete_line_ = false;
             }
@@ -81,7 +82,7 @@ class line_parser
             return result;
           }
           char LF = 10;
-          if(asio::buffer_cast<const char*>(buffer)[0] == LF){
+          if(boost::asio::buffer_cast<const char*>(buffer)[0] == LF){
             parse_result result;
             if(send_complete_line_){
               buffer_status buf_status = COMPLETE;
@@ -93,7 +94,7 @@ class line_parser
               // This is the strange case where the LF comes in a different buffer than the
               // CR.  In this case we've sent the data with an incomplete.  
               buffer_status buf_status = COMPLETE;
-              asio::const_buffer empty_buffer;
+	      boost::asio::const_buffer empty_buffer;
               result.status = convert_to_parse_status(receiver(empty_buffer, buf_status), COMPLETE);
             }
             
@@ -123,7 +124,7 @@ private:
   token_parser t_parser_;
   STATE state_;
   
-  asio::const_buffer complete_line_;
+  boost::asio::const_buffer complete_line_;
   bool send_complete_line_;
 
 };

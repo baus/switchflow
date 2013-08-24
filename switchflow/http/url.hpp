@@ -7,7 +7,7 @@
 
 #include <string>
 
-#include <asio.hpp>
+#include <boost/asio.hpp>
 
 namespace httplib{
 
@@ -27,7 +27,7 @@ class url
   ~url();
   bool resolve_addr();
   
-  asio::ip::tcp::endpoint endpoint;
+  boost::asio::ip::tcp::endpoint endpoint;
   std::string raw_url;
   std::string protocol; // the protocol name
   std::string hostname; // the host name

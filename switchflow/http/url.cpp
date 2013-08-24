@@ -139,9 +139,9 @@ url::url(const url& rhs):
 
 bool url::resolve_addr()
 {
-  asio::ip::address addr;
+  boost::asio::ip::address addr;
   socketlib::resolve_addr(hostname.c_str(), addr);
-  endpoint = asio::ip::tcp::endpoint(addr, port);
+  endpoint = boost::asio::ip::tcp::endpoint(addr, port);
 }
 
 std::string url::host_with_port()

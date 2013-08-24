@@ -5,7 +5,7 @@
 #ifndef SF_HTTP_PARSER_TYPES_HPP
 #define SF_HTTP_PARSER_TYPES_HPP
 
-#include <asio.hpp>
+#include <boost/asio.hpp>
 
 namespace switchflow{
 namespace http{
@@ -36,9 +36,10 @@ enum status
 
 struct parse_result
 {
-    parse::status status;
-    asio::const_buffer buffer;
+  parse::status status;
+  boost::asio::const_buffer buffer;
 };
+
 
 namespace receive{
 enum status
@@ -61,12 +62,14 @@ enum status
 enum buffer_status
 {
     // The buffer contains the remainder of the component
-    COMPLETE,
+    BUFFER_COMPLETE,
 
     // The buffer contains a sub amount of the component
-    INCOMPLETE
+    BUFFER_INCOMPLETE
 };
 
+
+  /** 
 parse::status convert_to_parse_status(receive::status r_status, buffer_status buf_status)
 {
     if(buf_status == COMPLETE && r_status == receive::SUCCESS){
@@ -87,6 +90,7 @@ parse::status convert_to_parse_status(receive::status r_status, buffer_status bu
     return parse::INVALID;
 }
 
+  **/
 
 } // namespace http
 } // namespace switchflow

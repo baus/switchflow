@@ -67,7 +67,7 @@ public:
 
   bool get_header_value(const char* header_name, std::string& header_value);
   
-  std::list<asio::const_buffer> get_const_buffers();
+  std::list<boost::asio::const_buffer> get_const_buffers();
  
   
   const static char* new_line;

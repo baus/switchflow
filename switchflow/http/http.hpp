@@ -77,14 +77,14 @@ extern std::set<char> s_space_endline_delimiters;
 
 void init();
 
-struct parse_result
+  
+struct http_parse_result
 {
   STATUS status;
-  asio::const_buffer result_buffer;
-  asio::const_buffer remaining_buffer;
+  boost::asio::const_buffer result_buffer;
+  boost::asio::const_buffer remaining_buffer;
   char delimiter;
 };
-
 
 class old_line_parser
 {
@@ -126,21 +126,21 @@ STATUS parse_char(read_write_buffer& buffer,
                   char c);
 
 
-parse_result parse_token(asio::const_buffer buffer,
+http_parse_result parse_token(boost::asio::const_buffer buffer,
                          size_t current_length,
                          size_t max_length,
                          const std::set<char>& delimiters);
 
-std::pair<STATUS, asio::const_buffer> parse_char(asio::const_buffer buffer,
-                                                 char c);
+std::pair<STATUS, boost::asio::const_buffer> parse_char(boost::asio::const_buffer buffer,
+                                                        char c);
 
 
 STATUS parse_token(read_write_buffer& buffer,
-                  unsigned int begin_offset,
-                  unsigned int& end_offset,
-                  unsigned int& current_length,
-                  unsigned int max_length,
-                  std::set<char>& delimiters);
+                   unsigned int begin_offset,
+                   unsigned int& end_offset,
+                   unsigned int& current_length,
+                   unsigned int max_length,
+                   std::set<char>& delimiters);
 
 bool is_ctl_char(char c);
 
@@ -153,9 +153,9 @@ STATUS parse_equal(read_write_buffer& buffer,
                   std::set<char>& compare_chars);
 
 
-std::pair<STATUS, asio::const_buffer> parse_equal(asio::const_buffer buffer,
-                                                 size_t max_length,
-                                                 std::set<char>& compare_chars);
+std::pair<STATUS, boost::asio::const_buffer> parse_equal(boost::asio::const_buffer buffer,
+                                                         size_t max_length,
+                                                         std::set<char>& compare_chars);
 
 } // namespace http
 } // namespace switchflow
