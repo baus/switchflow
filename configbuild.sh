@@ -15,6 +15,6 @@ mkdir -p $dir/release/sfrp
 cd $dir/release/sfrp
 cmake ../../sfrp -DCMAKE_BUILD_TYPE:STRING=Release
 
-
+cd $dir
 
 
