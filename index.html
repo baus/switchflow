@@ -1,49 +1,13 @@
-<!DOCTYPE html>
-<html>
+---
+layout: default
+title: Your New Jekyll Site
+---
 
-  <head>
-    <meta charset='utf-8' />
-    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="Switchflow : SwitchFlow C++ HTTP Proxy Framework" />
-
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
-
-    <title>Switchflow</title>
-  </head>
-
-  <body>
-
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/baus/switchflow">View on GitHub</a>
-
-          <h1 id="project_title">SwitchFlow</h1>
-          <h2 id="project_tagline">SwitchFlow C++ HTTP Proxy Framework</h2>
-
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/baus/switchflow/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/baus/switchflow/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
-    </div>
-
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
-        <h3>SwitchFlow</h3>
-      </section>
-    </div>
-
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">Switchflow maintained by <a href="https://github.com/baus">baus</a></p>
-        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
-      </footer>
-    </div>
-
-    
-
-  </body>
-</html>
+<div id="home">
+  <h1>Blog Posts</h1>
+  <ul class="posts">
+    {% for post in site.posts %}
+      <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ post.url }}">{{ post.title }}</a></li>
+    {% endfor %}
+  </ul>
+</div>
