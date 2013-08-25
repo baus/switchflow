@@ -75,6 +75,7 @@ class http_proxy_stream_handler: public proxylib::i_proxy_stream_handler,
 
   proxylib::i_proxy_stream_handler::FORWARD_ADDRESS_STATUS get_forward_address_status();
   sockaddr& get_forward_address_from_stream();
+  void update_header_host_and_path();
 
  private:
   http_proxy_stream_handler();  
