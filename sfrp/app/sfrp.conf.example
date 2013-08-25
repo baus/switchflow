@@ -2,7 +2,7 @@
 proxy.run-as-daemon=no
 
 # This is the address the proxy will listen on
-proxy.listen-address[0].address=127.0.0.1
+proxy.listen-address[0].address=192.241.248.255
 proxy.listen-address[0].port=80
 
 # This is the address the proxy will forward requests to
@@ -21,14 +21,16 @@ virtual-host[0].host-name=baus.net
 
 # This is the URL to send requests which match the example.com host
 # to.  The specified URL path is prepended to incoming requests' paths.
-virtual-host[0].default-forward-url=http://204.232.175.78/
+virtual-host[0].default-forward-url=http://baus.net/
 
 # This tells the proxy to send the request's host to server, rather than
 # replace the host with server's host.  In this case 127.0.0.1 will
 # receive a host of example.com.  In other cases it might be useful
 # to pass the name 
-virtual-host[0].preserve-host=true
+virtual-host[0].preserve-host=false
 
+virtual-host[0].rule[0].forward-url=http://baus.net/
+virtual-host[0].rule[0].match-path=yes
 
 
 # The following are used to performance tune
