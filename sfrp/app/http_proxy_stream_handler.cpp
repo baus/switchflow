@@ -109,6 +109,7 @@ socketlib::STATUS http_proxy_stream_handler::process_data(read_write_buffer& buf
         parse_status = header_parser_.parse_headers(buf);
         if(parse_status == switchflow::http::COMPLETE){
           message_state_ = PUSH_HEADER;
+	  update_header_host_and_path();
           header_writer_.reset(header_handler_.get_message_buffer(),
                                *get_proxy_stream_interface()->get_dest());
           if(request_postprocessor_ && stream_type_ == switchflow::http::REQUEST){
@@ -342,6 +343,50 @@ void http_proxy_stream_handler::copy_response_data_to_log(switchflow::http::mess
   buffer_wrapper.get_status_code().append_to_string(log_record.status);
 }
 
+void http_proxy_stream_handler::update_header_host_and_path()
+{
+  switchflow::http::message_buffer& buffer = header_handler_.get_message_buffer();
+
+  unsigned int hostname_index;
+  if(!buffer.get_header_index_by_name("Host", hostname_index)){
+    return;
+  }
+
+  std::string hostname;
+  buffer.get_field_value(hostname_index).append_to_string(hostname);
+
+  std::map<std::string, host_rules>::const_iterator it;
+
+  it = host_rules_.find(hostname);
+  if(it == host_rules_.end()){
+    return;
+  }
+  
+  switchflow::http::request_buffer_wrapper request_wrapper(header_handler_.get_message_buffer());
+
+  std::string request_path;
+  request_wrapper.get_uri().append_to_string(request_path);
+  
+  const httplib::url* p_forward_url = it->second.find_forward_url(request_path.c_str());
+  if(p_forward_url == NULL){
+    const httplib::url& forward_url = it->second.default_forward_url();
+    std::string base_path = forward_url.path;
+    buffer.get_status_line_2().append_to_string(base_path);
+    buffer.get_status_line_2().append_from_string(base_path.c_str());
+    if(!it->second.preserve_host()){
+      buffer.get_field_value(hostname_index).append_from_string(forward_url.hostname.c_str());
+    }
+  }
+  else{
+    buffer.get_status_line_2().reset();
+    buffer.get_status_line_2().append_from_string(p_forward_url->path.c_str());
+    if(!it->second.preserve_host()){
+      buffer.get_field_value(hostname_index).append_from_string(p_forward_url->hostname.c_str());
+    }
+  }
+}
+
+
 proxylib::i_proxy_stream_handler::FORWARD_ADDRESS_STATUS http_proxy_stream_handler::get_forward_address_status()
 {
   switchflow::http::message_buffer& buffer = header_handler_.get_message_buffer();
@@ -376,20 +421,11 @@ proxylib::i_proxy_stream_handler::FORWARD_ADDRESS_STATUS http_proxy_stream_handl
   if(p_forward_url == NULL){
     const httplib::url& forward_url = it->second.default_forward_url();
     forward_address_ = *forward_url.endpoint.data();
-    std::string base_path = forward_url.path;
-    buffer.get_status_line_2().append_to_string(base_path);
-    buffer.get_status_line_2().append_from_string(base_path.c_str());
-    if(!it->second.preserve_host()){
-      buffer.get_field_value(hostname_index).append_from_string(forward_url.hostname.c_str());
-    }
+    
   }
   else{
     forward_address_ = *p_forward_url->endpoint.data();
-    buffer.get_status_line_2().reset();
-    buffer.get_status_line_2().append_from_string(p_forward_url->path.c_str());
-    if(!it->second.preserve_host()){
-      buffer.get_field_value(hostname_index).append_from_string(p_forward_url->hostname.c_str());
-    }
+    
   }
   return proxylib::i_proxy_stream_handler::FORWARD_ADDRESS_AVAILABLE;
 
