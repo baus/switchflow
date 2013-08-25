@@ -15,6 +15,6 @@ SET_SOURCE_FILES_PROPERTIES(SVNVersion.cpp PROPERTIES GENERATED 1)
 
 ADD_EXECUTABLE(sfrp ${APP_SRCS})
 
-TARGET_LINK_LIBRARIES(sfrp util sfevent proxylib http socketlib event boost_program_options boost_system pthread)
+TARGET_LINK_LIBRARIES(sfrp util sfevent proxylib http socketlib event pthread ${Boost_LIBRARIES})
 
 
