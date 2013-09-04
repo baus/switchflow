@@ -10,12 +10,12 @@ on Ubuntu 12.04.
 ### Quick build guide
 
 ```sh
+# Install dependencies
 sudo apt-get install libevent-dev libboost-all-dev cmake build-essential
-
+# run script to configure build environment using cmake
 source ./configbuild.sh
-
+# build the proxy
 cd release/sfrp
-
 make
 ```
 
