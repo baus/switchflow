@@ -29,9 +29,6 @@ virtual-host[0].default-forward-url=http://baus.net
 # to pass the name 
 virtual-host[0].preserve-host=false
 
-virtual-host[0].rule[0].forward-url=http://baus.net
-virtual-host[0].rule[0].match-path=210894795asdjf
-
 
 # The following are used to performance tune
 # the HTTP parser's memory usage.  You probably
