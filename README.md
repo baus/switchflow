@@ -1,6 +1,8 @@
 ## SwitchFlow HTTP Proxy
 
-SwitchFlow is an experimental HTTP reverse proxy in C++. I started the project in 2003 and was influenced by by Dan Kegel's 
+[View on GitHub](http://github.com/baus/switchflow)
+
+SwitchFlow is an experimental HTTP reverse proxy in C++. [I](http://baus.net/) started the project in 2003 and was influenced by by Dan Kegel's 
 [C10k](http://www.kegel.com/c10k.html) problem. Because of this the server is single threaded, event driven 
 and uses Niels Provos's [Libevent](http://libevent.org) for event aggregation.
 
