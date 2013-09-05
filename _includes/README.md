@@ -1,89 +1,84 @@
-# Jekyll Uptrend
+## SwitchFlow HTTP Proxy
 
-Fork this project on [GitHub](https://github.com/baus/jekyll-uptrend).
-See a [live example](http://baus.net/).
+SwitchFlow is an experimental HTTP reverse proxy in C++. I started the project in 2003 and was influenced by by Dan Kegel's 
+[C10k](http://www.kegel.com/c10k.html) problem. Because of this the server is single threaded, event driven 
+and uses Niels Provos's [Libevent](http://libevent.org) for event aggregation.
 
-Uptrend is a [Jekyll](http://jekyllrb.com/) theme which makes it easy to get a decent 
-looking personal Jekyll site up and running quickly. It works well with 
-[GitHub Pages](http://pages.github.com/). If you want to change providers, it is trivial 
-to move your data since it is all stored in a Git repo. 
+The project was shelved in 2007 after Nginx gained traction, but I recently cleaned up the tree and got the proxy building 
+on Ubuntu 12.04. 
 
-Uptrend started as a fork of Carlos Becker's [Up Theme](http://carlosbecker.com/posts/up-a-jekyll-theme/), which
-also uses ideas from [Jekyll Bootstrap](http://jekyllbootstrap.com/), but has deviated fairly significantly and 
-mostly shares some common typographical elements. 
+It can be used to configure virtual hosts and send requests to multiple origin servers. 
 
-While the theme uses [Bootstrap 3](https://github.com/twbs/bootstrap/) under the covers, I 
-have attempted to make it not look bootstrappy. For an example of the theme in action, see [my website](http://baus.net). 
+### Quick build guide
 
-## Installation
-
-If you have [Jekyll installed](http://jekyllrb.com/docs/installation/), it is fairly easy to get Uptrend running.
-
-First clone the repo, and test out the basic theme locally:
-
-```
-git clone git@github.com:baus/jekyll-uptrend.git
-cd jekyll-uptrend
-jekyll serve
+```sh
+# Install dependencies
+sudo apt-get install libevent-dev libboost-all-dev cmake build-essential
+# run script to configure build environment using cmake
+source ./configbuild.sh
+# build the proxy
+cd release/sfrp
+make
 ```
 
-Edit _config.yml. Some of the information in the author section is used by the resume template. 
-
-There are two static pages that you should modify (/about and /resume). The contents of these pages is specified
-in [Markdown](http://daringfireball.net/projects/markdown/), unlike most Jekyll templates which specify static 
-files in pure HTML. The trick is they are processed as includes, and hence they are in the _includes directory. 
-
-The /resume page is not linked from the main navigation, but you can give this link out to anyone you want to share it 
-with. The layout used on the page is a little more friendly for printing. 
-
-After updating _config.yml, 
-
-### Creating Posts
-
-To add posts, you need to create a directory called _posts. In it you have to create post files with names of the following form:
+### Configuring the proxy
+The proxy uses a simple key/value pair configuration file. The configuration file also supports records and arrays of values. 
+It is new line delimited. An example configuration file included in the tree at /sfrp/app/sfrp.conf.example.
 
 ```
-2012-06-28-a-new-post.md 
+# Directs the proxy to detach from the console and run as a daemon
+proxy.run-as-daemon=no
+
+# This is the address the proxy will listen on
+proxy.listen-address[0].address=127.0.0.1
+proxy.listen-address[0].port=8080
+
+# This is the address the proxy will forward requests to
+# by default.
+proxy.default-forward-address.address=204.232.175.78
+proxy.default-forward-address.port=80
+
+# Enable apache combined style access logging.
+access-log.enable=yes
+access-log.location=/var/log/sfrp_access_log_stage
+
+# The following shows how to describe virtual hosts
+
+# host-name is the value sent by the client in the host HTTP header.
+virtual-host[0].host-name=localhost:8080
+
+# This is the URL to send requests which match the example.com host
+# to.  The specified URL path is prepended to incoming requests' paths.
+virtual-host[0].default-forward-url=http://baus.net
+
+# This tells the proxy to send the request's host to server, rather than
+# replace the host with server's host.  In this case 127.0.0.1 will
+# receive a host of example.com.  In other cases it might be useful
+# to pass the name 
+virtual-host[0].preserve-host=false
+
+
+# The following are used to performance tune
+# the HTTP parser's memory usage.  You probably
+# don't need to change these unless you have
+# specific requirements.
+http-parser.max-method-length=256
+http-parser.max-URI-length=512
+http-parser.max-num-headers=50
+http-parser.max-header-name-length=256
+http-parser.max-header-value-length=512
+http-parser.header-pool-size=75000
+proxy.input-buffer-size=2000
+
+#
+# The user name to switch to after starting the proxy and binding to
+# server socket.
+proxy.user=baus
+
+#
+# The following configure the proxy's connection
+# handling.
+proxy.client-timeout-milliseconds=30000
+proxy.server-timeout-milliseconds=10000
+proxy.max-connections=1000
 ```
-
-The file name must start with the date in the above format, and then a slug for the post followed by dashes.
-
-The post file itself should look contain [YAML front-matter](http://jekyllrb.com/docs/frontmatter/) in the following form:
-
-```
----
-layout: layout
-title: Post title here.
----
-```
-
-The body of the post should follow and should be in Markdown format.
-
-The posts can be added to repo with the following git command:
-
-```
-git add 2012-06-28-a-new-post.md 
-git commit -m "added post."
-```
-
-
-### Deploy to GitHub pages
-
-To deploy to GitHub pages, you simply need to push the repo to a [specially named repo](https://help.github.com/articles/user-organization-and-project-pages) on GitHub.
-
-
-```
-
-```
-
-### Using your own domain
-
-If you are planning on using your own domain name with GitHub pages, then add the domain name
-to the CNAME file. 
-
-## Notes
-
-Up and Jekyll Bootstrap include a Rakefile for handling some tasks such as creating new posts. I decided to omit
-those from this release, primarily because getting all the dependencies working properly is a bit tricky, and they
-aren't needed to get up and running. A similar mechanism maybe re-introduced in a future release.
-
