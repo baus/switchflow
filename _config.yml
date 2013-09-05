@@ -1,3 +1,10 @@
-name: Your New Jekyll Site
+# Github uses redcarpet internally, we will use it here
 markdown: redcarpet
+redcarpet:
+  extensions: ["smart"]
 pygments: true
+permalink: /posts/:title
+title: Jekyll Uptrend Theme
+# Note leave off trailing/
+production_url : http://switchflow.org
+description: SwitchFlow C++ HTTP Reverse Proxy
