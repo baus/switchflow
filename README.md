@@ -75,7 +75,7 @@ proxy.input-buffer-size=2000
 #
 # The user name to switch to after starting the proxy and binding to
 # server socket.
-proxy.user=baus
+proxy.user=nobody
 
 #
 # The following configure the proxy's connection
